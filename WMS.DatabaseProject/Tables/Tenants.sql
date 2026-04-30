@@ -1,0 +1,11 @@
+﻿CREATE TABLE [dbo].[Tenants] (
+    [Id] INT IDENTITY(1,1) NOT NULL,
+    [Code] NVARCHAR(20) NOT NULL,
+    [Name] NVARCHAR(200) NOT NULL,
+    [IsActive] BIT NOT NULL CONSTRAINT [DF_Tenants_IsActive] DEFAULT (1),
+    [CreatedAtUtc] DATETIME2 NOT NULL CONSTRAINT [DF_Tenants_CreatedAtUtc] DEFAULT (SYSUTCDATETIME()),
+    [CreatedByUserId] INT NULL,
+    
+    CONSTRAINT [PK_Tenants] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [UQ_Tenants_Code] UNIQUE NONCLUSTERED ([Code] ASC)
+);

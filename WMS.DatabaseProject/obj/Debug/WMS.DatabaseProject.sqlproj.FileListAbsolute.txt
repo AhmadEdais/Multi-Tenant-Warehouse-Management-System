@@ -1,0 +1,6 @@
+C:\Vs\WMS\WMS.DatabaseProject\bin\Debug\WMS.DatabaseProject.dacpac
+C:\Vs\WMS\WMS.DatabaseProject\bin\Debug\WMS.DatabaseProject.dll
+C:\Vs\WMS\WMS.DatabaseProject\bin\Debug\WMS.DatabaseProject.pdb
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.sqlproj.AssemblyReference.cache
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.dll
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.pdb

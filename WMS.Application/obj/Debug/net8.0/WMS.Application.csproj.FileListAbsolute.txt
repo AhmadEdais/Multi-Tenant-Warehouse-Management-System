@@ -1,0 +1,15 @@
+C:\Vs\WMS\WMS.Application\bin\Debug\net8.0\WMS.Application.deps.json
+C:\Vs\WMS\WMS.Application\bin\Debug\net8.0\WMS.Application.dll
+C:\Vs\WMS\WMS.Application\bin\Debug\net8.0\WMS.Application.pdb
+C:\Vs\WMS\WMS.Application\bin\Debug\net8.0\WMS.Domain.dll
+C:\Vs\WMS\WMS.Application\bin\Debug\net8.0\WMS.Domain.pdb
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.csproj.AssemblyReference.cache
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.AssemblyInfoInputs.cache
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.AssemblyInfo.cs
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.csproj.CoreCompileInputs.cache
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Appl.21886158.Up2Date
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.dll
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\refint\WMS.Application.dll
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\WMS.Application.pdb
+C:\Vs\WMS\WMS.Application\obj\Debug\net8.0\ref\WMS.Application.dll

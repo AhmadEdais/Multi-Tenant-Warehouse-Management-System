@@ -1,0 +1,17 @@
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Infrastructure.deps.json
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Infrastructure.dll
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Infrastructure.pdb
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Application.dll
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Domain.dll
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Application.pdb
+C:\Vs\WMS\WMS.Infrastructure\bin\Debug\net8.0\WMS.Domain.pdb
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.csproj.AssemblyReference.cache
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.AssemblyInfoInputs.cache
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.AssemblyInfo.cs
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infr.677E6FEF.Up2Date
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.dll
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\refint\WMS.Infrastructure.dll
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\WMS.Infrastructure.pdb
+C:\Vs\WMS\WMS.Infrastructure\obj\Debug\net8.0\ref\WMS.Infrastructure.dll
