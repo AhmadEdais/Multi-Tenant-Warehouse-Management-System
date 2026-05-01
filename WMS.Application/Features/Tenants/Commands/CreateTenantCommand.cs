@@ -1,13 +1,8 @@
 ﻿namespace WMS.Application.Features.Tenants.Commands;
 
-public class CreateTenantCommand : IRequest<int>
-{
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-}
+public record CreateTenantCommand(string Code, string Name) : IRequest<int>;
 
-
-internal class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
+public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
 {
     public CreateTenantCommandValidator()
     {
@@ -21,7 +16,7 @@ internal class CreateTenantCommandValidator : AbstractValidator<CreateTenantComm
     }
 }
 
-internal class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, int>
+internal sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, int>
 {
     private readonly IWmsDbContext _context;
     private readonly ICurrentUserService _currentUser;
@@ -35,6 +30,13 @@ internal class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand,
     public async Task<int> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
         int? userId = _currentUser.IsAuthenticated ? _currentUser.UserId : null;
+        var code = await _context.Tenants
+            .Where(t => t.Code == request.Code)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (code != null)
+        {
+            throw new ConflictException($"Tenant Code '{request.Code}' already exists.");
+        }
         var tenant =  Tenant.Create(request.Code, request.Name, userId);
         _context.Tenants.Add(tenant);
         await _context.SaveChangesAsync(cancellationToken);

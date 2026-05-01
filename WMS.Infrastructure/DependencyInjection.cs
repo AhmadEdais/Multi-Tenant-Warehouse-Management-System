@@ -11,7 +11,8 @@ public static class DependencyInjection
         services.AddScoped<IWmsDbContext>(provider => provider.GetRequiredService<WmsDbContext>());
         services.AddScoped<ITenantContext, DevTenantContext>();
         services.AddScoped<ICurrentUserService, DevCurrentUserService>();
-
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtProvider, JwtProvider>();
         return services;
     }
 }

@@ -1,0 +1,27 @@
+﻿** Highlights
+     Tables that will be recreated with data migrated
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [dbo].[Roles] (Table)
+       [dbo].[UserRoles] (Table)
+       [dbo].[Users] (Table)
+       [dbo].[DF_UserRoles_AssignedAtUtc] (Default Constraint)
+       [dbo].[DF_Users_IsActive] (Default Constraint)
+       [dbo].[DF_Users_CreatedAtUtc] (Default Constraint)
+       [dbo].[FK_UserRoles_Users] (Foreign Key)
+       [dbo].[FK_UserRoles_Roles] (Foreign Key)
+       [dbo].[FK_UserRoles_AssignedByUsers] (Foreign Key)
+       [dbo].[FK_Users_Tenants] (Foreign Key)
+
+** Supporting actions
+
+The project and target databases have different collation settings. Deployment errors might occur.
+

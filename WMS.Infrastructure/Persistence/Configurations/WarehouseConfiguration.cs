@@ -1,6 +1,6 @@
 ﻿namespace WMS.Infrastructure.Persistence.Configurations;
 
-public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
+public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 {
     public void Configure(EntityTypeBuilder<Warehouse> builder)
     {

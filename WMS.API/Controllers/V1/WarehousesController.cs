@@ -1,5 +1,8 @@
-﻿namespace WMS.API.Controllers.V1
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace WMS.API.Controllers.V1
 {
+    [Authorize(Roles = "SystemAdmin, TenantAdmin")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class WarehousesController : ControllerBase
@@ -33,8 +36,8 @@
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetWarehouseById([FromRoute] int id)
         {
-            var query = new GetWarehouseByIdQuery { Id = id };
-            var warehouse = await _mediator.Send(query);
+
+            var warehouse = await _mediator.Send(new GetWarehouseByIdQuery(id));
 
             return Ok(warehouse);
         }
@@ -45,9 +48,8 @@
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateWarehouse([FromRoute] int id, [FromBody] UpdateWarehouseCommand command)
         {
-            command.Id = id;
-           
-            await _mediator.Send(command);
+            var commandWithId = command with { Id = id };
+            await _mediator.Send(commandWithId);
             return NoContent();
         }
         [HttpPost("{id}/deactivate")]
@@ -56,8 +58,7 @@
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeactivateWarehouse([FromRoute] int id)
         {
-            var command = new DeactivateWarehouseCommand { Id = id };
-            await _mediator.Send(command);
+            await _mediator.Send(new DeactivateWarehouseCommand(id));
             return NoContent();
         }
     }

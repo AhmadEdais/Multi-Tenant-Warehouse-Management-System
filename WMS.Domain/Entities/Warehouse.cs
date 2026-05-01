@@ -2,7 +2,7 @@
 
 namespace WMS.Domain.Entities;
 
-public class Warehouse : IMustBelongToTenant
+public  class Warehouse : IMustBelongToTenant
 {
     public int Id { get; private set; }
     public int TenantId { get; private set; }

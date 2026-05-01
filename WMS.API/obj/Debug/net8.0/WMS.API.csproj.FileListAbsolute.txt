@@ -84,3 +84,6 @@ C:\Vs\WMS\WMS.API\obj\Debug\net8.0\refint\WMS.API.dll
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.pdb
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.genruntimeconfig.cache
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\ref\WMS.API.dll
+C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.sourcelink.json
+C:\Vs\WMS\WMS.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

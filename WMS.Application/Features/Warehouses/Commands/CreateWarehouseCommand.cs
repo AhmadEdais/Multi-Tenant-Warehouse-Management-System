@@ -1,12 +1,7 @@
 ﻿namespace WMS.Application.Features.Warehouses.Commands
 {
-    public class CreateWarehouseCommand : IRequest<int>
-    {
-        public string Code { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string? Address { get; set; }
-    }
-    internal class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouseCommand>
+    public record CreateWarehouseCommand(string Code, string Name, string? Address) : IRequest<int>;
+    public sealed  class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouseCommand>
     {
         private readonly IWmsDbContext _context;
         public CreateWarehouseCommandValidator(IWmsDbContext context) 
@@ -25,7 +20,7 @@
         }
 
     }
-    internal class  CreateWarehouseCommandHandler : IRequestHandler<CreateWarehouseCommand,int>
+    internal sealed class  CreateWarehouseCommandHandler : IRequestHandler<CreateWarehouseCommand,int>
     {
         private readonly IWmsDbContext _context;
         private readonly ITenantContext _tenantContext;

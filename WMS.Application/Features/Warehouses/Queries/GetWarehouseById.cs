@@ -1,26 +1,22 @@
 ﻿namespace WMS.Application.Features.Warehouses.Queries
 {
-    public class WarehouseDto
-    {
-    public int Id { get; set; }
-    public string? Code { get; set; }
-    public string? Name { get; set; }
-    public string? Address { get; set; }
-    public DateTime CreatedAtUtc { get; set; }
-    }
-    public class GetWarehouseByIdQuery : IRequest<WarehouseDto>
-    {
-        public int Id { get; set; }
-    }
-    internal class GetWarehouseByIdQueryValidator : AbstractValidator<GetWarehouseByIdQuery>
+    public record WarehouseDto(
+         int Id,
+         string? Code,
+         string? Name,
+         string? Address,
+         DateTime CreatedAtUtc
+    );
+    public record GetWarehouseByIdQuery(int Id) : IRequest<WarehouseDto>;
+    public sealed class GetWarehouseByIdQueryValidator : AbstractValidator<GetWarehouseByIdQuery>
     {
         public  GetWarehouseByIdQueryValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Id must be positive integer");
         }
     }
-     public class GetWarehouseByIdQueryHandler : IRequestHandler<GetWarehouseByIdQuery, WarehouseDto> 
-    {
+     public  sealed class GetWarehouseByIdQueryHandler : IRequestHandler<GetWarehouseByIdQuery, WarehouseDto> 
+     {
         private readonly IWmsDbContext _context;
         private readonly ITenantContext _tenantContext;
         public GetWarehouseByIdQueryHandler(IWmsDbContext context, ITenantContext tenantContext)
@@ -34,13 +30,13 @@
             var warehouse = await _context.Warehouses
                 .Where(w => w.TenantId == tenantId && w.Id == request.Id)
                 .Select(w => new WarehouseDto
-                {
-                    Id = w.Id,
-                    Code = w.Code,
-                    Name = w.Name,
-                    Address = w.Address,
-                    CreatedAtUtc = w.CreatedAtUtc
-                })
+                (
+                     w.Id,
+                    w.Code,
+                    w.Name,
+                    w.Address,
+                    w.CreatedAtUtc
+                ))
                 .FirstOrDefaultAsync(cancellationToken);
             return warehouse ?? throw new NotFoundException($"Warehouse with ID {request.Id} not found.");
         }

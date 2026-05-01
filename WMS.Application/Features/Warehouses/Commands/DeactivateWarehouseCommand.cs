@@ -1,17 +1,14 @@
 ﻿namespace WMS.Application.Features.Warehouses.Commands
 {
-    public class DeactivateWarehouseCommand : IRequest
-    {
-        public int Id { get; set; }
-    }
-    internal class DeactivateWarehouseCommandValidator : AbstractValidator<DeactivateWarehouseCommand>
+    public record DeactivateWarehouseCommand(int Id) : IRequest;
+    public sealed class DeactivateWarehouseCommandValidator : AbstractValidator<DeactivateWarehouseCommand>
     {
         public DeactivateWarehouseCommandValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Warehouse Id must be greater than 0.");
         }
     }
-    internal class DeactivateWarehouseCommandHandler : IRequestHandler<DeactivateWarehouseCommand>
+    internal sealed class DeactivateWarehouseCommandHandler : IRequestHandler<DeactivateWarehouseCommand>
     {
         private readonly IWmsDbContext _dbContext;
         private readonly ITenantContext _tenantContext;

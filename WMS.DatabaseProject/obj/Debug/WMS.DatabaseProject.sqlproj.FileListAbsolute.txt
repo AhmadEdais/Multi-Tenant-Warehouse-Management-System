@@ -4,3 +4,7 @@ C:\Vs\WMS\WMS.DatabaseProject\bin\Debug\WMS.DatabaseProject.pdb
 C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.sqlproj.AssemblyReference.cache
 C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.dll
 C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\WMS.DatabaseProject.pdb
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\Model.xml
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\refactor.xml
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\postdeploy.sql
+C:\Vs\WMS\WMS.DatabaseProject\obj\Debug\predeploy.sql

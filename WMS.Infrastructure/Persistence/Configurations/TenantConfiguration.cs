@@ -1,6 +1,6 @@
 ﻿namespace WMS.Infrastructure.Persistence.Configurations;
 
-public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
+public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {

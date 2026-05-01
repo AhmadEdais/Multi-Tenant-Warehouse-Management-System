@@ -61,5 +61,11 @@
   <ItemGroup>
     <Build Include="Tables\Tenants.sql" />
     <Build Include="Tables\Warehouses.sql" />
+    <Build Include="Tables\Users.sql" />
+    <Build Include="Tables\Roles.sql" />
+    <Build Include="Tables\UserRoles.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 ﻿namespace WMS.Domain.Entities;
 
-public class Tenant
+public  class Tenant
 {
     public int Id { get;private set; }
     public string Code { get; private set; } = string.Empty;

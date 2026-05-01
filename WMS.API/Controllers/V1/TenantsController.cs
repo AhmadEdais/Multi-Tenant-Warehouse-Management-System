@@ -1,4 +1,6 @@
-﻿namespace WMS.API.Controllers.V1;
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace WMS.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
@@ -10,7 +12,7 @@ public class TenantsController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    [Authorize(Roles = "SystemAdmin")]
     [HttpPost]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

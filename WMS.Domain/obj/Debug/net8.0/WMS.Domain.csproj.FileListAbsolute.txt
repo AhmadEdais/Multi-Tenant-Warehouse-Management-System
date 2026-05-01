@@ -9,3 +9,4 @@ C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\WMS.Domain.dll
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\refint\WMS.Domain.dll
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\WMS.Domain.pdb
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\ref\WMS.Domain.dll
+C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\WMS.Domain.sourcelink.json
