@@ -11,33 +11,23 @@ internal sealed class AssignRoleCommandValidator : AbstractValidator<AssignRoleC
     }
 }
 
-internal sealed class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand>
+internal sealed class AssignRoleCommandHandler(
+    IWmsDbContext context,
+    ICurrentUserService currentUserService) : IRequestHandler<AssignRoleCommand>
 {
-    private readonly IWmsDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly ITenantContext _tenantContext; 
-
-    public AssignRoleCommandHandler(
-        IWmsDbContext context,
-        ICurrentUserService currentUserService,
-        ITenantContext tenantContext) 
-    {
-        _context = context;
-        _currentUserService = currentUserService;
-        _tenantContext = tenantContext;
-    }
+    private readonly IWmsDbContext _context = context;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
+   
 
     public async Task Handle(AssignRoleCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContext.TenantId;
         var currentAdminId = _currentUserService.UserId; 
 
         var targetUser = await _context.Users
             .Include(u => u.UserRoles)
-            .Where(u => u.Id == request.TargetUserId && u.TenantId == tenantId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (targetUser == null) throw new NotFoundException("User not found.");
+            .Where(u => u.Id == request.TargetUserId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException("User not found.");
 
         var roleExists = await _context.Roles.AnyAsync(r => r.Id == request.RoleId, cancellationToken);
         if (!roleExists) throw new NotFoundException("Role not found.");

@@ -5,13 +5,13 @@ namespace WMS.Domain.Entities;
 public  class Warehouse : IMustBelongToTenant
 {
     public int Id { get; private set; }
-    public int TenantId { get; private set; }
+    public int TenantId { get;  set; }
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string? Address { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
-    public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
+    public byte[] RowVersion { get; private set; } = [];
 
     public virtual Tenant? Tenant { get; private set; }
 

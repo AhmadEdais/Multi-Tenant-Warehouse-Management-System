@@ -15,20 +15,14 @@
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Id must be positive integer");
         }
     }
-     public  sealed class GetWarehouseByIdQueryHandler : IRequestHandler<GetWarehouseByIdQuery, WarehouseDto> 
+     public  sealed class GetWarehouseByIdQueryHandler(IWmsDbContext context) : IRequestHandler<GetWarehouseByIdQuery, WarehouseDto> 
      {
-        private readonly IWmsDbContext _context;
-        private readonly ITenantContext _tenantContext;
-        public GetWarehouseByIdQueryHandler(IWmsDbContext context, ITenantContext tenantContext)
-        {
-            _context = context;
-            _tenantContext = tenantContext;
-        }
+        private readonly IWmsDbContext _context = context;
+
         public async Task<WarehouseDto> Handle(GetWarehouseByIdQuery  request, CancellationToken cancellationToken)
         {
-            var tenantId = _tenantContext.TenantId;
             var warehouse = await _context.Warehouses
-                .Where(w => w.TenantId == tenantId && w.Id == request.Id)
+                .Where(w => w.Id == request.Id)
                 .Select(w => new WarehouseDto
                 (
                      w.Id,

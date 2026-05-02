@@ -11,35 +11,25 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
     }
 }
 
-internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, string>
+internal sealed class LoginCommandHandler(
+    IWmsDbContext context,
+    IPasswordHasher passwordHasher,
+    IJwtProvider jwtProvider) : IRequestHandler<LoginCommand, string>
 {
-    private readonly IWmsDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtProvider _jwtProvider;
-    private readonly ITenantContext _tenantContext;
-
-    public LoginCommandHandler(
-        IWmsDbContext context,
-        IPasswordHasher passwordHasher,
-        IJwtProvider jwtProvider,
-        ITenantContext tenantContext)
-    {
-        _context = context;
-        _passwordHasher = passwordHasher;
-        _jwtProvider = jwtProvider;
-        _tenantContext = tenantContext;
-    }
+    private readonly IWmsDbContext _context = context;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly IJwtProvider _jwtProvider = jwtProvider;
 
     public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContext.TenantId;
 
         var user = await _context.Users
+            .IgnoreQueryFilters()
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Email == request.Email && u.TenantId == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
-        if (user == null || !_passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
+        if (user == null || !user.IsActive || !_passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {
             throw new UnauthorizedException("Invalid email or password.");
         }

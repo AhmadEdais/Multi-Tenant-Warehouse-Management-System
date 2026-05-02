@@ -15,22 +15,14 @@ namespace WMS.Application.Features.Warehouses.Commands
             RuleFor(x => x.Address).MaximumLength(500);
         }
     }
-    internal sealed class UpdateWarehouseCommandHandler : IRequestHandler<UpdateWarehouseCommand>
+    internal sealed class UpdateWarehouseCommandHandler(IWmsDbContext context) : IRequestHandler<UpdateWarehouseCommand>
     {
-        private readonly IWmsDbContext _context;
-        private readonly ITenantContext _tenantContext;
-
-        public UpdateWarehouseCommandHandler(IWmsDbContext context, ITenantContext tenantContext)
-        {
-            _context = context;
-            _tenantContext = tenantContext;
-        }
+        private readonly IWmsDbContext _context = context;
 
         public async Task Handle(UpdateWarehouseCommand request, CancellationToken cancellationToken)
         {
-            var tenantId = _tenantContext.TenantId;
             var warehouse = await _context.Warehouses
-                .Where(w => w.TenantId == tenantId && w.Id == request.Id)
+                .Where(w => w.Id == request.Id)
                 .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException($"Warehouse with ID {request.Id} not found.");
             warehouse.Update(request.Name, request.Address);

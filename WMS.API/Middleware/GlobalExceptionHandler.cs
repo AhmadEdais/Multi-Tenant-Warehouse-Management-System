@@ -5,14 +5,9 @@ using WMS.Application.Common.Exceptions;
 
 namespace WMS.API.Middleware;
 
-public class GlobalExceptionHandler : IExceptionHandler
+public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-    private readonly ILogger<GlobalExceptionHandler> _logger;
-
-    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<GlobalExceptionHandler> _logger = logger;
 
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -56,7 +51,14 @@ public class GlobalExceptionHandler : IExceptionHandler
                     Detail = notFoundException.Message
                 };
                 break;
-
+            case UnauthorizedAccessException unauthorizedException :
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Unauthorized",
+                    Detail = unauthorizedException.Message
+                };
+                break;
             default:
                 
                 problemDetails = new ProblemDetails

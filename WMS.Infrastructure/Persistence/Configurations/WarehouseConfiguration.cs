@@ -1,4 +1,6 @@
-﻿namespace WMS.Infrastructure.Persistence.Configurations;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace WMS.Infrastructure.Persistence.Configurations;
 
 public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 {
@@ -48,5 +50,6 @@ public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
                .IsClustered(false); // Optional: EF Core assumes false for unique indexes
 
         builder.HasQueryFilter(w => w.IsActive);
+
     }
 }

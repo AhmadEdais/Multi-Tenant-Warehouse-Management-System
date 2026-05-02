@@ -2,17 +2,13 @@
 
 namespace WMS.API.Controllers.V1
 {
-    [Authorize(Roles = "SystemAdmin, TenantAdmin")]
+    [Authorize(Roles = "SystemAdmin,TenantAdmin")]
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class WarehousesController : ControllerBase
+    public class WarehousesController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IMediator _mediator = mediator;
 
-        public WarehousesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
         [HttpPost]
         [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

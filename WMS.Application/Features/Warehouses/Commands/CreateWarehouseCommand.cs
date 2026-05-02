@@ -20,28 +20,28 @@
         }
 
     }
-    internal sealed class  CreateWarehouseCommandHandler : IRequestHandler<CreateWarehouseCommand,int>
+    internal sealed class  CreateWarehouseCommandHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<CreateWarehouseCommand,int>
     {
-        private readonly IWmsDbContext _context;
-        private readonly ITenantContext _tenantContext;
+        private readonly IWmsDbContext _context = context;
+        private readonly ITenantContext _tenantContext = tenantContext;
 
-        public CreateWarehouseCommandHandler(IWmsDbContext context, ITenantContext tenantContext)
-        {
-            _context = context;
-            _tenantContext = tenantContext;
-
-        }
         public async Task<int> Handle(CreateWarehouseCommand request, CancellationToken cancellationToken)
         {
             var tenantId = _tenantContext.TenantId;
+            if(!tenantId.HasValue)
+            {
+                throw new UnauthorizedAccessException("You must be logged into a specific tenant workspace to create a warehouse.");
+            }
+
             var exists = await _context.Warehouses
-            .AnyAsync(w => w.TenantId == tenantId && w.Code == request.Code, cancellationToken);
+                .IgnoreQueryFilters()
+                .AnyAsync(w => w.TenantId == tenantId && w.Code == request.Code, cancellationToken);
 
             if (exists)
             {
                 throw new ConflictException($"A warehouse with code '{request.Code}' already exists for this tenant.");
             }
-            var warehouse =  Warehouse.Create(tenantId, request.Code, request.Name, request.Address);
+            var warehouse =  Warehouse.Create(tenantId.Value, request.Code, request.Name, request.Address);
             
             _context.Warehouses.Add(warehouse);
             await _context.SaveChangesAsync(cancellationToken);

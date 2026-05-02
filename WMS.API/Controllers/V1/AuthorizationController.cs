@@ -4,13 +4,10 @@ namespace WMS.API.Controllers.V1
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class AuthorizationController : ControllerBase
+    public class AuthorizationController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        public AuthorizationController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
+
         [HttpPost("register")]
         [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

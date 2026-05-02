@@ -2,5 +2,5 @@
 
 public interface IMustBelongToTenant
 {
-    int TenantId { get; }
+    int TenantId { get; set; }
 }

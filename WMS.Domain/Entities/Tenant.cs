@@ -8,7 +8,7 @@ public  class Tenant
     public bool IsActive { get; private set; } = true;
     public DateTime CreatedAtUtc { get; private set; }
     public int? CreatedByUserId { get; private set; }
-    public virtual ICollection<Warehouse> Warehouses { get; private set; } = new List<Warehouse>();
+    public virtual ICollection<Warehouse> Warehouses { get; private set; } = [];
     
     private Tenant() { }
 

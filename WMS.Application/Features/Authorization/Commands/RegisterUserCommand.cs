@@ -16,17 +16,12 @@
                 .MaximumLength(200).WithMessage("Full Name cannot exceed 200 characters.");
         }
     }
-    internal sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
+    internal sealed class RegisterUserCommandHandler(IWmsDbContext context, IPasswordHasher passwordHasher, ITenantContext tenantContext) : IRequestHandler<RegisterUserCommand, int>
     {
-        private readonly IWmsDbContext _context;
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly ITenantContext _tenantContext;
-        public RegisterUserCommandHandler(IWmsDbContext context, IPasswordHasher passwordHasher, ITenantContext tenantContext)
-        {
-            _context = context;
-            _passwordHasher = passwordHasher;
-           _tenantContext = tenantContext;
-        }
+        private readonly IWmsDbContext _context = context;
+        private readonly IPasswordHasher _passwordHasher = passwordHasher;
+        private readonly ITenantContext _tenantContext = tenantContext;
+
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
             int? currentTenantId = _tenantContext.TenantId;

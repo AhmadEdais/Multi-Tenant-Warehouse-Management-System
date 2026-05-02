@@ -4,7 +4,6 @@ global using WMS.Domain.Entities;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using WMS.Application.Common.Interfaces;
-global using WMS.Infrastructure.Identity;
 global using WMS.Infrastructure.Persistence.Contexts;
 global using WMS.Infrastructure.Security;
 global using System.IdentityModel.Tokens.Jwt;
@@ -12,3 +11,9 @@ global using System.Security.Claims;
 global using System.Text;
 global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.EntityFrameworkCore.Diagnostics;
+global using WMS.Domain.Interfaces;
+global using Microsoft.AspNetCore.Http;
+global using WMS.Infrastructure.Persistence.Interceptors;
+global using WMS.Infrastructure.Services;
+

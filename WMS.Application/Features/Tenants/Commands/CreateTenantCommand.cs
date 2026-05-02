@@ -16,16 +16,10 @@ public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenan
     }
 }
 
-internal sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, int>
+internal sealed class CreateTenantCommandHandler(IWmsDbContext context, ICurrentUserService currentUser) : IRequestHandler<CreateTenantCommand, int>
 {
-    private readonly IWmsDbContext _context;
-    private readonly ICurrentUserService _currentUser;
-
-    public CreateTenantCommandHandler(IWmsDbContext context, ICurrentUserService currentUser)
-    {
-        _context = context;
-        _currentUser = currentUser;
-    }
+    private readonly IWmsDbContext _context = context;
+    private readonly ICurrentUserService _currentUser = currentUser;
 
     public async Task<int> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {

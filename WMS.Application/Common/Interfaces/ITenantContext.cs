@@ -2,6 +2,6 @@
 
 public interface ITenantContext
 {
-    int TenantId { get; }
+    int? TenantId { get; }
     bool IsSystemRequest { get; }
 }

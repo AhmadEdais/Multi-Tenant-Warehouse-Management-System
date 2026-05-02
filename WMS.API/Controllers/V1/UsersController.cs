@@ -4,14 +4,11 @@ namespace WMS.API.Controllers.V1
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        public UsersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-        [Authorize(Roles = "SystemAdmin, TenantAdmin")] 
+        private readonly IMediator _mediator = mediator;
+
+        [Authorize(Roles = "SystemAdmin,TenantAdmin")] 
         [HttpPost("{userId}/roles")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,6 +33,17 @@ namespace WMS.API.Controllers.V1
             var userProfile = await _mediator.Send(query);
 
             return Ok(userProfile);
+        }
+        [Authorize(Roles = "SystemAdmin")] 
+        [HttpPut("{userId}/tenant")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AssignUserToTenant(int userId, [FromBody] AssignUserToTenantDto dto)
+        {
+            var command = new AssignUserToTenantCommand(userId, dto.TenantId);
+            await _mediator.Send(command);
+            return NoContent();
         }
     }
 }

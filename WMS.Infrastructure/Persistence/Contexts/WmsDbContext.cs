@@ -1,10 +1,10 @@
-﻿namespace WMS.Infrastructure.Persistence.Contexts;
+﻿using WMS.Application.Common.Interfaces;
 
-public class WmsDbContext : DbContext , IWmsDbContext
+namespace WMS.Infrastructure.Persistence.Contexts;
+
+public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext tenantContext) : DbContext(options) , IWmsDbContext
 {
-    public WmsDbContext(DbContextOptions<WmsDbContext> options) : base(options)
-    {
-    }
+    private readonly ITenantContext _tenantContext = tenantContext;
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
@@ -19,5 +19,14 @@ public class WmsDbContext : DbContext , IWmsDbContext
 
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(WmsDbContext).Assembly);
+
+        var tenantId = _tenantContext.TenantId;
+        var isSystemRequest = _tenantContext.IsSystemRequest;
+
+         modelBuilder.Entity<Warehouse>()
+            .HasQueryFilter(w => _tenantContext.IsSystemRequest || w.TenantId == _tenantContext.TenantId);
+
+         modelBuilder.Entity<User>()
+            .HasQueryFilter(u => _tenantContext.IsSystemRequest || u.TenantId == _tenantContext.TenantId);;
     }
 }

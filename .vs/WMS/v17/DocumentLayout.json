@@ -1,7 +1,120 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Vs\\WMS\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|c:\\vs\\wms\\wms.api\\controllers\\v1\\warehousescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|solutionrelative:wms.api\\controllers\\v1\\warehousescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\warehouses\\commands\\createwarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\warehouses\\commands\\createwarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\persistence\\interceptors\\tenantstampinginterceptor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\persistence\\interceptors\\tenantstampinginterceptor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|c:\\vs\\wms\\wms.domain\\entities\\warehouse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|solutionrelative:wms.domain\\entities\\warehouse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\persistence\\contexts\\wmsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\persistence\\contexts\\wmsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\services\\httptenantcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\services\\httptenantcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|c:\\vs\\wms\\wms.api\\controllers\\v1\\authorizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|solutionrelative:wms.api\\controllers\\v1\\authorizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|c:\\vs\\wms\\wms.api\\controllers\\v1\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|solutionrelative:wms.api\\controllers\\v1\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|c:\\vs\\wms\\wms.api\\middleware\\globalexceptionhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|solutionrelative:wms.api\\middleware\\globalexceptionhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\users\\commands\\assignrolecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\users\\commands\\assignrolecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\services\\httpcurrentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\services\\httpcurrentuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\authorization\\commands\\logincommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\authorization\\commands\\logincommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\users\\commands\\assignusertotenantcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\users\\commands\\assignusertotenantcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|c:\\vs\\wms\\wms.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|solutionrelative:wms.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|c:\\vs\\wms\\wms.domain\\entities\\tenant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|solutionrelative:wms.domain\\entities\\tenant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\persistence\\configurations\\warehouseconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\persistence\\configurations\\warehouseconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|c:\\vs\\wms\\wms.api\\controllers\\v1\\tenantscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA0738FC-C1B5-4850-B3CC-28822B52813A}|WMS.API\\WMS.API.csproj|solutionrelative:wms.api\\controllers\\v1\\tenantscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\tenants\\commands\\createtenantcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\tenants\\commands\\createtenantcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\warehouses\\commands\\deactivatewarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\warehouses\\commands\\deactivatewarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\warehouses\\commands\\updatewarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\warehouses\\commands\\updatewarehousecommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\warehouses\\queries\\getwarehousebyid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\warehouses\\queries\\getwarehousebyid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\warehouses\\queries\\listwarehousesquery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\warehouses\\queries\\listwarehousesquery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\common\\interfaces\\itenantcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\common\\interfaces\\itenantcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\globalusings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\globalusings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|c:\\vs\\wms\\wms.application\\features\\authorization\\commands\\registerusercommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4683C637-B10C-42F5-A27D-AD73198CA9E3}|WMS.Application\\WMS.Application.csproj|solutionrelative:wms.application\\features\\authorization\\commands\\registerusercommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|c:\\vs\\wms\\wms.infrastructure\\wms.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{FE67505B-FB06-4650-B786-583C33A54EEE}|WMS.Infrastructure\\WMS.Infrastructure.csproj|solutionrelative:wms.infrastructure\\wms.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|c:\\vs\\wms\\wms.domain\\interfaces\\imustbelongtotenant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{137FEDC9-F8E5-4724-B5C4-9836BD117B56}|WMS.Domain\\WMS.Domain.csproj|solutionrelative:wms.domain\\interfaces\\imustbelongtotenant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +122,22 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "WmsDbContext.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Contexts\\WmsDbContext.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\Persistence\\Contexts\\WmsDbContext.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Contexts\\WmsDbContext.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\Persistence\\Contexts\\WmsDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAABiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:30:31.395Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
@@ -18,6 +145,357 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DependencyInjection.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\DependencyInjection.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\DependencyInjection.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\DependencyInjection.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\DependencyInjection.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAzwBIAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:31:50.289Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TenantStampingInterceptor.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Interceptors\\TenantStampingInterceptor.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\Persistence\\Interceptors\\TenantStampingInterceptor.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Interceptors\\TenantStampingInterceptor.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\Persistence\\Interceptors\\TenantStampingInterceptor.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA1wBAAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:04:22.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CreateWarehouseCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\CreateWarehouseCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Warehouses\\Commands\\CreateWarehouseCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\CreateWarehouseCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Warehouses\\Commands\\CreateWarehouseCommand.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAswDAAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:37:38.352Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Warehouse.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\Warehouse.cs",
+              "RelativeDocumentMoniker": "WMS.Domain\\Entities\\Warehouse.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\Warehouse.cs",
+              "RelativeToolTip": "WMS.Domain\\Entities\\Warehouse.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA3wB4AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:37:57.298Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WarehousesController.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\WarehousesController.cs",
+              "RelativeDocumentMoniker": "WMS.API\\Controllers\\V1\\WarehousesController.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\WarehousesController.cs",
+              "RelativeToolTip": "WMS.API\\Controllers\\V1\\WarehousesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwA4AAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T13:38:29.453Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "HttpTenantContext.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\Services\\HttpTenantContext.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\Services\\HttpTenantContext.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\Services\\HttpTenantContext.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\Services\\HttpTenantContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T18:50:27.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AuthorizationController.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\AuthorizationController.cs",
+              "RelativeDocumentMoniker": "WMS.API\\Controllers\\V1\\AuthorizationController.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\AuthorizationController.cs",
+              "RelativeToolTip": "WMS.API\\Controllers\\V1\\AuthorizationController.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAAwBkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:52:12.468Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\UsersController.cs",
+              "RelativeDocumentMoniker": "WMS.API\\Controllers\\V1\\UsersController.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\UsersController.cs",
+              "RelativeToolTip": "WMS.API\\Controllers\\V1\\UsersController.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAkwBIAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:54:47.847Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "GlobalExceptionHandler.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.API\\Middleware\\GlobalExceptionHandler.cs",
+              "RelativeDocumentMoniker": "WMS.API\\Middleware\\GlobalExceptionHandler.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.API\\Middleware\\GlobalExceptionHandler.cs",
+              "RelativeToolTip": "WMS.API\\Middleware\\GlobalExceptionHandler.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAswEwAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:46:13.972Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AssignRoleCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Users\\Commands\\AssignRoleCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Users\\Commands\\AssignRoleCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Users\\Commands\\AssignRoleCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Users\\Commands\\AssignRoleCommand.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAgwBkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T12:19:05.754Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "HttpCurrentUserService.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\Services\\HttpCurrentUserService.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\Services\\HttpCurrentUserService.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\Services\\HttpCurrentUserService.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\Services\\HttpCurrentUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:39:15.616Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "LoginCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Authorization\\Commands\\LoginCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Authorization\\Commands\\LoginCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Authorization\\Commands\\LoginCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Authorization\\Commands\\LoginCommand.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAgwCEAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:16:44.083Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AssignUserToTenantCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Users\\Commands\\AssignUserToTenantCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Users\\Commands\\AssignUserToTenantCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Users\\Commands\\AssignUserToTenantCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Users\\Commands\\AssignUserToTenantCommand.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAowCgAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T15:06:37.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\User.cs",
+              "RelativeDocumentMoniker": "WMS.Domain\\Entities\\User.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\User.cs",
+              "RelativeToolTip": "WMS.Domain\\Entities\\User.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAqwDoAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T13:32:54.66Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Tenant.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\Tenant.cs",
+              "RelativeDocumentMoniker": "WMS.Domain\\Entities\\Tenant.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Domain\\Entities\\Tenant.cs",
+              "RelativeToolTip": "WMS.Domain\\Entities\\Tenant.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAIA9wAoAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T15:05:38.751Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "WarehouseConfiguration.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Configurations\\WarehouseConfiguration.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\Persistence\\Configurations\\WarehouseConfiguration.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\Persistence\\Configurations\\WarehouseConfiguration.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\Persistence\\Configurations\\WarehouseConfiguration.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAQwDUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:29:04.38Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "TenantsController.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\TenantsController.cs",
+              "RelativeDocumentMoniker": "WMS.API\\Controllers\\V1\\TenantsController.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.API\\Controllers\\V1\\TenantsController.cs",
+              "RelativeToolTip": "WMS.API\\Controllers\\V1\\TenantsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:54:47.863Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "DeactivateWarehouseCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\DeactivateWarehouseCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Warehouses\\Commands\\DeactivateWarehouseCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\DeactivateWarehouseCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Warehouses\\Commands\\DeactivateWarehouseCommand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T12:15:35.437Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "CreateTenantCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Tenants\\Commands\\CreateTenantCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Tenants\\Commands\\CreateTenantCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Tenants\\Commands\\CreateTenantCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Tenants\\Commands\\CreateTenantCommand.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAewBkAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:34:31.393Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "UpdateWarehouseCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\UpdateWarehouseCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Warehouses\\Commands\\UpdateWarehouseCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Commands\\UpdateWarehouseCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Warehouses\\Commands\\UpdateWarehouseCommand.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAWwBMAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T12:11:38.602Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "GetWarehouseById.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Queries\\GetWarehouseById.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Warehouses\\Queries\\GetWarehouseById.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Queries\\GetWarehouseById.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Warehouses\\Queries\\GetWarehouseById.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAgwBQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T12:12:36.946Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "ListWarehousesQuery.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Queries\\ListWarehousesQuery.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Warehouses\\Queries\\ListWarehousesQuery.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Warehouses\\Queries\\ListWarehousesQuery.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Warehouses\\Queries\\ListWarehousesQuery.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAxwA4AAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T12:09:18.325Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "ITenantContext.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Common\\Interfaces\\ITenantContext.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Common\\Interfaces\\ITenantContext.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Common\\Interfaces\\ITenantContext.cs",
+              "RelativeToolTip": "WMS.Application\\Common\\Interfaces\\ITenantContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAIAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:12:31.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "GlobalUsings.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\GlobalUsings.cs",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\GlobalUsings.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\GlobalUsings.cs",
+              "RelativeToolTip": "WMS.Infrastructure\\GlobalUsings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:05:25.45Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "RegisterUserCommand.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Application\\Features\\Authorization\\Commands\\RegisterUserCommand.cs",
+              "RelativeDocumentMoniker": "WMS.Application\\Features\\Authorization\\Commands\\RegisterUserCommand.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Application\\Features\\Authorization\\Commands\\RegisterUserCommand.cs",
+              "RelativeToolTip": "WMS.Application\\Features\\Authorization\\Commands\\RegisterUserCommand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T20:00:46.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "WMS.Infrastructure",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "WMS.Infrastructure\\WMS.Infrastructure.csproj",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
+              "RelativeToolTip": "WMS.Infrastructure\\WMS.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-01T19:43:45.993Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "IMustBelongToTenant.cs",
+              "DocumentMoniker": "C:\\Vs\\WMS\\WMS.Domain\\Interfaces\\IMustBelongToTenant.cs",
+              "RelativeDocumentMoniker": "WMS.Domain\\Interfaces\\IMustBelongToTenant.cs",
+              "ToolTip": "C:\\Vs\\WMS\\WMS.Domain\\Interfaces\\IMustBelongToTenant.cs",
+              "RelativeToolTip": "WMS.Domain\\Interfaces\\IMustBelongToTenant.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAIAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T19:27:23.829Z",
+              "EditorCaption": ""
             }
           ]
         }
