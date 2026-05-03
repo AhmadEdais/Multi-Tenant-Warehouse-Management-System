@@ -18,6 +18,7 @@ global using WMS.Domain.Constants;
 global using WMS.Application.Features.Products.Commands;
 global using WMS.Application.Common.Models;
 global using WMS.Application.Features.Categories.Queries;
+global using WMS.Application.Features.Locations.Commands;
 
 
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
-using WMS.Application.Common.Interfaces;
 
 namespace WMS.Infrastructure.Persistence.Contexts;
 
@@ -16,6 +15,7 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+    public DbSet<Location> Locations => Set<Location>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

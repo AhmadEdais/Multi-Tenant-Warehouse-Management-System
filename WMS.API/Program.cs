@@ -13,7 +13,13 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(SecurityPolicies.CanManageCategories, policy =>
         policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanViewCatalog, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst));
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
+    .AddPolicy(SecurityPolicies.CanManageLocations, policy =>
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+    .AddPolicy(SecurityPolicies.CanViewLocationsTree, policy =>
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
+    .AddPolicy(SecurityPolicies.CanDeactivateLocations, policy =>
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager));
 
 
 builder.Services.AddSwaggerGen(c =>

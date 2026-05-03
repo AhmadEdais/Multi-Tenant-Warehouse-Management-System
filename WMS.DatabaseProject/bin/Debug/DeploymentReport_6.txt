@@ -1,0 +1,22 @@
+﻿** Highlights
+     Tables that will be recreated with data migrated
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [dbo].[Locations] (Table)
+       [dbo].[DF_Locations_IsActive] (Default Constraint)
+       [dbo].[FK_Locations_Tenants] (Foreign Key)
+       [dbo].[FK_Locations_Warehouses] (Foreign Key)
+       [dbo].[FK_Locations_ParentLocation] (Foreign Key)
+
+** Supporting actions
+
+The project and target databases have different collation settings. Deployment errors might occur.
+

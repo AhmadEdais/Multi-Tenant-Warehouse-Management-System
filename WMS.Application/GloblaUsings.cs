@@ -8,4 +8,5 @@ global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
 global using WMS.Application.Common.Behaviors;
 global using WMS.Application.Common.Models;
+global using WMS.Application.Common.Extensions;
 

@@ -1,15 +1,18 @@
-﻿namespace WMS.Application.Features.Categories.Queries;
+﻿using System.Text.Json.Serialization;
+
+namespace WMS.Application.Features.Categories.Queries;
 
 public record GetCategoryTreeQuery() : IRequest<List<CategoryTreeDto>>;
-public class CategoryTreeDto
+public class CategoryTreeDto : ITreeNode<CategoryTreeDto>
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int? ParentCategoryId { get; set; }
     public int Level { get; set; }
-
-    // This is where we will nest the children in C#
     public List<CategoryTreeDto> Children { get; set; } = [];
+    [JsonIgnore]
+    public int? ParentId => ParentCategoryId;       
+
 }
 internal class GetCategoryTreeQueryHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<GetCategoryTreeQuery, List<CategoryTreeDto>>
 {
@@ -41,26 +44,6 @@ internal class GetCategoryTreeQueryHandler(IWmsDbContext context, ITenantContext
                 FROM CategoryTreeHierarchy
                 ORDER BY Level, Name"
             ).ToListAsync(cancellationToken);
-        return BuildTree(flatCategories);
-    }
-    private static List<CategoryTreeDto> BuildTree(List<CategoryTreeDto> flatCategories)
-    {
-        var lookup = flatCategories.ToDictionary(c => c.Id);
-        var rootCategories = new List<CategoryTreeDto>();
-        foreach (var category in flatCategories)
-        {
-            if (category.ParentCategoryId.HasValue)
-            {
-                if (lookup.TryGetValue(category.ParentCategoryId.Value, out var parent))
-                {
-                    parent.Children.Add(category);
-                }
-            }
-            else
-            {
-                rootCategories.Add(category);
-            }
-        }
-        return rootCategories;
+        return flatCategories.BuildTree();
     }
 }

@@ -12,7 +12,7 @@ public interface IWmsDbContext
     DbSet<Category> Categories { get; }
     DbSet<Product> Products { get; }
     DbSet<ProductCategory> ProductCategories { get; }
-
+    DbSet<Location> Locations { get; }
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
