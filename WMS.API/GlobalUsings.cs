@@ -12,3 +12,12 @@ global using Microsoft.IdentityModel.Tokens;
 global using System.Text;
 global using Microsoft.AspNetCore.Authorization;
 global using WMS.Application.Features.Users.Commands;
+global using WMS.Application.Features.Authorization.Commands;
+global using WMS.Application.Features.Categories.Commands;
+global using WMS.Domain.Constants;
+global using WMS.Application.Features.Products.Commands;
+global using WMS.Application.Common.Models;
+global using WMS.Application.Features.Categories.Queries;
+
+
+

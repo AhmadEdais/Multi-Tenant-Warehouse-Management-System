@@ -1,6 +1,4 @@
-﻿using WMS.Application.Features.Authorization.Commands;
-
-namespace WMS.API.Controllers.V1
+﻿namespace WMS.API.Controllers.V1
 {
     [Route("api/v1/[controller]")]
     [ApiController]

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace WMS.API.Controllers.V1
+﻿namespace WMS.API.Controllers.V1
 {
     [Authorize(Roles = "SystemAdmin,TenantAdmin")]
     [Route("api/v1/[controller]")]
@@ -19,7 +17,10 @@ namespace WMS.API.Controllers.V1
             return Created("", new { Id = warehouseId });
         }
         [HttpGet]
-        [ProducesResponseType(typeof(List<WarehouseListDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<WarehouseListDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetWarehouses([FromQuery] ListWarehousesQuery query)
         {

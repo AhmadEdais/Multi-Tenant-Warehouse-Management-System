@@ -1,4 +1,6 @@
-﻿using WMS.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
+using WMS.Application.Common.Interfaces;
 
 namespace WMS.Infrastructure.Persistence.Contexts;
 
@@ -11,6 +13,9 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole > UserRoles => Set<UserRole>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -19,14 +24,24 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
 
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(WmsDbContext).Assembly);
-
-        var tenantId = _tenantContext.TenantId;
-        var isSystemRequest = _tenantContext.IsSystemRequest;
-
-         modelBuilder.Entity<Warehouse>()
-            .HasQueryFilter(w => _tenantContext.IsSystemRequest || w.TenantId == _tenantContext.TenantId);
-
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(IMustBelongToTenant).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasQueryFilter(ConvertFilterExpression<IMustBelongToTenant>(
+                        e => e.TenantId == _tenantContext.TenantId || _tenantContext.IsSystemRequest,
+                        entityType.ClrType));
+            }
+        }
          modelBuilder.Entity<User>()
-            .HasQueryFilter(u => _tenantContext.IsSystemRequest || u.TenantId == _tenantContext.TenantId);;
+            .HasQueryFilter(u => _tenantContext.IsSystemRequest || u.TenantId == _tenantContext.TenantId); // doesn't belong to IMustBelongToTenant, but we want to filter it as well
+    }
+    private static LambdaExpression ConvertFilterExpression<TInterface>(
+    Expression<Func<TInterface, bool>> filterExpression, Type entityType)
+    {
+        var newParam = Expression.Parameter(entityType);
+        var newBody = ReplacingExpressionVisitor.Replace(filterExpression.Parameters.Single(), newParam, filterExpression.Body);
+        return Expression.Lambda(newBody, newParam);
     }
 }

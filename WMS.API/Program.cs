@@ -9,6 +9,13 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
 
 
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(SecurityPolicies.CanManageCategories, policy =>
+        policy.RequireRole(Roles.TenantAdmin))
+    .AddPolicy(SecurityPolicies.CanViewCatalog, policy =>
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst));
+
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -22,8 +29,8 @@ builder.Services.AddSwaggerGen(c =>
     {
         Description = "Enter your JWT token. No need to add 'Bearer' prefix.",
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",             // lowercase is the OpenAPI standard
-        BearerFormat = "JWT"           // purely informational label in Swagger UI
+        Scheme = "bearer",             
+        BearerFormat = "JWT"           
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -36,8 +43,8 @@ builder.Services.AddSwaggerGen(c =>
                   Type = ReferenceType.SecurityScheme,
                   Id = "Bearer"
               },
-              Scheme = "bearer",   // add this
-              Name = "Bearer",     // add this
+              Scheme = "bearer",   
+              Name = "Bearer",     
               In = ParameterLocation.Header
           },
           Array.Empty<string>()
@@ -48,7 +55,6 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtSett
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings.GetValue<string>("Secret");
 
-// 2. Add Authentication Services
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -65,7 +71,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
         ValidAudience = jwtSettings.GetValue<string>("Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
-        ClockSkew = TimeSpan.Zero // Tokens expire exactly when they are supposed to
+        ClockSkew = TimeSpan.Zero 
     };
 });
 builder.Services.AddAuthorization();

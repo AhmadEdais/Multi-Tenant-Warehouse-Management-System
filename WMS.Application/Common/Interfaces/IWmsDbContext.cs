@@ -1,4 +1,6 @@
-﻿namespace WMS.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+
+namespace WMS.Application.Common.Interfaces;
 
 public interface IWmsDbContext
 {
@@ -7,6 +9,11 @@ public interface IWmsDbContext
     DbSet<User> Users { get; }
     DbSet<Role> Roles { get; }
     DbSet<UserRole> UserRoles { get; }
+    DbSet<Category> Categories { get; }
+    DbSet<Product> Products { get; }
+    DbSet<ProductCategory> ProductCategories { get; }
+
+    DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
