@@ -6,11 +6,9 @@
     
    internal sealed class ListWarehousesQueryHandler(IWmsDbContext context) : IRequestHandler<ListWarehousesQuery, PagedResult<WarehouseListDto>>
    {
-        private readonly IWmsDbContext _context = context;
-
         public async Task<PagedResult<WarehouseListDto>> Handle(ListWarehousesQuery request, CancellationToken cancellationToken)
         {
-            var warehouses = await _context.Warehouses
+            var warehouses = await context.Warehouses
                 .AsNoTracking()
                 .OrderBy(w => w.Name)
                 .Skip((request.PageNumber - 1) * request.PageSize)
@@ -24,7 +22,7 @@
                     w.CreatedAtUtc
                 ))
                 .ToListAsync(cancellationToken);
-            var totalItems = await _context.Warehouses.CountAsync(cancellationToken);
+            var totalItems = await context.Warehouses.CountAsync(cancellationToken);
             return new PagedResult<WarehouseListDto>(warehouses, totalItems, request.PageNumber, request.PageSize);
         }
     }

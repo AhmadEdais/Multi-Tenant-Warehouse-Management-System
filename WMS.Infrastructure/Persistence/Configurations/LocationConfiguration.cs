@@ -37,5 +37,6 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .IsUnique()
             .HasDatabaseName("UQ_Locations_WarehouseId_Barcode")
             .HasFilter("[Barcode] IS NOT NULL");
+        builder.HasQueryFilter(x => x.IsActive);
     }
 }

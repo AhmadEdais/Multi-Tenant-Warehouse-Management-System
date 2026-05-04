@@ -18,19 +18,15 @@ public class UpdateLocationCommandValidator : AbstractValidator<UpdateLocationCo
 }
 internal class UpdateLocationCommandHandler(IWmsDbContext context) : IRequestHandler<UpdateLocationCommand>
 {
-    private readonly IWmsDbContext _context = context;
-
     public async Task Handle(UpdateLocationCommand request, CancellationToken cancellationToken)
     {
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken);
-
-        if (location == null)
-            throw new NotFoundException($"Location with ID {request.Id} not found.");
+        var location = await context.Locations
+            .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken)
+            ?? throw new NotFoundException($"Location with ID {request.Id} not found.");
 
         if (!string.IsNullOrWhiteSpace(request.Barcode))
         {
-            var barcodeExists = await _context.Locations
+            var barcodeExists = await context.Locations
                 .AnyAsync(l => l.WarehouseId == location.WarehouseId
                             && l.Barcode == request.Barcode
                             && l.Id != request.Id, cancellationToken);
@@ -43,6 +39,6 @@ internal class UpdateLocationCommandHandler(IWmsDbContext context) : IRequestHan
 
         location.Update(request.Name, request.Barcode, request.MaxWeightCapacityKg);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

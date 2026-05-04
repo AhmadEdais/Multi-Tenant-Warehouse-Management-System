@@ -18,13 +18,11 @@
     }
     internal class CreateCategoryCommandHandler(IWmsDbContext context) : IRequestHandler<CreateCategoryCommand, int>
     {
-        private readonly IWmsDbContext _context = context;
-
         public async Task<int> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             if (request.ParentCategoryId.HasValue)
             {
-                var existingParentCategory = await _context.Categories
+                var existingParentCategory = await context.Categories
                     .AnyAsync(c => c.Id == request.ParentCategoryId.Value, cancellationToken);
                 if (!existingParentCategory)
                 {
@@ -33,9 +31,9 @@
             }
             var category = Category.Create(request.Name, request.ParentCategoryId);
 
-            _context.Categories.Add(category);
+            context.Categories.Add(category);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
 
             return category.Id;
         }

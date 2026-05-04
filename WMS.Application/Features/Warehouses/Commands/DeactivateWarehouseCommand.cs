@@ -10,15 +10,13 @@
     }
     internal sealed class DeactivateWarehouseCommandHandler(IWmsDbContext dbContext) : IRequestHandler<DeactivateWarehouseCommand>
     {
-        private readonly IWmsDbContext _dbContext = dbContext;
-
         public async Task Handle(DeactivateWarehouseCommand request, CancellationToken cancellationToken)
         {
-            var warehouse = await _dbContext.Warehouses
-                .FirstOrDefaultAsync(w => w.Id == request.Id, cancellationToken)
+            var warehouse = await dbContext.Warehouses
+                .FindAsync([ request.Id,cancellationToken ], cancellationToken : cancellationToken)
                 ?? throw new NotFoundException($"Warehouse with Id {request.Id} not found.");
             warehouse.Deactivate();
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

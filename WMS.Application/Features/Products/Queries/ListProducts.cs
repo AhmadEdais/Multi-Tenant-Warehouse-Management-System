@@ -22,11 +22,9 @@ public class ListProductsQueryValidator : AbstractValidator<ListProductsQuery>
 }
 public class ListProductsQueryHandler(IWmsDbContext context) : IRequestHandler<ListProductsQuery, PagedResult<ProductDto>>
 {
-    private readonly IWmsDbContext _context = context;
-
     public async Task<PagedResult<ProductDto>> Handle(ListProductsQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Products.AsNoTracking();
+        var query = context.Products.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {

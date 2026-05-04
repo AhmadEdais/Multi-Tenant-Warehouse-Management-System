@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WMS.Application.Features.Locations.Queries;
+﻿namespace WMS.Application.Features.Locations.Queries;
 
 public record GetLocationTreeQuery(int WarehouseId) : IRequest<List<LocationTreeDto>>;
 public class LocationTreeDto : ITreeNode<LocationTreeDto>
@@ -20,14 +18,11 @@ public class LocationTreeDto : ITreeNode<LocationTreeDto>
 public class GetLocationTreeQueryHandler(IWmsDbContext context, ITenantContext tenantContext)
         : IRequestHandler<GetLocationTreeQuery, List<LocationTreeDto>>
 {
-    private readonly IWmsDbContext _context = context;
-    private readonly ITenantContext _tenantContext = tenantContext;
-
     public async Task<List<LocationTreeDto>> Handle(GetLocationTreeQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContext.TenantId;
+        var tenantId = tenantContext.TenantId;
 
-        var flatLocations = await _context.Database.SqlQuery<LocationTreeDto>($@"
+        var flatLocations = await context.Database.SqlQuery<LocationTreeDto>($@"
                 WITH LocationCTE AS
                 (
                     -- ANCHOR: Get root locations (Zones) for this specific warehouse

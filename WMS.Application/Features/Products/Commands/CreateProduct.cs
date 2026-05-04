@@ -34,12 +34,10 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
 }
 internal class CreateProductCommandHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<CreateProductCommand, int>
 {
-    private readonly IWmsDbContext _context = context;
-    private readonly ITenantContext _tenantContext = tenantContext;
     public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContext.TenantId;
-        var existingProduct = await _context.Products
+        var tenantId = tenantContext.TenantId;
+        var existingProduct = await context.Products
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(p => p.SKU == request.SKU && p.TenantId == tenantId, cancellationToken);
         if (existingProduct != null)
@@ -54,8 +52,8 @@ internal class CreateProductCommandHandler(IWmsDbContext context, ITenantContext
             request.UnitCost,
             request.UnitPrice,
             request.ReorderPoint);
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Products.Add(product);
+        await context.SaveChangesAsync(cancellationToken);
         return product.Id;
     }
 }

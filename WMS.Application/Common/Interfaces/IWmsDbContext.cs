@@ -13,6 +13,8 @@ public interface IWmsDbContext
     DbSet<Product> Products { get; }
     DbSet<ProductCategory> ProductCategories { get; }
     DbSet<Location> Locations { get; }
+    DbSet<Customer> Customers { get; }
+    DbSet<Supplier> Suppliers { get; }
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

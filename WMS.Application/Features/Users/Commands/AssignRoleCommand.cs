@@ -14,26 +14,22 @@ internal sealed class AssignRoleCommandValidator : AbstractValidator<AssignRoleC
 internal sealed class AssignRoleCommandHandler(
     IWmsDbContext context,
     ICurrentUserService currentUserService) : IRequestHandler<AssignRoleCommand>
-{
-    private readonly IWmsDbContext _context = context;
-    private readonly ICurrentUserService _currentUserService = currentUserService;
-   
-
+{ 
     public async Task Handle(AssignRoleCommand request, CancellationToken cancellationToken)
     {
-        var currentAdminId = _currentUserService.UserId; 
+        var currentAdminId = currentUserService.UserId; 
 
-        var targetUser = await _context.Users
+        var targetUser = await context.Users
             .Include(u => u.UserRoles)
             .Where(u => u.Id == request.TargetUserId)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException("User not found.");
 
-        var roleExists = await _context.Roles.AnyAsync(r => r.Id == request.RoleId, cancellationToken);
+        var roleExists = await context.Roles.AnyAsync(r => r.Id == request.RoleId, cancellationToken);
         if (!roleExists) throw new NotFoundException("Role not found.");
 
         targetUser.AssignRole(request.RoleId, currentAdminId);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

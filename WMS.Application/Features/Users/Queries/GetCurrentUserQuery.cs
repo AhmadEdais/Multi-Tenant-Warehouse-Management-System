@@ -4,22 +4,13 @@ public record CurrentUserDto(int Id, string Email, string FullName, List<string>
 
 public record GetCurrentUserQuery() : IRequest<CurrentUserDto>;
 
-internal sealed class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
+internal sealed class GetCurrentUserQueryHandler(IWmsDbContext context, ICurrentUserService currentUserService) : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
 {
-    private readonly IWmsDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
-
-    public GetCurrentUserQueryHandler(IWmsDbContext context, ICurrentUserService currentUserService)
-    {
-        _context = context;
-        _currentUserService = currentUserService;
-    }
-
     public async Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.UserId;
+        var userId = currentUserService.UserId;
 
-        var user = await _context.Users
+        var user = await context.Users
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
             .AsNoTracking()

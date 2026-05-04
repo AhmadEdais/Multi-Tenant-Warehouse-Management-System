@@ -5,8 +5,6 @@
 [Authorize]
 public class CategoriesController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender = sender;
-
     [HttpPost]
     [Authorize(Policy = SecurityPolicies.CanManageCategories)]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
@@ -16,7 +14,7 @@ public class CategoriesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command)
     {
-        var categoryId = await _sender.Send(command);
+        var categoryId = await sender.Send(command);
 
         return Created(string.Empty, new { Id = categoryId });
     }
@@ -29,7 +27,7 @@ public class CategoriesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ListCategories([FromQuery] ListCategoriesQuery query)
     {
-        var result = await _sender.Send(query);
+        var result = await sender.Send(query);
         return Ok(result);
     }
     [HttpGet("tree")]
@@ -41,7 +39,7 @@ public class CategoriesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCategoryTree([FromQuery] GetCategoryTreeQuery query)
     {
-        var result = await _sender.Send(query);
+        var result = await sender.Send(query);
         return Ok(result);
     }
 }

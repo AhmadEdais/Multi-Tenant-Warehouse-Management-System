@@ -17,10 +17,9 @@ public class ListCategoriesQueryValidator : AbstractValidator<ListCategoriesQuer
 }
 internal class ListCategoriesQueryHandler(IWmsDbContext context) : IRequestHandler<ListCategoriesQuery, PagedResult<CategoryDto>>
 {
-    private readonly IWmsDbContext _context = context;
     public async Task<PagedResult<CategoryDto>> Handle(ListCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Categories
+        var query = context.Categories
             .AsNoTracking();
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {

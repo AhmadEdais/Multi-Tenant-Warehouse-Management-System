@@ -18,15 +18,12 @@
     }
     internal sealed class RegisterUserCommandHandler(IWmsDbContext context, IPasswordHasher passwordHasher, ITenantContext tenantContext) : IRequestHandler<RegisterUserCommand, int>
     {
-        private readonly IWmsDbContext _context = context;
-        private readonly IPasswordHasher _passwordHasher = passwordHasher;
-        private readonly ITenantContext _tenantContext = tenantContext;
 
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            int? currentTenantId = _tenantContext.TenantId;
+            int? currentTenantId = tenantContext.TenantId;
 
-            bool userExists = await _context.Users
+            bool userExists = await context.Users
                 .AnyAsync(u => u.Email == request.Email && u.TenantId == currentTenantId, cancellationToken);
 
             if (userExists)
@@ -34,10 +31,10 @@
                 throw new ConflictException($"A user with the email '{request.Email}' already exists in this workspace.");
             }
 
-            string passwordHash = _passwordHasher.HashPassword(request.Password);
+            string passwordHash = passwordHasher.HashPassword(request.Password);
             var user = User.Create(currentTenantId, request.Email, passwordHash, request.FullName);
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync(cancellationToken);
+            context.Users.Add(user);
+            await context.SaveChangesAsync(cancellationToken);
             return user.Id;
         }
     }

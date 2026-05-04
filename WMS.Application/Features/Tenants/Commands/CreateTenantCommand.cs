@@ -18,13 +18,10 @@ public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenan
 
 internal sealed class CreateTenantCommandHandler(IWmsDbContext context, ICurrentUserService currentUser) : IRequestHandler<CreateTenantCommand, int>
 {
-    private readonly IWmsDbContext _context = context;
-    private readonly ICurrentUserService _currentUser = currentUser;
-
     public async Task<int> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
-        int? userId = _currentUser.IsAuthenticated ? _currentUser.UserId : null;
-        var code = await _context.Tenants
+        int? userId = currentUser.IsAuthenticated ? currentUser.UserId : null;
+        var code = await context.Tenants
             .Where(t => t.Code == request.Code)
             .FirstOrDefaultAsync(cancellationToken);
         if (code != null)
@@ -32,8 +29,8 @@ internal sealed class CreateTenantCommandHandler(IWmsDbContext context, ICurrent
             throw new ConflictException($"Tenant Code '{request.Code}' already exists.");
         }
         var tenant =  Tenant.Create(request.Code, request.Name, userId);
-        _context.Tenants.Add(tenant);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Tenants.Add(tenant);
+        await context.SaveChangesAsync(cancellationToken);
 
         return tenant.Id;
     }

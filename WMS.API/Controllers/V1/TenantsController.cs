@@ -4,10 +4,8 @@ namespace WMS.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class TenantsController(IMediator mediator) : ControllerBase
+public class TenantsController(ISender sender) : ControllerBase
 {
-    private readonly IMediator _mediator = mediator;
-
     [Authorize(Roles = "SystemAdmin")]
     [HttpPost]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
@@ -16,7 +14,7 @@ public class TenantsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> CreateTenant([FromBody] CreateTenantCommand command)
     {
 
-        var tenantId = await _mediator.Send(command);
+        var tenantId = await sender.Send(command);
 
         return Created("", new { Id = tenantId });
     }

@@ -68,6 +68,8 @@
     <Build Include="Tables\Products.sql" />
     <Build Include="Tables\ProductCategories.sql" />
     <Build Include="Tables\Locations.sql" />
+    <Build Include="Tables\Suppliers.sql" />
+    <Build Include="Tables\Customers.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

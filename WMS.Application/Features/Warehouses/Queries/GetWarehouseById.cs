@@ -17,11 +17,9 @@
     }
      public  sealed class GetWarehouseByIdQueryHandler(IWmsDbContext context) : IRequestHandler<GetWarehouseByIdQuery, WarehouseDto> 
      {
-        private readonly IWmsDbContext _context = context;
-
         public async Task<WarehouseDto> Handle(GetWarehouseByIdQuery  request, CancellationToken cancellationToken)
         {
-            var warehouse = await _context.Warehouses
+            var warehouse = await context.Warehouses
                 .Where(w => w.Id == request.Id)
                 .Select(w => new WarehouseDto
                 (

@@ -22,13 +22,11 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
 }   
 internal class CreateLocationCommandHandler(IWmsDbContext context) : IRequestHandler<CreateLocationCommand, int>
 {
-    private readonly IWmsDbContext _context = context;
-
     public async Task<int> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(request.Barcode))
         {
-            var barcodeExists = await _context.Locations
+            var barcodeExists = await context.Locations
             .AnyAsync(l => l.WarehouseId == request.WarehouseId && l.Barcode == request.Barcode, cancellationToken);
             if (barcodeExists)
             {
@@ -37,7 +35,7 @@ internal class CreateLocationCommandHandler(IWmsDbContext context) : IRequestHan
         }
         if (request.ParentLocationId.HasValue)
         {
-            var parentLocationExists = await _context.Locations
+            var parentLocationExists = await context.Locations
                 .AnyAsync(l => l.Id == request.ParentLocationId && l.WarehouseId == request.WarehouseId, cancellationToken);
             if (!parentLocationExists)
             {
@@ -51,8 +49,8 @@ internal class CreateLocationCommandHandler(IWmsDbContext context) : IRequestHan
             request.Name,
             request.Barcode,
             request.MaxWeightCapacityKg);
-        _context.Locations.Add(location);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Locations.Add(location);
+        await context.SaveChangesAsync(cancellationToken);
         return location.Id;
     }
 }

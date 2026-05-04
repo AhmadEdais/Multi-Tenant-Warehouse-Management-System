@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WMS.Application.Features.Categories.Queries;
+﻿namespace WMS.Application.Features.Categories.Queries;
 
 public record GetCategoryTreeQuery() : IRequest<List<CategoryTreeDto>>;
 public class CategoryTreeDto : ITreeNode<CategoryTreeDto>
@@ -16,12 +14,10 @@ public class CategoryTreeDto : ITreeNode<CategoryTreeDto>
 }
 internal class GetCategoryTreeQueryHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<GetCategoryTreeQuery, List<CategoryTreeDto>>
 {
-    private readonly IWmsDbContext _context = context;
-    private readonly ITenantContext _tenantContext = tenantContext;
     public async Task<List<CategoryTreeDto>> Handle(GetCategoryTreeQuery request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenantContext.TenantId;
-        var flatCategories = await _context.Database.SqlQuery<CategoryTreeDto>($@"
+        var tenantId = tenantContext.TenantId;
+        var flatCategories = await context.Database.SqlQuery<CategoryTreeDto>($@"
                 WITH CategoryTreeHierarchy AS
                 (
                     -- Anchor

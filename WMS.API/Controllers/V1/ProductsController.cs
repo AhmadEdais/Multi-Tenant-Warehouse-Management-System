@@ -6,7 +6,6 @@ namespace WMS.API.Controllers.V1;
 [ApiController]
 public class ProductsController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender = sender;
     [HttpPost]
     [Authorize(Policy = SecurityPolicies.CanManageCategories)]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
@@ -16,7 +15,7 @@ public class ProductsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
     {
-        var productId = await _sender.Send(command);
+        var productId = await sender.Send(command);
 
         return Created(string.Empty, new { Id = productId });
     }
@@ -32,7 +31,7 @@ public class ProductsController(ISender sender) : ControllerBase
     {
         var command = new AssignProductCategoriesCommand(id, categoryIds);
 
-        await _sender.Send(command);
+        await sender.Send(command);
 
         return NoContent(); 
     }
@@ -45,7 +44,7 @@ public class ProductsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ListProducts([FromQuery] ListProductsQuery query)
     {
-        var result = await _sender.Send(query);
+        var result = await sender.Send(query);
         return Ok(result);
     }
 }

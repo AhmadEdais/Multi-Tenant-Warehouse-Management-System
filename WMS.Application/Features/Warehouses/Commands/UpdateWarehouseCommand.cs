@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WMS.Application.Features.Warehouses.Commands
+﻿namespace WMS.Application.Features.Warehouses.Commands
 {
     public record UpdateWarehouseCommand(
     [property: JsonIgnore] int Id,
@@ -17,16 +15,14 @@ namespace WMS.Application.Features.Warehouses.Commands
     }
     internal sealed class UpdateWarehouseCommandHandler(IWmsDbContext context) : IRequestHandler<UpdateWarehouseCommand>
     {
-        private readonly IWmsDbContext _context = context;
-
         public async Task Handle(UpdateWarehouseCommand request, CancellationToken cancellationToken)
         {
-            var warehouse = await _context.Warehouses
+            var warehouse = await context.Warehouses
                 .Where(w => w.Id == request.Id)
                 .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException($"Warehouse with ID {request.Id} not found.");
             warehouse.Update(request.Name, request.Address);
-            await _context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
 
         }
     }

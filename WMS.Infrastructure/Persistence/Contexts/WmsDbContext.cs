@@ -16,6 +16,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
     public DbSet<Location> Locations => Set<Location>();
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

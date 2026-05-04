@@ -4,10 +4,8 @@ namespace WMS.API.Controllers.V1
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class UsersController(IMediator mediator) : ControllerBase
+    public class UsersController(ISender sender) : ControllerBase
     {
-        private readonly IMediator _mediator = mediator;
-
         [Authorize(Roles = "SystemAdmin,TenantAdmin")] 
         [HttpPost("{userId}/roles")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -19,7 +17,7 @@ namespace WMS.API.Controllers.V1
         {
 
             var command = new AssignRoleCommand(userId, dto.RoleId);
-            await _mediator.Send(command);
+            await sender.Send(command);
             return NoContent();
         }
         [Authorize]
@@ -30,7 +28,7 @@ namespace WMS.API.Controllers.V1
         public async Task<IActionResult> GetMe()
         {
             var query = new GetCurrentUserQuery();
-            var userProfile = await _mediator.Send(query);
+            var userProfile = await sender.Send(query);
 
             return Ok(userProfile);
         }
@@ -42,7 +40,7 @@ namespace WMS.API.Controllers.V1
         public async Task<IActionResult> AssignUserToTenant(int userId, [FromBody] AssignUserToTenantDto dto)
         {
             var command = new AssignUserToTenantCommand(userId, dto.TenantId);
-            await _mediator.Send(command);
+            await sender.Send(command);
             return NoContent();
         }
     }

@@ -8,10 +8,12 @@ C:\Vs\WMS\WMS.API\bin\Debug\net8.0\WMS.API.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\WMS.API.pdb
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Azure.Core.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Azure.Identity.dll
+C:\Vs\WMS\WMS.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\FluentValidation.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\MediatR.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\MediatR.Contracts.dll
+C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
 C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
@@ -69,6 +71,7 @@ C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.AssemblyInfo.cs
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.csproj.CoreCompileInputs.cache
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.MvcApplicationPartsAssemblyInfo.cs
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.sourcelink.json
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -84,6 +87,3 @@ C:\Vs\WMS\WMS.API\obj\Debug\net8.0\refint\WMS.API.dll
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.pdb
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.genruntimeconfig.cache
 C:\Vs\WMS\WMS.API\obj\Debug\net8.0\ref\WMS.API.dll
-C:\Vs\WMS\WMS.API\obj\Debug\net8.0\WMS.API.sourcelink.json
-C:\Vs\WMS\WMS.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
-C:\Vs\WMS\WMS.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

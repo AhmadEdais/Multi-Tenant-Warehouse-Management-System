@@ -7,7 +7,6 @@ namespace WMS.API.Controllers.V1;
 [Authorize]
 public class LocationsController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender = sender;
     [HttpPost]
     [Authorize(Policy =SecurityPolicies.CanManageLocations)]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
@@ -17,7 +16,7 @@ public class LocationsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateLocation([FromBody] CreateLocationCommand command)
     {
-        var locationId = await _sender.Send(command);
+        var locationId = await sender.Send(command);
         return Created("", new { Id = locationId });
     }
     [HttpGet("warehouse/{warehouseId}/tree")]
@@ -29,7 +28,7 @@ public class LocationsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLocationTree(int warehouseId)
     {
-        var result = await _sender.Send(new GetLocationTreeQuery(warehouseId));
+        var result = await sender.Send(new GetLocationTreeQuery(warehouseId));
         return Ok(result);
     }
     [HttpPut("Update/{id}")]
@@ -42,7 +41,7 @@ public class LocationsController(ISender sender) : ControllerBase
     public async Task<IActionResult> UpdateLocation(int id, [FromBody] UpdateLocationCommand command)
     {
         var commandWithId = command with { Id = id };
-        await _sender.Send(commandWithId);
+        await sender.Send(commandWithId);
         return NoContent();
     }
     [HttpPost("Deactivate/{id}")]
@@ -53,7 +52,7 @@ public class LocationsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeactivateLocation(int id)
     {
-        await _sender.Send(new DeactivateLocationCommand(id));
+        await sender.Send(new DeactivateLocationCommand(id));
         return NoContent();
     }
 
