@@ -49,5 +49,4 @@ The repository is organized by physical dependency layers:
 > **Ahmad Edais**
 > *Software Developer | Amman, Jordan*
 >
-> [LinkedIn](linkedin.com/in/ahmad-edais) • [Email](mailto:ahmad.edais.jo@gmail.com)
-
+> [LinkedIn](https://linkedin.com/in/ahmad-edais) • [Email](mailto:ahmad.edais.jo@gmail.com)
