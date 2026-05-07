@@ -18,7 +18,10 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
-
+    public DbSet<StockLevel> StockLevels => Set<StockLevel>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<PurchaseOrderLine> PurchaseOrderLines => Set<PurchaseOrderLine>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

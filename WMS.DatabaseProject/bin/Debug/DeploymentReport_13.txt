@@ -1,0 +1,30 @@
+﻿** Highlights
+     Tables that will be recreated with data migrated
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [dbo].[PurchaseOrderLines] (Table)
+       [dbo].[PurchaseOrders] (Table)
+       [dbo].[PurchaseOrders].[IX_PurchaseOrders_Supplier_Status] (Index)
+       Default Constraint: unnamed constraint on [dbo].[PurchaseOrderLines] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[PurchaseOrders] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[PurchaseOrders] (Default Constraint)
+       [dbo].[FK_PurchaseOrderLines_Tenants] (Foreign Key)
+       [dbo].[FK_PurchaseOrderLines_PurchaseOrders] (Foreign Key)
+       [dbo].[FK_PurchaseOrderLines_Products] (Foreign Key)
+       [dbo].[FK_PurchaseOrders_Tenants] (Foreign Key)
+       [dbo].[FK_PurchaseOrders_Suppliers] (Foreign Key)
+       [dbo].[CHK_POLines_ExpectedQuantity] (Check Constraint)
+       [dbo].[CHK_POLines_ReceivedQuantity] (Check Constraint)
+
+** Supporting actions
+
+The project and target databases have different collation settings. Deployment errors might occur.
+

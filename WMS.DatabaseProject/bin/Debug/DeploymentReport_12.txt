@@ -1,0 +1,45 @@
+﻿** Highlights
+     Tables that will be recreated with data migrated
+       [dbo].[Locations]
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Recreate table
+       [dbo].[Locations] (Table)
+     Create
+       [dbo].[StockLevels] (Table)
+       [dbo].[StockLevels].[IX_StockLevels_ProductId] (Index)
+       [dbo].[StockMovements] (Table)
+       [dbo].[StockMovements].[IX_StockMovements_ProductId_CreatedOn] (Index)
+       Default Constraint: unnamed constraint on [dbo].[StockLevels] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[StockLevels] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[StockLevels] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[StockMovements] (Default Constraint)
+       [dbo].[FK_StockLevels_Tenants] (Foreign Key)
+       [dbo].[FK_StockLevels_Products] (Foreign Key)
+       [dbo].[FK_StockLevels_Locations] (Foreign Key)
+       [dbo].[FK_StockMovements_Tenants] (Foreign Key)
+       [dbo].[FK_StockMovements_Products] (Foreign Key)
+       [dbo].[FK_StockMovements_Locations] (Foreign Key)
+       [dbo].[CHK_StockLevels_QuantityOnHand] (Check Constraint)
+       [dbo].[CHK_StockLevels_QuantityAllocated] (Check Constraint)
+
+** Supporting actions
+     Drop
+       [dbo].[DF_Locations_IsActive] (Default Constraint)
+       [dbo].[FK_Locations_Tenants] (Foreign Key)
+       [dbo].[FK_Locations_Warehouses] (Foreign Key)
+       [dbo].[FK_Locations_ParentLocation] (Foreign Key)
+     Create
+       [dbo].[Locations].[UQ_Locations_WarehouseId_Barcode] (Index)
+       [dbo].[FK_Locations_Tenants] (Foreign Key)
+       [dbo].[FK_Locations_Warehouses] (Foreign Key)
+       [dbo].[FK_Locations_ParentLocation] (Foreign Key)
+
+The project and target databases have different collation settings. Deployment errors might occur.
+

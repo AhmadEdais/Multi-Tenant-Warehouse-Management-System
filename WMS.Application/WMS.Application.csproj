@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Common\Mappings\" />
+    <Folder Include="Features\Inventory\Commands\" />
   </ItemGroup>
 
   <ItemGroup>

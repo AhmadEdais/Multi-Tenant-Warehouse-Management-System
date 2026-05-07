@@ -5,6 +5,7 @@
     [WarehouseId] INT NOT NULL,
     [ParentLocationId] INT NULL, -- The Self-Referencing Tree Pointer
     [LocationType] NVARCHAR(50) NOT NULL, -- e.g., 'Zone', 'Aisle', 'Rack', 'Shelf', 'Bin'
+    [LocationFunction] TINYINT NOT NULL DEFAULT 1, -- 1 = Storage, 2 = Dock, 3 = Dispatch
     [Name] NVARCHAR(100) NOT NULL, -- e.g., 'Aisle 5'
     [Barcode] NVARCHAR(100) NULL, -- Often only the lowest level (Bin) has a scannable barcode
     [MaxWeightCapacityKg] DECIMAL(18, 2) NULL,

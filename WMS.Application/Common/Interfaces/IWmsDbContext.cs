@@ -15,6 +15,10 @@ public interface IWmsDbContext
     DbSet<Location> Locations { get; }
     DbSet<Customer> Customers { get; }
     DbSet<Supplier> Suppliers { get; }
+    DbSet<StockLevel> StockLevels { get; }
+    DbSet<StockMovement> StockMovements { get; }
+    DbSet<PurchaseOrder> PurchaseOrders { get; }
+    DbSet<PurchaseOrderLine> PurchaseOrderLines { get; }
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

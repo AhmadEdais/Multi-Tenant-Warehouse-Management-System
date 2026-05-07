@@ -23,3 +23,5 @@ global using WMS.Application.Features.Suppliers.Commands;
 global using WMS.Application.Features.Suppliers.Queries;
 global using WMS.Application.Features.Customers.Commands;
 global using WMS.Application.Features.Customers.Queries;
+global using WMS.Application.Features.Inventory.Queries;
+global using WMS.Application.Features.Inbound.Commands;

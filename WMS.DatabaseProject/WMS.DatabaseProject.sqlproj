@@ -70,6 +70,10 @@
     <Build Include="Tables\Locations.sql" />
     <Build Include="Tables\Suppliers.sql" />
     <Build Include="Tables\Customers.sql" />
+    <Build Include="Tables\StockLevels.sql" />
+    <Build Include="Tables\StockMovements.sql" />
+    <Build Include="Tables\PurchaseOrders.sql" />
+    <Build Include="Tables\PurchaseOrderLines.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
