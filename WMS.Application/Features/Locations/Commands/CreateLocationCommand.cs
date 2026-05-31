@@ -4,6 +4,7 @@ public record CreateLocationCommand(
     int WarehouseId,
     int? ParentLocationId,
     string LocationType,
+    byte LocationFunction,
     string Name,
     string? Barcode,
     decimal? MaxWeightCapacityKg) : IRequest<int>;
@@ -15,6 +16,7 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
         RuleFor(x => x.WarehouseId).GreaterThan(0);
         RuleFor(x => x.ParentLocationId).GreaterThan(0).When(x => x.ParentLocationId.HasValue);
         RuleFor(x => x.LocationType).NotEmpty().MaximumLength(50);
+        RuleFor<int>(x => x.LocationFunction).GreaterThan(0).WithMessage("Location function must be a valid value.");
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Barcode).MaximumLength(100);
         RuleFor(x => x.MaxWeightCapacityKg).GreaterThanOrEqualTo(0);
@@ -46,6 +48,7 @@ internal class CreateLocationCommandHandler(IWmsDbContext context) : IRequestHan
             request.WarehouseId,
             request.ParentLocationId,
             request.LocationType,
+            (LocationFunction)request.LocationFunction,
             request.Name,
             request.Barcode,
             request.MaxWeightCapacityKg);

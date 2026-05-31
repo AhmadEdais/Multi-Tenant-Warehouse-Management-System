@@ -10,3 +10,15 @@ C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\WMS.Domain.dll
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\refint\WMS.Domain.dll
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\WMS.Domain.pdb
 C:\Vs\WMS\WMS.Domain\obj\Debug\net8.0\ref\WMS.Domain.dll
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\bin\Debug\net8.0\WMS.Domain.deps.json
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\bin\Debug\net8.0\WMS.Domain.dll
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\bin\Debug\net8.0\WMS.Domain.pdb
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.AssemblyInfoInputs.cache
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.AssemblyInfo.cs
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.csproj.CoreCompileInputs.cache
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.sourcelink.json
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.dll
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\refint\WMS.Domain.dll
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\WMS.Domain.pdb
+C:\Users\a.edais\source\repos\Multi-Tenant-Warehouse-Management-System\WMS.Domain\obj\Debug\net8.0\ref\WMS.Domain.dll

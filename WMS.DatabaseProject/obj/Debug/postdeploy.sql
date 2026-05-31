@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------------
 This file contains SQL statements that will be appended to the build script.
 --------------------------------------------------------------------------------------
-*/
+
 
 PRINT 'Seeding [dbo].[Roles]...';
 
@@ -34,4 +34,5 @@ WHEN NOT MATCHED BY TARGET THEN
     VALUES (Source.[UserId], Source.[RoleId], Source.[AssignedByUserId], Source.[AssignedAtUtc]);
 
 PRINT 'Finished seeding [dbo].[UserRoles].';
+*/
 GO

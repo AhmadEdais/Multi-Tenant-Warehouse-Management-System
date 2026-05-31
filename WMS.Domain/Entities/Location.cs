@@ -1,4 +1,5 @@
-﻿using WMS.Domain.Interfaces;
+﻿using WMS.Domain.Enums;
+using WMS.Domain.Interfaces;
 
 namespace WMS.Domain.Entities
 {
@@ -10,6 +11,7 @@ namespace WMS.Domain.Entities
         public int? ParentLocationId { get; private set; }
 
         public string LocationType { get; private set; } = string.Empty;
+        public LocationFunction LocationFunction { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string? Barcode { get; private set; }
 
@@ -28,6 +30,7 @@ namespace WMS.Domain.Entities
             int warehouseId,
             int? parentLocationId,
             string locationType,
+            LocationFunction locationFunction,
             string name,
             string? barcode,
             decimal? maxWeightCapacityKg)
@@ -37,6 +40,7 @@ namespace WMS.Domain.Entities
                 WarehouseId = warehouseId,
                 ParentLocationId = parentLocationId,
                 LocationType = locationType,
+                LocationFunction = locationFunction,
                 Name = name,
                 Barcode = barcode,
                 MaxWeightCapacityKg = maxWeightCapacityKg,

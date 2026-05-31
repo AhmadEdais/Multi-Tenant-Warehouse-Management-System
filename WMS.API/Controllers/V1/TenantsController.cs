@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace WMS.API.Controllers.V1;
+﻿namespace WMS.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 public class TenantsController(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SystemAdmin")]
+    [Authorize(Policy =SecurityPolicies.CanManageTenants)]
     [HttpPost]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

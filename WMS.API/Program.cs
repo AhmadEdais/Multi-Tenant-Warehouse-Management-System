@@ -10,6 +10,8 @@ builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>(
 
 
 builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(SecurityPolicies.CanManageTenants, policy =>
+        policy.RequireRole(Roles.SystemAdmin))
     .AddPolicy(SecurityPolicies.CanManageCategories, policy =>
         policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanViewCatalog, policy =>
@@ -33,7 +35,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(SecurityPolicies.CanViewInventorySummary, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
     .AddPolicy(SecurityPolicies.CanManageInbound, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager));
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+    .AddPolicy(SecurityPolicies.CanReceiveStock, policy =>
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator));
 
 
 builder.Services.AddSwaggerGen(c =>

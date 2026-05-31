@@ -78,4 +78,7 @@
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="WMS.DatabaseProject.publish.xml" />
+  </ItemGroup>
 </Project>

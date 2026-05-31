@@ -10,9 +10,9 @@
 
     -- Standard Audit Columns
     [CreatedOnUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    [CreatedBy] NVARCHAR(128) NOT NULL,
+    [CreatedBy] INT NOT NULL,
     [LastModifiedOnUtc] DATETIME2 NULL,
-    [LastModifiedBy] NVARCHAR(128) NULL,
+    [LastModifiedBy] INT NULL,
 
     CONSTRAINT [PK_PurchaseOrders] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_PurchaseOrders_Tenants] FOREIGN KEY ([TenantId]) REFERENCES [dbo].[Tenants]([Id]),

@@ -26,12 +26,14 @@ public class CreatePurchaseOrderCommandValidator : AbstractValidator<CreatePurch
             .WithMessage("A product can only appear once per Purchase Order."); ;
     }
 }
-internal sealed class CreatePurchaseOrderCommandHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<CreatePurchaseOrderCommand, int>
+internal sealed class CreatePurchaseOrderCommandHandler(IWmsDbContext context, ITenantContext tenantContext,ICurrentUserService currentUser) : IRequestHandler<CreatePurchaseOrderCommand, int>
 {
     public async Task<int> Handle(CreatePurchaseOrderCommand request, CancellationToken cancellationToken)
     {
         var tenantId = tenantContext.TenantId
             ?? throw new UnauthorizedException("Must be in a tenant context.");
+        var currentUserId = currentUser.UserId
+            ?? throw new UnauthorizedException("Current UserId could not found ");
         var supplierExists = await context.Suppliers
             .AnyAsync(s => s.Id == request.SupplierId, cancellationToken);
         if (!supplierExists)
@@ -49,7 +51,8 @@ internal sealed class CreatePurchaseOrderCommandHandler(IWmsDbContext context, I
             tenantId,
             request.SupplierId,
             request.OrderNumber,
-            request.ExpectedDeliveryDate);
+            request.ExpectedDeliveryDate,
+            currentUserId);
         foreach (var line in request.Lines)
         {
             purchaseOrder.AddLine(line.ProductId, line.ExpectedQuantity);

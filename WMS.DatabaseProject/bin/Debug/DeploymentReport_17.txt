@@ -1,0 +1,24 @@
+﻿** Highlights
+     Tables that will be recreated with data migrated
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       The type for column CreatedBy in table [dbo].[PurchaseOrders] is currently  NVARCHAR (128) NOT NULL but is being changed
+         to  INT NOT NULL. Data loss could occur and deployment may fail if the column contains data that is incompatible with
+         type  INT NOT NULL.
+       The type for column LastModifiedBy in table [dbo].[PurchaseOrders] is currently  NVARCHAR (128) NULL but is being
+         changed to  INT NULL. Data loss could occur and deployment may fail if the column contains data that is incompatible
+         with type  INT NULL.
+
+** User actions
+     Alter
+       [dbo].[PurchaseOrders] (Table)
+
+** Supporting actions
+
+The type for column CreatedBy in table [dbo].[PurchaseOrders] is currently  NVARCHAR (128) NOT NULL but is being changed to  INT NOT NULL. Data loss could occur and deployment may fail if the column contains data that is incompatible with type  INT NOT NULL.
+The type for column LastModifiedBy in table [dbo].[PurchaseOrders] is currently  NVARCHAR (128) NULL but is being changed to  INT NULL. Data loss could occur and deployment may fail if the column contains data that is incompatible with type  INT NULL.
+

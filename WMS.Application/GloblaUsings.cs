@@ -10,3 +10,4 @@ global using WMS.Application.Common.Behaviors;
 global using WMS.Application.Common.Models;
 global using WMS.Application.Common.Extensions;
 global using System.Text.Json.Serialization;
+global using WMS.Domain.Enums;

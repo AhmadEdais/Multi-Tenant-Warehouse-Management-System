@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Vs\\WMS\\WMS.API\\WMS.API.csproj": {}
+    "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.API\\WMS.API.csproj": {}
   },
   "projects": {
-    "C:\\Vs\\WMS\\WMS.API\\WMS.API.csproj": {
+    "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.API\\WMS.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Vs\\WMS\\WMS.API\\WMS.API.csproj",
+        "projectUniqueName": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.API\\WMS.API.csproj",
         "projectName": "WMS.API",
-        "projectPath": "C:\\Vs\\WMS\\WMS.API\\WMS.API.csproj",
-        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Vs\\WMS\\WMS.API\\obj\\",
+        "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.API\\WMS.API.csproj",
+        "packagesPath": "C:\\Users\\a.edais\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\a.edais\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,11 +32,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj": {
-                "projectPath": "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj"
+              "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj": {
+                "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj"
               },
-              "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj": {
-                "projectPath": "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj"
+              "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\WMS.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\WMS.Infrastructure.csproj"
               }
             }
           }
@@ -51,7 +51,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -85,24 +85,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj": {
+    "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj",
+        "projectUniqueName": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj",
         "projectName": "WMS.Application",
-        "projectPath": "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj",
-        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Vs\\WMS\\WMS.Application\\obj\\",
+        "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj",
+        "packagesPath": "C:\\Users\\a.edais\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\a.edais\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -117,8 +117,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj": {
-                "projectPath": "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj"
+              "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj": {
+                "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj"
               }
             }
           }
@@ -133,7 +133,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -172,24 +172,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj": {
+    "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj",
         "projectName": "WMS.Domain",
-        "projectPath": "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj",
-        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Vs\\WMS\\WMS.Domain\\obj\\",
+        "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj",
+        "packagesPath": "C:\\Users\\a.edais\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\a.edais\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -216,7 +216,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -237,24 +237,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj": {
+    "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\WMS.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
         "projectName": "WMS.Infrastructure",
-        "projectPath": "C:\\Vs\\WMS\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Vs\\WMS\\WMS.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\WMS.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\a.edais\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\a.edais\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -269,11 +269,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj": {
-                "projectPath": "C:\\Vs\\WMS\\WMS.Application\\WMS.Application.csproj"
+              "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj": {
+                "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Application\\WMS.Application.csproj"
               },
-              "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj": {
-                "projectPath": "C:\\Vs\\WMS\\WMS.Domain\\WMS.Domain.csproj"
+              "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj": {
+                "projectPath": "C:\\Users\\a.edais\\source\\repos\\Multi-Tenant-Warehouse-Management-System\\WMS.Domain\\WMS.Domain.csproj"
               }
             }
           }
@@ -288,7 +288,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -330,7 +330,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

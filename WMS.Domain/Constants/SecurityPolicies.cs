@@ -2,6 +2,8 @@
 
 public static class SecurityPolicies
 {
+    public const string CanManageTenants = "CanManageTenants";
+
     public const string CanViewCatalog = "CanViewCatalog";
 
     public const string CanManageCategories = "CanManageCategories";
@@ -25,4 +27,6 @@ public static class SecurityPolicies
     public const string CanViewInventorySummary = "CanViewInventorySummary";
 
     public const string CanManageInbound = "CanManageInbound";
+
+    public const string CanReceiveStock = "CanReceiveStock";
 }

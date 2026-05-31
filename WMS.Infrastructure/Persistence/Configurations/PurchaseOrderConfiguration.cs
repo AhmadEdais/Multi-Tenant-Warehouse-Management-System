@@ -11,6 +11,10 @@ internal sealed class PurchaseOrderConfiguration : IEntityTypeConfiguration<Purc
         builder.Property(x => x.OrderNumber).HasMaxLength(50).IsRequired();
 
         builder.Property(x => x.Status).HasColumnType("tinyint").IsRequired();
+        builder.Property(x => x.CreatedBy).IsRequired();
+        builder.Property(x => x.CreatedOnUtc).IsRequired();
+        builder.Property(x => x.LastModifiedBy).IsRequired(false);
+        builder.Property(x => x.LastModifiedOnUtc).IsRequired(false);
 
         builder.HasIndex(x => new { x.TenantId, x.OrderNumber })
             .IsUnique()

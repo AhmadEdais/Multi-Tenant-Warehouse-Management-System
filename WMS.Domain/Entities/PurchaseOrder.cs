@@ -11,13 +11,17 @@ public sealed class PurchaseOrder : IMustBelongToTenant
     public string OrderNumber { get; private set; } = string.Empty;
     public PurchaseOrderStatus Status { get; private set; }
     public DateTime? ExpectedDeliveryDate { get; private set; }
+    public int CreatedBy { get; private set; }
+    public DateTime CreatedOnUtc { get; private set; } = DateTime.UtcNow;
+    public DateTime? LastModifiedOnUtc { get; private set; } = DateTime.UtcNow;
+    public int? LastModifiedBy { get; private set; }
 
     private readonly List<PurchaseOrderLine> _lines = [];
     public IReadOnlyCollection<PurchaseOrderLine> Lines => _lines.AsReadOnly();
 
     private PurchaseOrder() { }
 
-    public static PurchaseOrder Create(int tenantId, int supplierId, string orderNumber, DateTime? expectedDeliveryDate)
+    public static PurchaseOrder Create(int tenantId, int supplierId, string orderNumber, DateTime? expectedDeliveryDate,int userId)
     {
         return new PurchaseOrder
         {
@@ -25,7 +29,11 @@ public sealed class PurchaseOrder : IMustBelongToTenant
             SupplierId = supplierId,
             OrderNumber = orderNumber,
             Status = PurchaseOrderStatus.Pending,
-            ExpectedDeliveryDate = expectedDeliveryDate
+            ExpectedDeliveryDate = expectedDeliveryDate,
+            CreatedOnUtc = DateTime.UtcNow,
+            LastModifiedOnUtc = DateTime.UtcNow,
+            LastModifiedBy = userId,
+            CreatedBy = userId
         };
     }
 

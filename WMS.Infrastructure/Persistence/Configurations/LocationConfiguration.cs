@@ -11,6 +11,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(l => l.LocationType)
             .IsRequired()
             .HasMaxLength(50);
+        builder.Property(l => l.LocationFunction)
+       .HasConversion<byte>(); 
 
         builder.Property(l => l.Name)
             .IsRequired()
