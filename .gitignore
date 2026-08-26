@@ -1,0 +1,65 @@
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# =========================
+# .NET build output
+# =========================
+[Bb]in/
+[Oo]bj/
+
+# =========================
+# Build / test artifacts
+# =========================
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Local environment / secrets
+# =========================
+.env
+.env.*
+!.env.example
+
+appsettings.Local.json
+appsettings.*.Local.json
+
+# =========================
+# SQL Database Project generated files
+# =========================
+*.dbmdl
+*.jfm
+
+# SQL publish profiles may contain local server/database settings
+*.publish.xml
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Rider / JetBrains
+# =========================
+.idea/
+*.sln.iml
+
+# =========================
+# VS Code local settings
+# =========================
+.vscode/
