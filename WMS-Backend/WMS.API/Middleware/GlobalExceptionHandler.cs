@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 using WMS.Application.Common.Exceptions; 
 
 namespace WMS.API.Middleware;

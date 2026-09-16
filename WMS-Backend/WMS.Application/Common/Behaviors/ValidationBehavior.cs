@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using MediatR;
-
-namespace WMS.Application.Common.Behaviors;
+﻿namespace WMS.Application.Common.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>

@@ -22,7 +22,7 @@
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
             int? currentTenantId = tenantContext.TenantId;
-
+            
             bool userExists = await context.Users
                 .AnyAsync(u => u.Email == request.Email && u.TenantId == currentTenantId, cancellationToken);
 

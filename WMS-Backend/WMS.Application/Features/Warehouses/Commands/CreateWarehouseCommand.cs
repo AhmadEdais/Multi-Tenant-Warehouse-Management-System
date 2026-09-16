@@ -3,11 +3,8 @@
     public record CreateWarehouseCommand(string Code, string Name, string? Address) : IRequest<int>;
     public sealed  class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouseCommand>
     {
-        private readonly IWmsDbContext _context;
-        public CreateWarehouseCommandValidator(IWmsDbContext context) 
-        {
-            _context = context;
-            
+        public CreateWarehouseCommandValidator() 
+        {            
             RuleFor(x => x.Code)
                 .NotEmpty().WithMessage("Code is required.")
                 .MaximumLength(20).WithMessage("Code cannot exceed 20 characters.");
