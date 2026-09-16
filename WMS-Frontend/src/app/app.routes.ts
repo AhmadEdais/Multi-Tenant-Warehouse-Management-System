@@ -8,6 +8,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        pathMatch: 'full',
         loadComponent: () =>
           import('./features/landing/landing-page/landing-page').then((m) => m.LandingPage),
       },
