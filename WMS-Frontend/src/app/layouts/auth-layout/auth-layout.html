@@ -1,0 +1,123 @@
+<main class="grid min-h-screen lg:h-screen lg:overflow-hidden bg-white lg:grid-cols-2">
+  <aside
+    class="relative hidden min-h-screen overflow-hidden bg-[#07162b] text-white lg:flex lg:flex-col"
+    aria-label="Warehouse management system overview"
+  >
+    <div
+      class="absolute inset-0 bg-[url('/images/warehouse-hero.png')] bg-cover bg-position-[62%_center]"
+      aria-hidden="true"
+    ></div>
+    <div class="absolute inset-0 bg-[#07162b]/90" aria-hidden="true"></div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-[#07162b]/20 via-[#07162b]/55 to-[#07162b]/95"
+      aria-hidden="true"
+    ></div>
+
+    <div class="relative z-10 flex min-h-screen flex-col px-[clamp(40px,5vw,78px)] py-10">
+      <a class="flex w-max items-center gap-3 text-white" href="#" aria-label="WMS home">
+        <svg
+          class="h-11 w-11 fill-none stroke-white stroke-[2.8] [stroke-linecap:round] [stroke-linejoin:round]"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+        >
+          <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
+          <path
+            d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5M14 29.5v8l10 5.5 10-5.5v-8"
+          />
+        </svg>
+        <span class="flex flex-col leading-none">
+          <strong class="text-[27px] tracking-[-0.04em]">WMS</strong>
+          <small class="mt-1 text-[9px] text-white/80">Warehouse Management System</small>
+        </span>
+      </a>
+
+      <section class="my-auto max-w-[420px] pb-8" aria-labelledby="auth-benefits-heading">
+        <h1
+          id="auth-benefits-heading"
+          class="text-[clamp(38px,4vw,56px)] leading-[1.05] font-bold tracking-[-0.04em]"
+        >
+          Manage<br />your warehouse<br />with confidence.
+        </h1>
+
+        <ul class="mt-10 flex flex-col gap-5 text-[15px] font-medium" role="list">
+          <li class="flex items-center gap-4">
+            <svg
+              class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+              viewBox="0 0 28 28"
+              aria-hidden="true"
+            >
+              <circle cx="14" cy="14" r="10" />
+              <path d="m9.5 14 3 3 6-7" />
+            </svg>
+            <span>Real-time inventory</span>
+          </li>
+
+          <li class="flex items-center gap-4">
+            <svg
+              class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+              viewBox="0 0 28 28"
+              aria-hidden="true"
+            >
+              <path d="M14 3.5 23 8v8.5L14 25l-9-8.5V8z" />
+              <circle cx="14" cy="12.5" r="2.5" />
+              <path d="M9.5 19c.8-2.6 2.3-4 4.5-4s3.7 1.4 4.5 4" />
+            </svg>
+            <span>Multiple locations</span>
+          </li>
+
+          <li class="flex items-center gap-4">
+            <svg
+              class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+              viewBox="0 0 28 28"
+              aria-hidden="true"
+            >
+              <circle cx="14" cy="14" r="10" />
+              <path d="m9.5 14 3 3 6-7" />
+            </svg>
+            <span>Streamlined operations</span>
+          </li>
+
+          <li class="flex items-center gap-4">
+            <svg class="h-7 w-7 shrink-0 fill-white" viewBox="0 0 28 28" aria-hidden="true">
+              <circle cx="10" cy="10" r="4" />
+              <circle cx="19.5" cy="11.5" r="3" />
+              <path
+                d="M3.5 24c.5-5 2.7-7.5 6.5-7.5s6 2.5 6.5 7.5zM15 23.5c.4-3.6 2-5.5 4.7-5.5 2.9 0 4.6 1.9 5 5.5z"
+              />
+            </svg>
+            <span>Built for your business</span>
+          </li>
+        </ul>
+      </section>
+
+      <blockquote class="max-w-[330px] text-[15px] leading-6 font-medium italic text-white/90">
+        “Efficient warehouses<br />build stronger businesses.”
+      </blockquote>
+    </div>
+  </aside>
+
+  <section
+    class="flex min-h-screen items-center justify-center px-6 py-12 sm:px-10 lg:px-16"
+    aria-label="Account access"
+  >
+    <div class="w-full max-w-[430px]">
+      <a
+        class="mb-12 flex w-max items-center gap-2 text-[#091127] lg:hidden"
+        href="#"
+        aria-label="WMS home"
+      >
+        <svg
+          class="h-9 w-9 fill-none stroke-[#1259e7] stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+        >
+          <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
+          <path d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5" />
+        </svg>
+        <strong class="text-2xl tracking-[-0.04em]">WMS</strong>
+      </a>
+
+      <router-outlet />
+    </div>
+  </section>
+</main>

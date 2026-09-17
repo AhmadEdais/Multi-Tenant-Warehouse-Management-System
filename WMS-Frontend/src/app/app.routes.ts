@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
-
 export const routes: Routes = [
+  // -----------------------
+  // PUBLIC WEBSITE
+  // -----------------------
   {
     path: '',
     loadComponent: () =>
       import('./layouts/public-layout/public-layout').then((m) => m.PublicLayout),
+
     children: [
       {
         path: '',
@@ -12,6 +15,17 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/landing/landing-page/landing-page').then((m) => m.LandingPage),
       },
+    ],
+  },
+
+  // -----------------------
+  // AUTH
+  // -----------------------
+  {
+    path: '',
+    loadComponent: () => import('./layouts/auth-layout/auth-layout').then((m) => m.AuthLayout),
+
+    children: [
       {
         path: 'login',
         loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
@@ -23,9 +37,13 @@ export const routes: Routes = [
     ],
   },
 
+  // -----------------------
+  // MAIN WMS
+  // -----------------------
   {
     path: '',
     loadComponent: () => import('./layouts/app-layout/app-layout').then((m) => m.AppLayout),
+
     children: [
       {
         path: 'dashboard',
@@ -35,6 +53,9 @@ export const routes: Routes = [
     ],
   },
 
+  // -----------------------
+  // 404
+  // -----------------------
   {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found').then((m) => m.NotFound),

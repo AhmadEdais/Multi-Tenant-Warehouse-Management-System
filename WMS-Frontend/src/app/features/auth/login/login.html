@@ -1,196 +1,82 @@
-<main class="grid min-h-screen bg-white lg:grid-cols-2">
-  <aside
-    class="relative hidden min-h-screen overflow-hidden bg-[#07162b] text-white lg:flex lg:flex-col"
-    aria-label="Warehouse management system overview"
-  >
-    <div
-      class="absolute inset-0 bg-[url('/images/warehouse-hero.png')] bg-cover bg-position-[62%_center]"
-      aria-hidden="true"
-    ></div>
-    <div class="absolute inset-0 bg-[#07162b]/90" aria-hidden="true"></div>
-    <div
-      class="absolute inset-0 bg-gradient-to-b from-[#07162b]/20 via-[#07162b]/55 to-[#07162b]/95"
-      aria-hidden="true"
-    ></div>
+<section class="w-full" aria-labelledby="login-heading">
+  <header>
+    <h1 id="login-heading" class="text-[32px] font-bold tracking-[-0.035em] text-[#091127]">
+      Welcome back
+    </h1>
+    <p class="mt-2 text-[15px] text-[#52617a]">Sign in to your account</p>
+  </header>
 
-    <div class="relative z-10 flex min-h-screen flex-col px-[clamp(40px,5vw,78px)] py-10">
-      <a class="flex w-max items-center gap-3 text-white" href="#" aria-label="WMS home">
-        <svg
-          class="h-11 w-11 fill-none stroke-white stroke-[2.8] [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 48 48"
-          aria-hidden="true"
-        >
-          <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
-          <path
-            d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5M14 29.5v8l10 5.5 10-5.5v-8"
-          />
-        </svg>
-        <span class="flex flex-col leading-none">
-          <strong class="text-[27px] tracking-[-0.04em]">WMS</strong>
-          <small class="mt-1 text-[9px] text-white/80">Warehouse Management System</small>
-        </span>
-      </a>
-
-      <div class="my-auto max-w-[420px] pb-8">
-        <h1 class="text-[clamp(38px,4vw,56px)] leading-[1.05] font-bold tracking-[-0.04em]">
-          Manage<br />your warehouse<br />with confidence.
-        </h1>
-
-        <div class="mt-10 flex flex-col gap-5 text-[15px] font-medium">
-          <div class="flex items-center gap-4">
-            <button class="flex-shrink-0">
-              <svg
-                class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-                viewBox="0 0 28 28"
-                aria-hidden="true"
-              >
-                <circle cx="14" cy="14" r="10" />
-                <path d="m9.5 14 3 3 6-7" />
-              </svg>
-            </button>
-            <span>Real-time inventory</span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <svg
-              class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-              viewBox="0 0 28 28"
-              aria-hidden="true"
-            >
-              <path d="M14 3.5 23 8v8.5L14 25l-9-8.5V8z" />
-              <circle cx="14" cy="12.5" r="2.5" />
-              <path d="M9.5 19c.8-2.6 2.3-4 4.5-4s3.7 1.4 4.5 4" />
-            </svg>
-            <span>Multiple locations</span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <svg
-              class="h-7 w-7 shrink-0 fill-none stroke-white stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-              viewBox="0 0 28 28"
-              aria-hidden="true"
-            >
-              <circle cx="14" cy="14" r="10" />
-              <path d="m9.5 14 3 3 6-7" />
-            </svg>
-            <span>Streamlined operations</span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <svg class="h-7 w-7 shrink-0 fill-white" viewBox="0 0 28 28" aria-hidden="true">
-              <circle cx="10" cy="10" r="4" />
-              <circle cx="19.5" cy="11.5" r="3" />
-              <path
-                d="M3.5 24c.5-5 2.7-7.5 6.5-7.5s6 2.5 6.5 7.5zM15 23.5c.4-3.6 2-5.5 4.7-5.5 2.9 0 4.6 1.9 5 5.5z"
-              />
-            </svg>
-            <span>Built for your business</span>
-          </div>
-        </div>
-      </div>
-
-      <blockquote class="max-w-[330px] text-[15px] leading-6 font-medium italic text-white/90">
-        “Efficient warehouses<br />build stronger businesses.”
-      </blockquote>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-9" action="#">
+    <div>
+      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="email">Email</label>
+      <input
+        formControlName="email"
+        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+        id="email"
+        name="email"
+        type="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+      />
     </div>
-  </aside>
 
-  <section class="flex min-h-screen items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
-    <div class="w-full max-w-[430px]">
-      <a
-        class="mb-12 flex w-max items-center gap-2 text-[#091127] lg:hidden"
-        href="#"
-        aria-label="WMS home"
-      >
-        <svg
-          class="h-9 w-9 fill-none stroke-[#1259e7] stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 48 48"
-          aria-hidden="true"
-        >
-          <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
-          <path d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5" />
-        </svg>
-        <strong class="text-2xl tracking-[-0.04em]">WMS</strong>
-      </a>
-
-      <header>
-        <h2 class="text-[32px] font-bold tracking-[-0.035em] text-[#091127]">Welcome back</h2>
-        <p class="mt-2 text-[15px] text-[#52617a]">Sign in to your account</p>
-      </header>
-
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-9" action="#">
-        <div>
-          <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="email">Email</label>
-          <input
-            formControlName="email"
-            class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-            id="email"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            autocomplete="email"
-          />
-        </div>
-
-        <div class="mt-6">
-          <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="password"
-            >Password</label
-          >
-          <div class="relative">
-            <input
-              formControlName="password"
-              class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-            />
-            <button
-              class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#33425d]"
-              type="button"
-              aria-label="Show password"
-            >
-              <svg
-                class="h-5 w-5 fill-none stroke-current stroke-[1.8] [stroke-linecap:round] [stroke-linejoin:round]"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-                <circle cx="12" cy="12" r="2.8" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-5 flex items-center justify-between gap-4 text-[13px]">
-          <label
-            class="flex cursor-pointer items-center gap-2.5 font-medium text-[#202a40]"
-            for="remember-me"
-          >
-            <input
-              class="h-4 w-4 rounded border-[#bac5d5] text-blue-600 focus:ring-blue-500"
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-            />
-            Remember me
-          </label>
-          <a class="font-semibold text-[#0759ee] hover:underline" href="#">Forgot password?</a>
-        </div>
-
+    <div class="mt-6">
+      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="password">
+        Password
+      </label>
+      <div class="relative">
+        <input
+          formControlName="password"
+          class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+        />
         <button
-          class="mt-8 inline-flex h-[52px] w-full items-center justify-center rounded-md bg-gradient-to-r from-[#2371f9] to-[#0754ee] text-[15px] font-semibold text-white shadow-[0_8px_18px_rgba(8,81,231,0.2)] transition hover:brightness-105"
-          type="submit"
+          class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#33425d]"
+          type="button"
+          aria-label="Show password"
         >
-          Sign In
+          <svg
+            class="h-5 w-5 fill-none stroke-current stroke-[1.8] [stroke-linecap:round] [stroke-linejoin:round]"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+            <circle cx="12" cy="12" r="2.8" />
+          </svg>
         </button>
-      </form>
-
-      <p class="mt-8 text-center text-[13px] text-[#637089]">
-        Don’t have an account?
-        <a class="ml-1 font-semibold text-[#0759ee] hover:underline" href="#">Sign up</a>
-      </p>
+      </div>
     </div>
-  </section>
-</main>
+
+    <div class="mt-5 flex items-center justify-between gap-4 text-[13px]">
+      <label
+        class="flex cursor-pointer items-center gap-2.5 font-medium text-[#202a40]"
+        for="remember-me"
+      >
+        <input
+          class="h-4 w-4 rounded border-[#bac5d5] text-blue-600 focus:ring-blue-500"
+          id="remember-me"
+          name="remember-me"
+          type="checkbox"
+        />
+        Remember me
+      </label>
+      <a class="font-semibold text-[#0759ee] hover:underline" href="#">Forgot password?</a>
+    </div>
+
+    <button
+      class="mt-8 inline-flex h-[52px] w-full items-center justify-center rounded-md bg-gradient-to-r from-[#2371f9] to-[#0754ee] text-[15px] font-semibold text-white shadow-[0_8px_18px_rgba(8,81,231,0.2)] transition hover:brightness-105"
+      type="submit"
+    >
+      Sign In
+    </button>
+  </form>
+
+  <p class="mt-8 text-center text-[13px] text-[#637089]">
+    Don’t have an account?
+    <a class="ml-1 font-semibold text-[#0759ee] hover:underline" href="/signup">Sign up</a>
+  </p>
+</section>
