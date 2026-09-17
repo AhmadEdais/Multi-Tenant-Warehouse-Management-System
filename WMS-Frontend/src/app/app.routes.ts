@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
+import { guestGuard } from './features/auth/guest-guard';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
   // -----------------------
   {
     path: '',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./layouts/public-layout/public-layout').then((m) => m.PublicLayout),
 
@@ -24,6 +26,8 @@ export const routes: Routes = [
   // -----------------------
   {
     path: '',
+    canActivate: [guestGuard],
+
     loadComponent: () => import('./layouts/auth-layout/auth-layout').then((m) => m.AuthLayout),
 
     children: [
