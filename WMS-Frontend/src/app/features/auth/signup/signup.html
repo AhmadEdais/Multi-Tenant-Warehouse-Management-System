@@ -123,6 +123,12 @@
           autocomplete="new-password"
         />
         @if (
+          signupForm.controls.confirmPassword.touched &&
+          signupForm.controls.confirmPassword.hasError('required')
+        ) {
+          <p class="text-sm text-red-600">Confirm password is required.</p>
+        }
+        @if (
           signupForm.controls.confirmPassword.touched && signupForm.hasError('passwordsMismatch')
         ) {
           <p class="text-sm text-red-600">Passwords do not match.</p>

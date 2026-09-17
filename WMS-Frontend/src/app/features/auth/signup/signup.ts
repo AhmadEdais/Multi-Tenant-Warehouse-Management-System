@@ -62,7 +62,6 @@ export class Signup {
       email,
       password,
     };
-    console.log('Signup request:', request);
     this.signupError.set(null);
     this.isSubmitting.set(true);
     this.authService
@@ -77,12 +76,14 @@ export class Signup {
           this.handleSuccessfulSignup();
         },
         error: (error) => {
-          if (error.status === 400 && error.error?.message) {
-            this.signupError.set(error.error.message);
-          } else if (error.status === 409) {
+          if (error.status === 409) {
             this.signupError.set('Email already exists. Please use a different email.');
+          } else if (error.status === 400) {
+            this.signupError.set(
+              error.error?.detail ?? 'Please check the information you entered.',
+            );
           } else {
-            this.signupError.set('An error occurred during signup.');
+            this.signupError.set('Something went wrong. Please try again.');
           }
         },
       });
