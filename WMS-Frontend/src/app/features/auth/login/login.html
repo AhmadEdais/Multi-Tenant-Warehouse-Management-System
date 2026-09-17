@@ -92,7 +92,14 @@
       </label>
       <a class="font-semibold text-[#0759ee] hover:underline" href="#">Forgot password?</a>
     </div>
-
+    @if (loginError()) {
+      <div
+        role="alert"
+        class="mt-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ loginError() }}
+      </div>
+    }
     <button
       class="mt-8 cursor-pointer inline-flex h-[52px] w-full items-center justify-center rounded-md bg-gradient-to-r from-[#2371f9] to-[#0754ee] text-[15px] font-semibold text-white shadow-[0_8px_18px_rgba(8,81,231,0.2)] transition hover:brightness-105"
       type="submit"
