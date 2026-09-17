@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-login',
@@ -14,6 +15,8 @@ export class Login {
   private router = inject(Router);
   loginError = signal<string | null>(null);
   isSubmitting = signal(false);
+  passwordVisible = signal(false);
+
   private handleSuccessfulLogin(token: string) {
     const rememberMe = this.loginForm.controls.rememberMe.value;
     localStorage.removeItem('authToken');
@@ -45,25 +48,29 @@ export class Login {
       password,
     };
     this.isSubmitting.set(true);
-    this.authService.login(request).subscribe({
-      next: (response) => {
-        this.handleSuccessfulLogin(response.token);
-      },
-      error: (error) => {
-        if (error.status === 401) {
-          this.loginError.set('Invalid email or password.');
-        } else {
-          this.loginError.set('Something went wrong. Please try again.');
-        }
-      },
-      complete: () => {
-        this.isSubmitting.set(false);
-      },
-    });
-  }
-  passwordVisible = false;
 
+    this.authService
+      .login(request)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.handleSuccessfulLogin(response.token);
+        },
+
+        error: (error) => {
+          if (error.status === 401) {
+            this.loginError.set('Invalid email or password.');
+          } else {
+            this.loginError.set('Something went wrong. Please try again.');
+          }
+        },
+      });
+  }
   togglePasswordVisibility() {
-    this.passwordVisible = !this.passwordVisible;
+    this.passwordVisible.set(!this.passwordVisible());
   }
 }

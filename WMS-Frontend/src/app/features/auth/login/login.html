@@ -37,7 +37,7 @@
       <div class="relative">
         <input
           formControlName="password"
-          [type]="passwordVisible ? 'text' : 'password'"
+          [type]="passwordVisible() ? 'text' : 'password'"
           class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
           id="password"
           name="password"
@@ -60,7 +60,7 @@
           aria-label="Show password"
           (click)="togglePasswordVisibility()"
         >
-          @if (passwordVisible) {
+          @if (passwordVisible()) {
             <!-- eye-off icon -->
             <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
               <path d="M3 3l18 18" />
