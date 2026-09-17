@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './features/auth/auth.guard';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -42,6 +43,7 @@ export const routes: Routes = [
   // -----------------------
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () => import('./layouts/app-layout/app-layout').then((m) => m.AppLayout),
 
     children: [

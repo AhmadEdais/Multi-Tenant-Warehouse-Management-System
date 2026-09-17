@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
-
+import { Router } from '@angular/router';
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-login',
@@ -11,6 +11,13 @@ import { LoginRequest } from '../models/login-request';
 })
 export class Login {
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private handleSuccessfulLogin(token: string) {
+    const rememberMe = this.loginForm.controls.rememberMe.value;
+    localStorage.removeItem('authToken');
+    this.authService.saveToken(token, rememberMe);
+    this.router.navigate(['/dashboard']);
+  }
   loginForm = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
@@ -36,12 +43,11 @@ export class Login {
     };
     this.authService.login(request).subscribe({
       next: (response) => {
-        console.log('Login successful:', response);
-        // Handle successful login, e.g., store token, navigate to dashboard, etc.
+        this.handleSuccessfulLogin(response.token);
       },
       error: (error) => {
-        console.error('Login failed:', error);
         // Handle login error, e.g., show error message to user
+        console.error('Login failed', error);
       },
     });
   }
@@ -49,6 +55,5 @@ export class Login {
 
   togglePasswordVisibility() {
     this.passwordVisible = !this.passwordVisible;
-    console.log('Password visibility toggled:', this.passwordVisible);
   }
 }
