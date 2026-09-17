@@ -2,11 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { SignupRequest } from '../models/signup-request';
 import { AuthService } from '../auth.services';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { passwordsMatchValidator } from './signup-validator';
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   selector: 'app-signup',
   styleUrl: './signup.css',
   templateUrl: './signup.html',
