@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LoginRequest } from './models/login-request';
 import { LoginResponse } from './models/login-response';
+import { SignupResponse } from './models/signup-response';
+import { SignupRequest } from './models/signup-request';
 @Injectable({
   providedIn: 'root',
 })
@@ -12,6 +14,10 @@ export class AuthService {
   login(request: LoginRequest): Observable<LoginResponse> {
     const url = 'https://localhost:7105/api/v1/Authorization/login';
     return this.http.post<LoginResponse>(url, request);
+  }
+  signup(request: SignupRequest): Observable<SignupResponse> {
+    const url = 'https://localhost:7105/api/v1/Authorization/register';
+    return this.http.post<SignupResponse>(url, request);
   }
   saveToken(token: string, rememberMe: boolean) {
     localStorage.removeItem('authToken');
