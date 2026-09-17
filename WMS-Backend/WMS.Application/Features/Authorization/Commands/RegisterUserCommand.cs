@@ -10,7 +10,7 @@
                 .EmailAddress().WithMessage("Invalid email format.");
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
+                .MinimumLength(5).WithMessage("Password must be at least 5 characters long.");
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage("Full Name is required.")
                 .MaximumLength(200).WithMessage("Full Name cannot exceed 200 characters.");
