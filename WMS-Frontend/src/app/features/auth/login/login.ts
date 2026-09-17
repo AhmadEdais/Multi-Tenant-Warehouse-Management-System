@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
+  loginError = signal<string | null>(null);
+  isSubmitting = signal(false);
   private handleSuccessfulLogin(token: string) {
     const rememberMe = this.loginForm.controls.rememberMe.value;
     localStorage.removeItem('authToken');
@@ -32,6 +34,7 @@ export class Login {
   });
 
   onSubmit() {
+    this.loginError.set(null);
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -41,13 +44,20 @@ export class Login {
       email,
       password,
     };
+    this.isSubmitting.set(true);
     this.authService.login(request).subscribe({
       next: (response) => {
         this.handleSuccessfulLogin(response.token);
       },
       error: (error) => {
-        // Handle login error, e.g., show error message to user
-        console.error('Login failed', error);
+        if (error.status === 401) {
+          this.loginError.set('Invalid email or password.');
+        } else {
+          this.loginError.set('Something went wrong. Please try again.');
+        }
+      },
+      complete: () => {
+        this.isSubmitting.set(false);
       },
     });
   }

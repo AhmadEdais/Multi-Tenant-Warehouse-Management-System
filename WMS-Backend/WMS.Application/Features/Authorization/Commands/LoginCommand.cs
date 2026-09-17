@@ -27,7 +27,7 @@ internal sealed class LoginCommandHandler(
 
         if (user == null || !user.IsActive || !passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {
-            throw new UnauthorizedException("Invalid email or password.");
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         user.RecordLogin();

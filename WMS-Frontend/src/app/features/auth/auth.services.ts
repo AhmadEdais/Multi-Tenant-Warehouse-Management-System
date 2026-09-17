@@ -26,6 +26,9 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('authToken') ?? sessionStorage.getItem('authToken');
   }
+  logout() {
+    this.clearToken();
+  }
 
   clearToken() {
     localStorage.removeItem('authToken');
