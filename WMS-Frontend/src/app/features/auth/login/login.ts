@@ -13,6 +13,7 @@ export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
   loginError = signal<string | null>(null);
+  isSubmitting = signal(false);
   private handleSuccessfulLogin(token: string) {
     const rememberMe = this.loginForm.controls.rememberMe.value;
     localStorage.removeItem('authToken');
@@ -43,6 +44,7 @@ export class Login {
       email,
       password,
     };
+    this.isSubmitting.set(true);
     this.authService.login(request).subscribe({
       next: (response) => {
         this.handleSuccessfulLogin(response.token);
@@ -53,6 +55,9 @@ export class Login {
         } else {
           this.loginError.set('Something went wrong. Please try again.');
         }
+      },
+      complete: () => {
+        this.isSubmitting.set(false);
       },
     });
   }
