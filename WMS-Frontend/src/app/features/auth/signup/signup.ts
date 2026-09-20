@@ -14,6 +14,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { passwordsMatchValidator } from './signup-validator';
 import { TextField } from '../../../shared/components/text-field/text-field';
+import { PasswordField } from '../../../shared/components/password-field/password-field';
 
 const combinedFullNameMaxLengthValidator: ValidatorFn = (
   control: AbstractControl,
@@ -29,7 +30,7 @@ const combinedFullNameMaxLengthValidator: ValidatorFn = (
 };
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, TextField],
+  imports: [ReactiveFormsModule, RouterLink, TextField, PasswordField],
   selector: 'app-signup',
   styleUrl: './signup.css',
   templateUrl: './signup.html',
@@ -39,7 +40,6 @@ export class Signup {
   private router = inject(Router);
   signupError = signal<string | null>(null);
   isSubmitting = signal(false);
-  passwordVisible = signal(false);
   private handleSuccessfulSignup() {
     this.router.navigate(['/login']);
   }
@@ -119,8 +119,5 @@ export class Signup {
           }
         },
       });
-  }
-  togglePasswordVisibility() {
-    this.passwordVisible.set(!this.passwordVisible());
   }
 }

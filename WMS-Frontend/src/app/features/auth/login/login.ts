@@ -4,8 +4,11 @@ import { AuthService } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { TextField } from '../../../shared/components/text-field/text-field';
+import { PasswordField } from '../../../shared/components/password-field/password-field';
+
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TextField, PasswordField],
   selector: 'app-login',
   styleUrl: './login.css',
   templateUrl: './login.html',
@@ -15,7 +18,6 @@ export class Login {
   private router = inject(Router);
   loginError = signal<string | null>(null);
   isSubmitting = signal(false);
-  passwordVisible = signal(false);
 
   private handleSuccessfulLogin(token: string) {
     const rememberMe = this.loginForm.controls.rememberMe.value;
@@ -69,8 +71,5 @@ export class Login {
           }
         },
       });
-  }
-  togglePasswordVisibility() {
-    this.passwordVisible.set(!this.passwordVisible());
   }
 }
