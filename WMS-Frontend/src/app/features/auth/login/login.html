@@ -8,15 +8,14 @@
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-9" action="#">
     <div>
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="email">Email</label>
-      <input
-        formControlName="email"
-        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+      <app-text-field
+        class="w-full"
+        label="Email"
         id="email"
-        name="email"
         type="email"
         placeholder="you@example.com"
         autocomplete="email"
+        [control]="loginForm.controls.email"
       />
     </div>
 
@@ -31,52 +30,23 @@
     }
 
     <div class="mt-6">
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="password">
-        Password
-      </label>
-      <div class="relative">
-        <input
-          formControlName="password"
-          [type]="passwordVisible() ? 'text' : 'password'"
-          class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-        />
-        @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
-          @if (loginForm.controls.password.hasError('required')) {
-            <p class="text-sm text-red-600">Password is required.</p>
-          }
-
-          @if (loginForm.controls.password.hasError('minlength')) {
-            <p class="text-sm text-red-600">Password must be at least 5 characters.</p>
-          }
+      <app-password-field
+        class="w-full"
+        label="Password"
+        inputId="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        [control]="loginForm.controls.password"
+      />
+      @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+        @if (loginForm.controls.password.hasError('required')) {
+          <p class="text-sm text-red-600">Password is required.</p>
         }
-        <button
-          class="absolute cursor-pointer inset-y-0 right-0 flex w-12 items-center justify-center text-[#33425d]"
-          type="button"
-          aria-label="Show password"
-          (click)="togglePasswordVisibility()"
-        >
-          @if (passwordVisible()) {
-            <!-- eye-off icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M3 3l18 18" />
-              <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" />
-              <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6 0 9.5 8 9.5 8a15.7 15.7 0 0 1-2.2 3.1" />
-              <path d="M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 8 9.5 8a9.8 9.8 0 0 0 4.1-.9" />
-            </svg>
-          } @else {
-            <!-- eye icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-              <circle cx="12" cy="12" r="2.8" />
-            </svg>
-          }
-        </button>
-      </div>
+
+        @if (loginForm.controls.password.hasError('minlength')) {
+          <p class="text-sm text-red-600">Password must be at least 5 characters.</p>
+        }
+      }
     </div>
 
     <div class="mt-5 flex items-center justify-between gap-4 text-[13px]">

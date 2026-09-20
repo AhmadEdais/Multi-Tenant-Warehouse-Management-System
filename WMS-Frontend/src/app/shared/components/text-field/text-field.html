@@ -1,0 +1,11 @@
+<label class="mb-2 block text-[13px] font-bold text-[#11182b]" [for]="id()">
+  {{ label() }}
+</label>
+<input
+  class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+  [id]="id()"
+  [formControl]="control()"
+  [type]="type()"
+  [placeholder]="placeholder()"
+  [autocomplete]="autocomplete()"
+/>

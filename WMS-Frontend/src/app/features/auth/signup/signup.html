@@ -7,46 +7,66 @@
   </header>
 
   <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="mt-9" action="#">
-    <div>
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="full-name">
-        Full name
-      </label>
-      <input
-        [formControlName]="'fullName'"
-        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-        id="full-name"
-        name="full-name"
-        type="text"
-        placeholder="Enter your full name"
-        autocomplete="name"
-      />
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <app-text-field
+          class="w-full"
+          label="First name"
+          id="first-name"
+          placeholder="First name"
+          autocomplete="given-name"
+          [control]="signupForm.controls.firstName"
+        />
+        @if (signupForm.controls.firstName.touched && signupForm.controls.firstName.invalid) {
+          @if (signupForm.controls.firstName.hasError('required')) {
+            <p class="text-sm text-red-600">First name is required.</p>
+          }
+          @if (signupForm.controls.firstName.hasError('minlength')) {
+            <p class="text-sm text-red-600">First name must be at least 3 characters long.</p>
+          }
+          @if (signupForm.controls.firstName.hasError('pattern')) {
+            <p class="text-sm text-red-600">First name can only contain letters and spaces.</p>
+          }
+        }
+      </div>
+
+      <div>
+        <app-text-field
+          class="w-full"
+          label="Last name"
+          id="last-name"
+          placeholder="Last name"
+          autocomplete="family-name"
+          [control]="signupForm.controls.lastName"
+        />
+        @if (signupForm.controls.lastName.touched && signupForm.controls.lastName.invalid) {
+          @if (signupForm.controls.lastName.hasError('required')) {
+            <p class="text-sm text-red-600">Last name is required.</p>
+          }
+          @if (signupForm.controls.lastName.hasError('minlength')) {
+            <p class="text-sm text-red-600">Last name must be at least 3 characters long.</p>
+          }
+          @if (signupForm.controls.lastName.hasError('pattern')) {
+            <p class="text-sm text-red-600">Last name can only contain letters and spaces.</p>
+          }
+        }
+      </div>
     </div>
-    @if (signupForm.controls.fullName.touched && signupForm.controls.fullName.invalid) {
-      @if (signupForm.controls.fullName.hasError('required')) {
-        <p class="text-sm text-red-600">Full name is required.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('minlength')) {
-        <p class="text-sm text-red-600">Full name must be at least 3 characters long.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('pattern')) {
-        <p class="text-sm text-red-600">Full name can only contain letters and spaces.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('maxlength')) {
-        <p class="text-sm text-red-600">Full name cannot exceed 200 characters.</p>
-      }
+    @if (
+      (signupForm.controls.firstName.touched || signupForm.controls.lastName.touched) &&
+      signupForm.hasError('fullNameMaxLength')
+    ) {
+      <p class="text-sm text-red-600">First and last name together cannot exceed 200 characters.</p>
     }
     <div class="mt-5">
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="signup-email">
-        Email
-      </label>
-      <input
-        [formControlName]="'email'"
-        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+      <app-text-field
+        class="w-full"
+        label="Email"
         id="signup-email"
-        name="email"
         type="email"
         placeholder="you@example.com"
         autocomplete="email"
+        [control]="signupForm.controls.email"
       />
     </div>
     @if (signupForm.controls.email.touched && signupForm.controls.email.invalid) {
@@ -59,103 +79,46 @@
       }
     }
     <div class="mt-5">
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="signup-password">
-        Password
-      </label>
-      <div class="relative">
-        <input
-          [formControlName]="'password'"
-          [type]="passwordVisible() ? 'text' : 'password'"
-          class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-          id="signup-password"
-          name="password"
-          type="password"
-          placeholder="Create a password"
-          autocomplete="new-password"
-        />
-        @if (signupForm.controls.password.touched && signupForm.controls.password.invalid) {
-          @if (signupForm.controls.password.hasError('required')) {
-            <p class="text-sm text-red-600">Password is required.</p>
-          }
+      <app-password-field
+        label="Password"
+        class="w-full"
+        inputId="signup-password"
+        placeholder="Create a password"
+        autocomplete="new-password"
+        [control]="signupForm.controls.password"
+      />
 
-          @if (signupForm.controls.password.hasError('minlength')) {
-            <p class="text-sm text-red-600">Password must be at least 5 characters.</p>
-          }
+      @if (signupForm.controls.password.touched && signupForm.controls.password.invalid) {
+        @if (signupForm.controls.password.hasError('required')) {
+          <p class="text-sm text-red-600">Password is required.</p>
         }
-        <button
-          class="absolute cursor-pointer inset-y-0 right-0 flex w-12 items-center justify-center text-[#33425d]"
-          type="button"
-          aria-label="Show password"
-          (click)="togglePasswordVisibility()"
-        >
-          @if (passwordVisible()) {
-            <!-- eye-off icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M3 3l18 18" />
-              <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" />
-              <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6 0 9.5 8 9.5 8a15.7 15.7 0 0 1-2.2 3.1" />
-              <path d="M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 8 9.5 8a9.8 9.8 0 0 0 4.1-.9" />
-            </svg>
-          } @else {
-            <!-- eye icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-              <circle cx="12" cy="12" r="2.8" />
-            </svg>
-          }
-        </button>
-      </div>
+
+        @if (signupForm.controls.password.hasError('minlength')) {
+          <p class="text-sm text-red-600">Password must be at least 5 characters.</p>
+        }
+      }
     </div>
 
     <div class="mt-5">
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="confirm-password">
-        Confirm password
-      </label>
-      <div class="relative">
-        <input
-          [formControlName]="'confirmPassword'"
-          [type]="passwordVisible() ? 'text' : 'password'"
-          class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 pr-12 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-          id="confirm-password"
-          name="confirm-password"
-          type="password"
-          placeholder="Confirm your password"
-          autocomplete="new-password"
-        />
-        @if (
-          signupForm.controls.confirmPassword.touched &&
-          signupForm.controls.confirmPassword.hasError('required')
-        ) {
-          <p class="text-sm text-red-600">Confirm password is required.</p>
-        }
-        @if (
-          signupForm.controls.confirmPassword.touched && signupForm.hasError('passwordsMismatch')
-        ) {
-          <p class="text-sm text-red-600">Passwords do not match.</p>
-        }
-        <button
-          class="absolute cursor-pointer inset-y-0 right-0 flex w-12 items-center justify-center text-[#33425d]"
-          type="button"
-          aria-label="Show confirmed password"
-          (click)="togglePasswordVisibility()"
-        >
-          @if (passwordVisible()) {
-            <!-- eye-off icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M3 3l18 18" />
-              <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" />
-              <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6 0 9.5 8 9.5 8a15.7 15.7 0 0 1-2.2 3.1" />
-              <path d="M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 8 9.5 8a9.8 9.8 0 0 0 4.1-.9" />
-            </svg>
-          } @else {
-            <!-- eye icon -->
-            <svg class="h-5 w-5 fill-none stroke-current stroke-[1.8]" viewBox="0 0 24 24">
-              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-              <circle cx="12" cy="12" r="2.8" />
-            </svg>
-          }
-        </button>
-      </div>
+      <app-password-field
+        label="Confirm Password"
+        class="w-full"
+        inputId="signup-confirm-password"
+        placeholder="Confirm your password"
+        autocomplete="new-password"
+        [control]="signupForm.controls.confirmPassword"
+      />
+      @if (
+        signupForm.controls.confirmPassword.touched &&
+        signupForm.controls.confirmPassword.hasError('required')
+      ) {
+        <p class="text-sm text-red-600">Confirm password is required.</p>
+      }
+      @if (
+        signupForm.controls.confirmPassword.touched && signupForm.hasError('passwordsMismatch')
+      ) {
+        <p class="text-sm text-red-600">Passwords do not match.</p>
+      }
     </div>
     @if (signupError()) {
       <div
