@@ -1,12 +1,35 @@
 import { Component, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { SignupRequest } from '../models/signup-request';
 import { AuthService } from '../auth.services';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { passwordsMatchValidator } from './signup-validator';
+import { TextField } from '../../../shared/components/text-field/text-field';
+
+const combinedFullNameMaxLengthValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const firstName = control.get('firstName')?.value;
+  const lastName = control.get('lastName')?.value;
+
+  if (typeof firstName !== 'string' || typeof lastName !== 'string') {
+    return null;
+  }
+
+  return `${firstName} ${lastName}`.length > 200 ? { fullNameMaxLength: true } : null;
+};
+
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TextField],
   selector: 'app-signup',
   styleUrl: './signup.css',
   templateUrl: './signup.html',
@@ -22,11 +45,19 @@ export class Signup {
   }
   signupForm = new FormGroup(
     {
-      fullName: new FormControl('', {
+      firstName: new FormControl('', {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.maxLength(200),
+          Validators.minLength(3),
+          Validators.pattern(/^[a-zA-Z\s]+$/),
+        ],
+      }),
+
+      lastName: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
           Validators.minLength(3),
           Validators.pattern(/^[a-zA-Z\s]+$/),
         ],
@@ -47,7 +78,7 @@ export class Signup {
         validators: [Validators.required],
       }),
     },
-    { validators: passwordsMatchValidator },
+    { validators: [passwordsMatchValidator, combinedFullNameMaxLengthValidator] },
   );
   onSubmit() {
     this.signupError.set(null);
@@ -56,7 +87,8 @@ export class Signup {
       this.signupForm.markAllAsTouched();
       return;
     }
-    const { fullName, email, password } = this.signupForm.getRawValue();
+    const { firstName, lastName, email, password } = this.signupForm.getRawValue();
+    const fullName = firstName + ' ' + lastName;
     const request: SignupRequest = {
       fullName,
       email,

@@ -7,46 +7,66 @@
   </header>
 
   <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="mt-9" action="#">
-    <div>
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="full-name">
-        Full name
-      </label>
-      <input
-        [formControlName]="'fullName'"
-        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
-        id="full-name"
-        name="full-name"
-        type="text"
-        placeholder="Enter your full name"
-        autocomplete="name"
-      />
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <app-text-field
+          class="w-full"
+          label="First name"
+          id="first-name"
+          placeholder="First name"
+          autocomplete="given-name"
+          [control]="signupForm.controls.firstName"
+        />
+        @if (signupForm.controls.firstName.touched && signupForm.controls.firstName.invalid) {
+          @if (signupForm.controls.firstName.hasError('required')) {
+            <p class="text-sm text-red-600">First name is required.</p>
+          }
+          @if (signupForm.controls.firstName.hasError('minlength')) {
+            <p class="text-sm text-red-600">First name must be at least 3 characters long.</p>
+          }
+          @if (signupForm.controls.firstName.hasError('pattern')) {
+            <p class="text-sm text-red-600">First name can only contain letters and spaces.</p>
+          }
+        }
+      </div>
+
+      <div>
+        <app-text-field
+          class="w-full"
+          label="Last name"
+          id="last-name"
+          placeholder="Last name"
+          autocomplete="family-name"
+          [control]="signupForm.controls.lastName"
+        />
+        @if (signupForm.controls.lastName.touched && signupForm.controls.lastName.invalid) {
+          @if (signupForm.controls.lastName.hasError('required')) {
+            <p class="text-sm text-red-600">Last name is required.</p>
+          }
+          @if (signupForm.controls.lastName.hasError('minlength')) {
+            <p class="text-sm text-red-600">Last name must be at least 3 characters long.</p>
+          }
+          @if (signupForm.controls.lastName.hasError('pattern')) {
+            <p class="text-sm text-red-600">Last name can only contain letters and spaces.</p>
+          }
+        }
+      </div>
     </div>
-    @if (signupForm.controls.fullName.touched && signupForm.controls.fullName.invalid) {
-      @if (signupForm.controls.fullName.hasError('required')) {
-        <p class="text-sm text-red-600">Full name is required.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('minlength')) {
-        <p class="text-sm text-red-600">Full name must be at least 3 characters long.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('pattern')) {
-        <p class="text-sm text-red-600">Full name can only contain letters and spaces.</p>
-      }
-      @if (signupForm.controls.fullName.hasError('maxlength')) {
-        <p class="text-sm text-red-600">Full name cannot exceed 200 characters.</p>
-      }
+    @if (
+      (signupForm.controls.firstName.touched || signupForm.controls.lastName.touched) &&
+      signupForm.hasError('fullNameMaxLength')
+    ) {
+      <p class="text-sm text-red-600">First and last name together cannot exceed 200 characters.</p>
     }
     <div class="mt-5">
-      <label class="mb-2 block text-[13px] font-bold text-[#11182b]" for="signup-email">
-        Email
-      </label>
-      <input
-        [formControlName]="'email'"
-        class="h-[52px] w-full rounded-md border border-[#d7deea] bg-white px-4 text-[14px] text-[#11182b] outline-none transition placeholder:text-[#8190a8] focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
+      <app-text-field
+        class="w-full"
+        label="Email"
         id="signup-email"
-        name="email"
         type="email"
         placeholder="you@example.com"
         autocomplete="email"
+        [control]="signupForm.controls.email"
       />
     </div>
     @if (signupForm.controls.email.touched && signupForm.controls.email.invalid) {
