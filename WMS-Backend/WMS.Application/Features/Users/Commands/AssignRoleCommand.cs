@@ -31,7 +31,7 @@ internal sealed class AssignRoleCommandHandler(
             .Where(r => r.Id == request.RoleId)
             .Select(r => r.Name)
             .FirstOrDefaultAsync(cancellationToken);
-        if (roleName is "SystemAdmin") 
+        if (roleName is Roles.SystemAdmin) 
             throw new UnauthorizedAccessException("Cannot assign the Admin role."); // Assign System admin role through the database only
         targetUser.AssignRole(request.RoleId, currentAdminId);
 
