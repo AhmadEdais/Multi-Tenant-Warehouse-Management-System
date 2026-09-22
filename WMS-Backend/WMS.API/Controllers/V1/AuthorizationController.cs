@@ -10,6 +10,7 @@
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserCommand command)
         {
+            return NotFound("This endpoint is deprecated");
             var userId = await sender.Send(command);
             return Created("", new { Id = userId });
         }
