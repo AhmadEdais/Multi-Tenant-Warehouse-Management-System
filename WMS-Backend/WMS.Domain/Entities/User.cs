@@ -45,6 +45,11 @@ public sealed class User
         IsActive = false;
     }
 
+    public void Reactivate()
+    {
+        IsActive = true;
+    }
+
     public void ChangePassword(string newPasswordHash)
     {
         PasswordHash = newPasswordHash;

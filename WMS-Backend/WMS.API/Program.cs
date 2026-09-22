@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,21 +110,44 @@ builder.Services.AddAuthentication(options =>
     {
         OnTokenValidated = async context =>
         {
-            var tenantClaim = context.Principal?.FindFirst("tenantId")?.Value;
-            if (tenantClaim is null)
+            var userClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? context.Principal?.FindFirst("sub")?.Value;
+            if (!int.TryParse(userClaim, out var userId))
             {
+                context.Fail("Invalid user claim.");
                 return;
             }
 
-            if (!int.TryParse(tenantClaim, out var tenantId))
+            var tenantClaim = context.Principal?.FindFirst("tenantId")?.Value;
+            int? tenantId = null;
+            if (tenantClaim is not null && int.TryParse(tenantClaim, out var parsedTenantId))
+            {
+                tenantId = parsedTenantId;
+            }
+            else if (tenantClaim is not null)
             {
                 context.Fail("Invalid tenant claim.");
                 return;
             }
 
             var dbContext = context.HttpContext.RequestServices.GetRequiredService<WMS.Application.Common.Interfaces.IWmsDbContext>();
+            var isActiveUser = await dbContext.Users
+                .IgnoreQueryFilters()
+                .AnyAsync(u => u.Id == userId && u.TenantId == tenantId && u.IsActive,
+                    context.HttpContext.RequestAborted);
+            if (!isActiveUser)
+            {
+                context.Fail("User is inactive or no longer belongs to this tenant.");
+                return;
+            }
+
+            if (!tenantId.HasValue)
+            {
+                return;
+            }
+
             var isActive = await dbContext.Tenants
-                .AnyAsync(t => t.Id == tenantId && t.IsActive, context.HttpContext.RequestAborted);
+                .AnyAsync(t => t.Id == tenantId.Value && t.IsActive, context.HttpContext.RequestAborted);
             if (!isActive)
             {
                 context.Fail("Tenant is inactive.");
