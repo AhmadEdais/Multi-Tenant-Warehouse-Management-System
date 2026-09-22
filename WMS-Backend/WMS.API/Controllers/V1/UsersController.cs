@@ -6,6 +6,21 @@ namespace WMS.API.Controllers.V1
     [ApiController]
     public class UsersController(ISender sender) : ControllerBase
     {
+        [Authorize(Roles = Roles.TenantAdmin)]
+        [HttpPost]
+        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
+        {
+            var userId = await sender.Send(command);
+            return Created("", new { Id = userId });
+        }
+
         [Authorize(Roles = "TenantAdmin")] 
         [HttpPost("{userId}/roles")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
