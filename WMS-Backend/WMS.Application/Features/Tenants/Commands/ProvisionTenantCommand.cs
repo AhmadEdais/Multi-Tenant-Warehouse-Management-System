@@ -1,11 +1,11 @@
 ﻿namespace WMS.Application.Features.Tenants.Commands;
 
 public record ProvisionTenantCommand(string TenantCode, string TenantName, string AdminFullName,
-    string AdminEmail,string InitialPasswordd) : IRequest<int>;
+    string AdminEmail,string InitialPassword) : IRequest<int>;
 
-public sealed class CreateTenantCommandValidator : AbstractValidator<ProvisionTenantCommand>
+public sealed class ProvisionTenantCommandValidator : AbstractValidator<ProvisionTenantCommand>
 {
-    public CreateTenantCommandValidator()
+    public ProvisionTenantCommandValidator()
     {
         RuleFor(x => x.TenantCode)
             .NotEmpty().WithMessage("Tenant Code is required.")
@@ -24,14 +24,14 @@ public sealed class CreateTenantCommandValidator : AbstractValidator<ProvisionTe
             .EmailAddress().WithMessage("Tenant Administrator email format is invalid.")
             .MaximumLength(256).WithMessage("Tenant Administrator email cannot exceed 256 characters.");
 
-        RuleFor(x => x.InitialPasswordd)
+        RuleFor(x => x.InitialPassword)
             .NotEmpty().WithMessage("An initial password is required.")
             .MinimumLength(5).WithMessage("The initial password must be at least 5 characters long.");
 
     }
 }
 
-internal sealed class CreateTenantCommandHandler(
+internal sealed class ProvisionTenantCommandHandler(
     IWmsDbContext context,
     ICurrentUserService currentUser,
     IPasswordHasher passwordHasher) : IRequestHandler<ProvisionTenantCommand, int>
@@ -67,7 +67,7 @@ internal sealed class CreateTenantCommandHandler(
             .SingleOrDefaultAsync(r => r.Name == Roles.TenantAdmin, cancellationToken)
             ?? throw new InvalidOperationException("The TenantAdmin role is not configured.");
 
-        var passwordHash = passwordHasher.HashPassword(request.InitialPasswordd);
+        var passwordHash = passwordHasher.HashPassword(request.InitialPassword);
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
