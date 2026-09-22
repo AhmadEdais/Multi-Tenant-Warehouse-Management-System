@@ -7,5 +7,13 @@
         public const string WarehouseManager = "WarehouseManager";
         public const string WarehouseOperator = "WarehouseOperator";
         public const string Analyst = "Analyst";
+
+        public static IReadOnlyList<string> TenantAssignable { get; } = Array.AsReadOnly(new[]
+        {
+            TenantAdmin,
+            WarehouseManager,
+            WarehouseOperator,
+            Analyst
+        });
     }
 }

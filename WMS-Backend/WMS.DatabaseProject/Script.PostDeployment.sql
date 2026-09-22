@@ -11,6 +11,8 @@ USING (VALUES
     ('SystemAdmin', 'Global system administrator with access across all tenants.'),
     ('TenantAdmin', 'Administrator for a specific tenant workspace.'),
     ('WarehouseManager', 'Full control over operations within a specific warehouse.'),
+    ('WarehouseOperator', 'Executes day-to-day warehouse operations.'),
+    ('Analyst', 'Read-only access to warehouse reports and data.'),
     ('InventoryOperator', 'Executes day-to-day inbound, outbound, and movement tasks.'),
     ('Auditor', 'Read-only access for compliance and stock level verification.')
 ) AS Source ([Name], [Description])

@@ -40,14 +40,6 @@ internal sealed class CreateUserCommandHandler(
     ICurrentUserService currentUser,
     IPasswordHasher passwordHasher) : IRequestHandler<CreateUserCommand, int>
 {
-    private static readonly HashSet<string> AssignableRoleNames =
-    [
-        Roles.TenantAdmin,
-        Roles.WarehouseManager,
-        Roles.WarehouseOperator,
-        Roles.Analyst
-    ];
-
     public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var tenantId = tenantContext.TenantId
@@ -82,7 +74,7 @@ internal sealed class CreateUserCommandHandler(
             throw new UnauthorizedAccessException("The SystemAdmin role cannot be assigned through this endpoint.");
         }
 
-        if (selectedRoles.Any(r => !AssignableRoleNames.Contains(r.Name)))
+        if (selectedRoles.Any(r => !Roles.TenantAssignable.Contains(r.Name)))
         {
             throw new UnauthorizedAccessException("One or more selected roles are not assignable tenant roles.");
         }
