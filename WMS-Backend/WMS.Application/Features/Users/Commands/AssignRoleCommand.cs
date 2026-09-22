@@ -27,7 +27,12 @@ internal sealed class AssignRoleCommandHandler(
 
         var roleExists = await context.Roles.AnyAsync(r => r.Id == request.RoleId, cancellationToken);
         if (!roleExists) throw new NotFoundException("Role not found.");
-
+        var roleName = await context.Roles
+            .Where(r => r.Id == request.RoleId)
+            .Select(r => r.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (roleName is "SystemAdmin") 
+            throw new UnauthorizedAccessException("Cannot assign the Admin role."); // Assign System admin role through the database only
         targetUser.AssignRole(request.RoleId, currentAdminId);
 
         await context.SaveChangesAsync(cancellationToken);
