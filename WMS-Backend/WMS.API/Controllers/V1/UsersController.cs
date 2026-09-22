@@ -47,6 +47,19 @@ namespace WMS.API.Controllers.V1
 
             return Ok(userProfile);
         }
+
+        [Authorize]
+        [HttpPut("me/password")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ChangeOwnPassword([FromBody] ChangeOwnPasswordCommand command)
+        {
+            await sender.Send(command);
+            return NoContent();
+        }
+
         [Authorize(Roles = "SystemAdmin")] 
         [HttpPut("{userId}/tenant")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
