@@ -1,4 +1,6 @@
-﻿namespace WMS.Infrastructure.Services;
+﻿using WMS.Domain.Constants;
+
+namespace WMS.Infrastructure.Services;
 
 internal sealed class HttpTenantContext(IHttpContextAccessor httpContextAccessor) : ITenantContext
 {
@@ -19,7 +21,15 @@ internal sealed class HttpTenantContext(IHttpContextAccessor httpContextAccessor
         }
     }
 
-    public bool IsSystemRequest =>
-         (_httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true) &&
-         !TenantId.HasValue;
+    public bool IsSystemRequest
+    {
+        get
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            return user?.Identity?.IsAuthenticated == true
+                && user.IsInRole(Roles.SystemAdmin)
+                && !TenantId.HasValue;
+        }
+    }
 }
