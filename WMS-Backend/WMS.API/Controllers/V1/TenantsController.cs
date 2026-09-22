@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace WMS.API.Controllers.V1;
+﻿namespace WMS.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/[controller]")]

@@ -1,6 +1,6 @@
 ﻿namespace WMS.API.Controllers.V1;
 
-[Authorize(Roles = "SystemAdmin,TenantAdmin")]
+[Authorize(Roles = "TenantAdmin")]
 [Route("api/v1/[controller]")]
 [ApiController]
 public class WarehousesController(ISender sender) : ControllerBase
