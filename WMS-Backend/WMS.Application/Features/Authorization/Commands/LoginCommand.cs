@@ -31,6 +31,12 @@ internal sealed class LoginCommandHandler(
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
+        if (user.TenantId.HasValue && !await context.Tenants
+                .AnyAsync(t => t.Id == user.TenantId.Value && t.IsActive, cancellationToken))
+        {
+            throw new UnauthorizedAccessException("Invalid email or password.");
+        }
+
         user.RecordLogin();
 
         await context.SaveChangesAsync(cancellationToken);

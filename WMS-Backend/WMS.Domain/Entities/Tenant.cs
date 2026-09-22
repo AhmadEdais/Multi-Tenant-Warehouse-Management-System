@@ -23,4 +23,14 @@ public  class Tenant
             CreatedByUserId = createdByUserId
         };
     }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+    public void Reactivate()
+    {
+        IsActive = true;
+    }
 }

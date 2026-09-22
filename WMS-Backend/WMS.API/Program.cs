@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -102,6 +104,31 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.GetValue<string>("Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
         ClockSkew = TimeSpan.Zero 
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var tenantClaim = context.Principal?.FindFirst("tenantId")?.Value;
+            if (tenantClaim is null)
+            {
+                return;
+            }
+
+            if (!int.TryParse(tenantClaim, out var tenantId))
+            {
+                context.Fail("Invalid tenant claim.");
+                return;
+            }
+
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<WMS.Application.Common.Interfaces.IWmsDbContext>();
+            var isActive = await dbContext.Tenants
+                .AnyAsync(t => t.Id == tenantId && t.IsActive, context.HttpContext.RequestAborted);
+            if (!isActive)
+            {
+                context.Fail("Tenant is inactive.");
+            }
+        }
     };
 });
 builder.Services.AddAuthorization();
