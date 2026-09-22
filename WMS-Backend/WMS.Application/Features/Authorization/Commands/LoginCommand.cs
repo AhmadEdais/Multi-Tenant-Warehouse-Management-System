@@ -18,12 +18,13 @@ internal sealed class LoginCommandHandler(
 {
     public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
+        var normalizedEmail = User.NormalizeEmail(request.Email);
 
         var user = await context.Users
             .IgnoreQueryFilters()
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
 
         if (user == null || !user.IsActive || !passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {

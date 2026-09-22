@@ -12,5 +12,5 @@
     
     CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Users_Tenants] FOREIGN KEY ([TenantId]) REFERENCES [dbo].[Tenants] ([Id]),
-    CONSTRAINT [UQ_Users_TenantId_Email] UNIQUE NONCLUSTERED ([TenantId] ASC, [Email] ASC)
+    CONSTRAINT [UQ_Users_Email] UNIQUE NONCLUSTERED ( [Email] ASC)
 );

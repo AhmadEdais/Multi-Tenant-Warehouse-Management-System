@@ -8,7 +8,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasKey(u => u.Id);
 
-        builder.HasIndex(u => new { u.TenantId, u.Email }).IsUnique();
+        builder.HasIndex(u => new { u.Email }).IsUnique();
 
         builder.Property(u => u.Email)
             .IsRequired()

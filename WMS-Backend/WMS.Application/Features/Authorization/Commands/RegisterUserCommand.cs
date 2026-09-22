@@ -22,17 +22,19 @@
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
             int? currentTenantId = tenantContext.TenantId;
-            
+            var normalizedEmail = User.NormalizeEmail(request.Email);
+             
             bool userExists = await context.Users
-                .AnyAsync(u => u.Email == request.Email && u.TenantId == currentTenantId, cancellationToken);
+                .IgnoreQueryFilters()
+                .AnyAsync(u => u.Email == normalizedEmail, cancellationToken);
 
             if (userExists)
             {
-                throw new ConflictException($"A user with the email '{request.Email}' already exists in this workspace.");
+                throw new ConflictException($"A user with the email '{normalizedEmail}' already exists.");
             }
 
             string passwordHash = passwordHasher.HashPassword(request.Password);
-            var user = User.Create(currentTenantId, request.Email, passwordHash, request.FullName);
+            var user = User.Create(currentTenantId, normalizedEmail, passwordHash, request.FullName);
             context.Users.Add(user);
             await context.SaveChangesAsync(cancellationToken);
             return user.Id;

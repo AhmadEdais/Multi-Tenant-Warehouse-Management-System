@@ -17,12 +17,17 @@ public sealed class User
 
     private User() { }
 
+    public static string NormalizeEmail(string email)
+    {
+        return email.Trim().ToLowerInvariant();
+    }
+
     public static User Create(int? tenantId, string email, string passwordHash, string fullName)
     {
         return new User
         {
             TenantId = tenantId,
-            Email = email,
+            Email = NormalizeEmail(email),
             PasswordHash = passwordHash,
             FullName = fullName,
             IsActive = true,
