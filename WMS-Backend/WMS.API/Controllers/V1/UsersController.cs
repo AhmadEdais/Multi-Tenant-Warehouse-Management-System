@@ -6,7 +6,7 @@ namespace WMS.API.Controllers.V1
     [ApiController]
     public class UsersController(ISender sender) : ControllerBase
     {
-        [Authorize(Roles = "SystemAdmin,TenantAdmin")] 
+        [Authorize(Roles = "TenantAdmin")] 
         [HttpPost("{userId}/roles")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,5 +43,17 @@ namespace WMS.API.Controllers.V1
             await sender.Send(command);
             return NoContent();
         }
+        //[Authorize(Roles = "TenantAdmin")]
+        //[ProducesResponseType(typeof(PagedResult<UserListDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //[HttpGet()]
+        //public async Task<IActionResult> ListUsers([FromQuery] ListUsersQuery query)
+        //{
+        //    var users = await sender.Send(query);
+        //    return Ok(users);
+        //} 
     }
 }
