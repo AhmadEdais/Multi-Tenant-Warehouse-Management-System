@@ -21,17 +21,16 @@ namespace WMS.API.Controllers.V1
             return Created("", new { Id = userId });
         }
 
-        [Authorize(Roles = "TenantAdmin")] 
-        [HttpPost("{userId}/roles")]
+        [Authorize(Roles = Roles.TenantAdmin)]
+        [HttpPut("{userId:int}/roles")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AssignRole(int userId, [FromBody] AssignRoleDto dto)
+        public async Task<IActionResult> ReplaceUserRoles([FromRoute] int userId, [FromBody] ReplaceUserRolesDto dto)
         {
-
-            var command = new AssignRoleCommand(userId, dto.RoleId);
+            var command = new ReplaceUserRolesCommand(userId, dto.RoleIds);
             await sender.Send(command);
             return NoContent();
         }
