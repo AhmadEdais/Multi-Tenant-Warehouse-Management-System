@@ -1,10 +1,199 @@
-<aside>
-  Sidebar
-  <button type="button" (click)="logout()" class="cursor-pointer">Logout</button>
-</aside>
+@if (currentUser(); as user) {
+  <div class="flex min-h-screen bg-[#f4f7fb] text-[#14243b]">
+    @if (sidebarOpen()) {
+      <button
+        type="button"
+        class="fixed inset-0 z-40 bg-[#081728]/60 md:hidden"
+        aria-label="Close navigation"
+        (click)="closeSidebar()"
+      ></button>
+    }
 
-<header>App Navbar</header>
+    <aside
+      id="app-sidebar"
+      class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#14243b] text-white shadow-xl transition-transform duration-200 md:sticky md:top-0 md:z-auto md:h-screen md:shrink-0 md:translate-x-0 md:shadow-none"
+      [class]="sidebarOpen() ? 'translate-x-0' : '-translate-x-full'"
+      aria-label="Application navigation"
+    >
+      <div
+        class="flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-5"
+      >
+        <div class="flex items-center gap-2.5" aria-label="WMS Warehouse Management System">
+          <svg
+            class="h-9 w-9 fill-none stroke-[#6aa3ff] stroke-[2.5] [stroke-linecap:round] [stroke-linejoin:round]"
+            viewBox="0 0 48 48"
+            aria-hidden="true"
+          >
+            <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
+            <path d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5" />
+          </svg>
+          <span class="flex flex-col leading-none">
+            <strong class="text-[21px] tracking-[-0.035em]">WMS</strong>
+            <small class="mt-1 text-[8px] text-[#b4c3d9]">Warehouse Management System</small>
+          </span>
+        </div>
+        <button
+          type="button"
+          class="rounded-md p-2 text-[#c5d1e2] hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:hidden"
+          aria-label="Close navigation"
+          (click)="closeSidebar()"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+          >
+            <path d="M5 5 19 19M19 5 5 19" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
 
-<main>
-  <router-outlet />
-</main>
+      <nav class="flex-1 overflow-y-auto px-3 py-6 text-[#c4d0e1]" aria-label="Workspace pages">
+        <p class="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#8ea4c1]">
+          Navigation
+        </p>
+
+        @if (navigationItems().length) {
+          <ul class="mt-3 space-y-1" role="list">
+            @for (item of navigationItems(); track item.route) {
+              <li>
+                <a
+                  [routerLink]="item.route"
+                  routerLinkActive="bg-[#2459b6] text-white shadow-[0_4px_12px_rgba(7,32,79,0.24)]"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  ariaCurrentWhenActive="page"
+                  class="flex min-h-10 items-center gap-3 rounded-md px-3 text-[13px] font-semibold transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  (click)="closeSidebar()"
+                >
+                  @switch (item.icon) {
+                    @case ('dashboard') {
+                      <svg
+                        class="h-[18px] w-[18px] shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path d="M9 21v-7h6v7" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    }
+                  }
+                  <span>{{ item.label }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="mt-4 px-3 text-sm leading-6 text-[#aebdd2]">
+            Platform pages will appear here when available.
+          </p>
+        }
+      </nav>
+
+      <div class="shrink-0 border-t border-white/10 p-3">
+        <div class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2">
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#335d9d] text-xs font-bold text-white"
+            aria-hidden="true"
+            >{{ initials() }}</span
+          >
+          <div class="min-w-0">
+            <p class="truncate text-xs font-semibold text-white">{{ user.fullName }}</p>
+            <p class="truncate text-[11px] text-[#aebdd2]">{{ primaryRole() }}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-xs font-semibold text-[#c4d0e1] transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          (click)="logout()"
+        >
+          <svg
+            class="h-[18px] w-[18px]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M14 7l5 5-5 5M19 12H9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Log out
+        </button>
+      </div>
+    </aside>
+
+    <div class="flex min-h-screen min-w-0 flex-1 flex-col">
+      <header
+        class="sticky top-0 z-30 flex h-[76px] shrink-0 items-center justify-between gap-4 border-b border-[#e2e8f1] bg-white px-4 shadow-[0_1px_8px_rgba(21,39,69,0.04)] sm:px-6 lg:px-8"
+      >
+        <div class="flex min-w-0 items-center gap-3">
+          <button
+            type="button"
+            class="rounded-md border border-[#dbe3ef] p-2 text-[#30435f] hover:bg-[#f1f5fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2459b6] md:hidden"
+            aria-label="Open navigation"
+            aria-controls="app-sidebar"
+            [attr.aria-expanded]="sidebarOpen()"
+            (click)="toggleSidebar()"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+            </svg>
+          </button>
+          <div class="min-w-0">
+            <p
+              class="truncate text-[11px] font-semibold uppercase tracking-[0.13em] text-[#72829c]"
+            >
+              {{ workspaceLabel() }}
+            </p>
+            <h1 class="truncate text-lg font-bold tracking-[-0.025em] text-[#14243b] sm:text-xl">
+              {{ pageTitle() }}
+            </h1>
+          </div>
+        </div>
+
+        <div class="flex min-w-0 items-center gap-3" aria-label="Signed-in user">
+          <div class="hidden min-w-0 text-right sm:block">
+            <p class="truncate text-xs font-semibold text-[#20324d]">{{ user.fullName }}</p>
+            <p class="truncate text-[11px] text-[#697b96]">{{ user.email }}</p>
+          </div>
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e5efff] text-xs font-bold text-[#2459b6]"
+            aria-hidden="true"
+            >{{ initials() }}</span
+          >
+        </div>
+      </header>
+
+      <main class="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8" aria-label="Page content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+} @else {
+  <div
+    class="flex min-h-screen items-center justify-center bg-[#f4f7fb] px-6 text-sm font-medium text-[#52647e]"
+    role="status"
+  >
+    Loading your workspace…
+  </div>
+}
