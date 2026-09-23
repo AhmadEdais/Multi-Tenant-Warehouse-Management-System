@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../auth.services';
+import { AuthService, SessionInitializationError } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -19,12 +19,6 @@ export class Login {
   loginError = signal<string | null>(null);
   isSubmitting = signal(false);
 
-  private handleSuccessfulLogin(token: string) {
-    const rememberMe = this.loginForm.controls.rememberMe.value;
-    localStorage.removeItem('authToken');
-    this.authService.saveToken(token, rememberMe);
-    this.router.navigate(['/dashboard']);
-  }
   loginForm = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
@@ -49,22 +43,25 @@ export class Login {
       email,
       password,
     };
+    const rememberMe = this.loginForm.controls.rememberMe.value;
     this.isSubmitting.set(true);
 
     this.authService
-      .login(request)
+      .login(request, rememberMe)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
         }),
       )
       .subscribe({
-        next: (response) => {
-          this.handleSuccessfulLogin(response.token);
+        next: () => {
+          this.router.navigate(['/dashboard']);
         },
 
         error: (error) => {
-          if (error.status === 401) {
+          if (error instanceof SessionInitializationError) {
+            this.loginError.set('Could not load your account. Please sign in again.');
+          } else if (error.status === 401) {
             this.loginError.set('Invalid email or password.');
           } else {
             this.loginError.set('Something went wrong. Please try again.');
