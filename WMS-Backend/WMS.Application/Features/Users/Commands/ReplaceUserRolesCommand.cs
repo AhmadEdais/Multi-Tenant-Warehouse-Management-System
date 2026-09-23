@@ -40,6 +40,11 @@ internal sealed class ReplaceUserRolesCommandHandler(
             .FirstOrDefaultAsync(u => u.Id == request.TargetUserId && u.TenantId == tenantId, cancellationToken)
             ?? throw new NotFoundException($"User with Id {request.TargetUserId} not found.");
 
+        if (user.Id == tenantAdminId)
+        {
+            throw new ConflictException("You cannot replace your own roles.");
+        }
+
         var requestedRoleIds = request.RoleIds.ToArray();
         var roles = await context.Roles
             .Where(r => requestedRoleIds.Contains(r.Id))

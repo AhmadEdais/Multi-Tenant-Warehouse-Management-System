@@ -28,6 +28,7 @@ namespace WMS.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> ReplaceUserRoles([FromRoute] int userId, [FromBody] ReplaceUserRolesDto dto)
         {
             var command = new ReplaceUserRolesCommand(userId, dto.RoleIds);
