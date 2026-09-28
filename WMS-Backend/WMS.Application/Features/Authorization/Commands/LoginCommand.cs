@@ -36,7 +36,10 @@ internal sealed class LoginCommandHandler(
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
-
+        if(user.UserRoles.Count == 0)
+        {
+            throw new UnauthorizedAccessException("Invalid email or password.");
+        }
         user.RecordLogin();
 
         await context.SaveChangesAsync(cancellationToken);
