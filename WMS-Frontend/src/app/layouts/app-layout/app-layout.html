@@ -69,6 +69,19 @@
                   (click)="closeSidebar()"
                 >
                   @switch (item.icon) {
+                    @case ('tenants') {
+                      <svg
+                        class="h-[18px] w-[18px] shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                      >
+                        <path d="M3 20V7l9-4 9 4v13H3Z" stroke-linejoin="round" />
+                        <path d="M9 20v-6h6v6M8 9h.01M12 9h.01M16 9h.01" stroke-linecap="round" />
+                      </svg>
+                    }
                     @case ('dashboard') {
                       <svg
                         class="h-[18px] w-[18px] shrink-0"

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
 import { guestGuard } from './features/auth/guest-guard';
+import { roleGuard } from './features/auth/role.guard';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -49,8 +50,17 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
         loadComponent: () =>
           import('./features/dashboard/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
+      },
+      {
+        path: 'tenants',
+        canActivate: [roleGuard],
+        data: { roles: ['SystemAdmin'] },
+        loadComponent: () =>
+          import('./features/tenants/tenants-page/tenants-page').then((m) => m.TenantsPage),
       },
     ],
   },

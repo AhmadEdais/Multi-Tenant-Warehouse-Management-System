@@ -12,7 +12,9 @@ export const guestGuard: CanActivateFn = () => {
   }
 
   return authService.ensureCurrentUser().pipe(
-    map(() => router.createUrlTree(['/dashboard'])),
+    map((user) =>
+      router.createUrlTree([user.roles.includes('SystemAdmin') ? '/tenants' : '/dashboard']),
+    ),
     catchError(() => of(true)),
   );
 };

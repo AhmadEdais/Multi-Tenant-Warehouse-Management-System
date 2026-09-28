@@ -8,10 +8,16 @@ interface NavigationItem {
   label: string;
   route: string;
   allowedRoles: readonly string[];
-  icon: 'dashboard';
+  icon: 'dashboard' | 'tenants';
 }
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
+  {
+    label: 'Tenants',
+    route: '/tenants',
+    allowedRoles: ['SystemAdmin'],
+    icon: 'tenants',
+  },
   {
     label: 'Dashboard',
     route: '/dashboard',

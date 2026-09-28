@@ -8,7 +8,7 @@ public record TenantDto(
     DateTime CreatedAtUtc,
     int? CreatedByUserId);
 
-public record ListTenantsQuery(int PageNumber = 1, int PageSize = 10)
+public record ListTenantsQuery(int PageNumber = 1, int PageSize = 10, string? Search = null, bool? IsActive = null)
     : IRequest<PagedResult<TenantDto>>;
 
 public sealed class ListTenantsQueryValidator : AbstractValidator<ListTenantsQuery>
@@ -26,6 +26,17 @@ internal sealed class ListTenantsQueryHandler(IWmsDbContext context)
     public async Task<PagedResult<TenantDto>> Handle(ListTenantsQuery request, CancellationToken cancellationToken)
     {
         var query = context.Tenants.AsNoTracking();
+        var search = request.Search?.Trim();
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(t => t.Name.Contains(search) || t.Code.Contains(search));
+        }
+
+        if (request.IsActive is bool isActive)
+        {
+            query = query.Where(t => t.IsActive == isActive);
+        }
+
         var totalCount = await query.CountAsync(cancellationToken);
         var tenants = await query
             .OrderBy(t => t.Id)

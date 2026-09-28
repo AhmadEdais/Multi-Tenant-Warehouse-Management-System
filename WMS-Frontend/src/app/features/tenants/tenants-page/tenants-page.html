@@ -1,0 +1,307 @@
+<section
+  class="overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="tenants-heading"
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2 id="tenants-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Tenants
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">
+        Manage all tenant organizations using the WMS platform.
+      </p>
+    </div>
+    <button
+      type="button"
+      disabled
+      title="Tenant provisioning is coming soon"
+      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white opacity-80"
+    >
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+      </svg>
+      Create Tenant
+    </button>
+  </header>
+
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-center gap-3">
+      <label class="relative min-w-[220px] flex-1 sm:max-w-[520px]" for="tenant-search">
+        <span class="sr-only">Search tenants by name or code</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="tenant-search"
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Search tenants by name or code..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+      <label class="relative w-full sm:w-[220px]" for="tenant-status">
+        <span class="sr-only">Filter tenants by status</span>
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="tenant-status"
+          [value]="status()"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </label>
+      <span class="ml-auto text-sm text-[#52647e]"
+        >{{ totalCount() }} {{ totalCount() === 1 ? 'tenant' : 'tenants' }}</span
+      >
+    </div>
+
+    <div class="overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[760px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="w-14 px-4 py-4">#</th>
+            <th scope="col" class="px-4 py-4">Tenant Name</th>
+            <th scope="col" class="px-4 py-4">Code</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="px-4 py-4">Created At</th>
+            <th scope="col" class="w-44 px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]" role="status">
+                Loading tenants...
+              </td>
+            </tr>
+          } @else if (error()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center">
+                <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+                <button
+                  type="button"
+                  (click)="retry()"
+                  class="mt-3 font-semibold text-[#2458c5] hover:underline"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          } @else if (tenants().length === 0) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]">
+                No tenants match your filters.
+              </td>
+            </tr>
+          } @else {
+            @for (tenant of tenants(); track tenant.id; let index = $index) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ tenant.name }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ tenant.code }}</td>
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                    [class]="
+                      tenant.isActive
+                        ? 'bg-[#e1f7eb] text-[#116b48]'
+                        : 'bg-[#ffe9e9] text-[#bd2d31]'
+                    "
+                  >
+                    <span class="h-2 w-2 rounded-full bg-current"></span
+                    >{{ tenant.isActive ? 'Active' : 'Suspended' }}
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  {{ tenant.createdAtUtc | date: 'MMM d, y' }}
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled
+                      title="Tenant details are coming soon"
+                      class="inline-flex h-9 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] opacity-70"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        aria-hidden="true"
+                      >
+                        <path d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4" stroke-linejoin="round" />
+                      </svg>
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      [attr.aria-label]="'Actions for ' + tenant.name"
+                      [attr.aria-expanded]="selectedTenant()?.id === tenant.id && !pendingAction()"
+                      aria-haspopup="menu"
+                      (click)="openMenu(tenant, $event)"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <circle cx="5" cy="12" r="1.7" />
+                        <circle cx="12" cy="12" r="1.7" />
+                        <circle cx="19" cy="12" r="1.7" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span>Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} tenants</span>
+      <div class="flex items-center gap-2" aria-label="Tenant pages">
+        <button
+          type="button"
+          aria-label="Previous page"
+          [disabled]="loading() || page() <= 1"
+          (click)="goToPage(page() - 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ‹
+        </button>
+        <span
+          class="rounded-md bg-[#2458c5] px-3 py-2 font-semibold text-white"
+          aria-current="page"
+          >{{ page() }}</span
+        >
+        <span class="sr-only">Page {{ page() }} of {{ pageCount() }}</span>
+        <button
+          type="button"
+          aria-label="Next page"
+          [disabled]="loading() || page() >= pageCount()"
+          (click)="goToPage(page() + 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ›
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>
+
+@if (selectedTenant(); as tenant) {
+  @if (!pendingAction()) {
+    <div
+      role="menu"
+      [attr.aria-label]="'Actions for ' + tenant.name"
+      class="fixed z-50 w-44 rounded-md border border-[#d8e2ef] bg-white p-1 shadow-lg"
+      [style.top.px]="menuPosition().top"
+      [style.left.px]="menuPosition().left"
+      (click)="$event.stopPropagation()"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="!tenant.isActive"
+        (click)="requestAction('suspend')"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Suspend
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="tenant.isActive"
+        (click)="requestAction('reactivate')"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Reactivate
+      </button>
+    </div>
+  }
+}
+
+@if (selectedTenant(); as tenant) {
+  @if (pendingAction(); as action) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+      (click)="closeMenu()"
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="tenant-confirm-title"
+        aria-describedby="tenant-confirm-description"
+        class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 id="tenant-confirm-title" class="text-lg font-bold text-[#14243b]">
+          {{ action === 'suspend' ? 'Suspend tenant?' : 'Reactivate tenant?' }}
+        </h3>
+        <p id="tenant-confirm-description" class="mt-2 text-sm leading-6 text-[#52647e]">
+          {{ action === 'suspend' ? 'Suspend' : 'Reactivate' }} {{ tenant.name }}?
+        </p>
+        @if (actionError()) {
+          <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ actionError() }}</p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="closeMenu()"
+            class="rounded-md border border-[#d8e2ef] px-4 py-2 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="confirmAction()"
+            class="rounded-md bg-[#2458c5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+          >
+            {{ actionLoading() ? 'Working...' : action === 'suspend' ? 'Suspend' : 'Reactivate' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

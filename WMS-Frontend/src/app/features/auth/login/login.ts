@@ -54,8 +54,10 @@ export class Login {
         }),
       )
       .subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard']);
+        next: (user) => {
+          void this.router.navigate([
+            user.roles.includes('SystemAdmin') ? '/tenants' : '/dashboard',
+          ]);
         },
 
         error: (error) => {
