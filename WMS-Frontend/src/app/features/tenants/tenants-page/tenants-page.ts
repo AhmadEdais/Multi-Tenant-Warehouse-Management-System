@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   computed,
@@ -10,6 +11,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import {
   catchError,
   debounceTime,
   distinctUntilChanged,
@@ -20,15 +29,18 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { Tenant } from '../models/tenant';
+import { ProvisionTenantRequest, Tenant } from '../models/tenant';
 import { TenantsService } from '../tenants.service';
 
 type TenantStatus = 'all' | 'active' | 'suspended';
 type TenantAction = 'suspend' | 'reactivate';
 
+const requiredText = (control: AbstractControl): ValidationErrors | null =>
+  typeof control.value === 'string' && !control.value.trim() ? { required: true } : null;
+
 @Component({
   selector: 'app-tenants-page',
-  imports: [DatePipe],
+  imports: [DatePipe, ReactiveFormsModule],
   templateUrl: './tenants-page.html',
   styleUrl: './tenants-page.css',
 })
@@ -51,6 +63,33 @@ export class TenantsPage implements OnInit {
   readonly pendingAction = signal<TenantAction | null>(null);
   readonly actionLoading = signal(false);
   readonly menuPosition = signal({ top: 0, left: 0 });
+  readonly showCreateModal = signal(false);
+  readonly createTenantLoading = signal(false);
+  readonly createTenantError = signal<string | null>(null);
+  readonly viewedTenant = signal<Tenant | null>(null);
+
+  readonly createTenantForm = new FormGroup({
+    tenantName: new FormControl('', {
+      nonNullable: true,
+      validators: [requiredText, Validators.maxLength(200)],
+    }),
+    tenantCode: new FormControl('', {
+      nonNullable: true,
+      validators: [requiredText, Validators.maxLength(20)],
+    }),
+    adminFullName: new FormControl('', {
+      nonNullable: true,
+      validators: [requiredText, Validators.maxLength(200)],
+    }),
+    adminEmail: new FormControl('', {
+      nonNullable: true,
+      validators: [requiredText, Validators.email, Validators.maxLength(256)],
+    }),
+    initialPassword: new FormControl('', {
+      nonNullable: true,
+      validators: [requiredText, Validators.minLength(5)],
+    }),
+  });
 
   readonly pageCount = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
   readonly firstItem = computed(() =>
@@ -133,6 +172,73 @@ export class TenantsPage implements OnInit {
     this.reload$.next();
   }
 
+  openCreateModal(): void {
+    this.closeMenu();
+    this.createTenantForm.reset();
+    this.createTenantError.set(null);
+    this.showCreateModal.set(true);
+  }
+
+  closeCreateModal(): void {
+    if (this.createTenantLoading()) {
+      return;
+    }
+    this.showCreateModal.set(false);
+    this.createTenantForm.reset();
+    this.createTenantError.set(null);
+  }
+
+  createTenant(): void {
+    if (this.createTenantLoading()) {
+      return;
+    }
+    if (this.createTenantForm.invalid) {
+      this.createTenantForm.markAllAsTouched();
+      return;
+    }
+
+    const values = this.createTenantForm.getRawValue();
+    const request: ProvisionTenantRequest = {
+      tenantCode: values.tenantCode.trim(),
+      tenantName: values.tenantName.trim(),
+      adminFullName: values.adminFullName.trim(),
+      adminEmail: values.adminEmail.trim(),
+      initialPassword: values.initialPassword,
+    };
+
+    this.createTenantLoading.set(true);
+    this.createTenantError.set(null);
+    this.tenantsService.provision(request).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.createTenantLoading.set(false);
+        this.closeCreateModal();
+        this.reload$.next();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.createTenantLoading.set(false);
+        const detail = typeof error.error?.detail === 'string' ? error.error.detail : '';
+        if (error.status === 409 && detail.includes('Tenant Code')) {
+          this.createTenantError.set('Tenant code already exists. Choose a different code.');
+        } else if (error.status === 409 && detail.includes('email')) {
+          this.createTenantError.set('Administrator email already exists. Use a different email.');
+        } else if (error.status === 400) {
+          this.createTenantError.set('Please check the tenant information and try again.');
+        } else {
+          this.createTenantError.set('Could not create tenant. Please try again.');
+        }
+      },
+    });
+  }
+
+  openViewModal(tenant: Tenant): void {
+    this.closeMenu();
+    this.viewedTenant.set(tenant);
+  }
+
+  closeViewModal(): void {
+    this.viewedTenant.set(null);
+  }
+
   openMenu(tenant: Tenant, event: MouseEvent): void {
     event.stopPropagation();
     if (this.selectedTenant()?.id === tenant.id) {
@@ -205,6 +311,8 @@ export class TenantsPage implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    this.closeCreateModal();
+    this.closeViewModal();
     this.closeMenu();
   }
 }

@@ -20,3 +20,15 @@ export interface ListTenantsParams {
   search: string;
   isActive: boolean | null;
 }
+
+export interface ProvisionTenantRequest {
+  tenantCode: string;
+  tenantName: string;
+  adminFullName: string;
+  adminEmail: string;
+  initialPassword: string;
+}
+
+export interface ProvisionTenantResponse {
+  id: number;
+}

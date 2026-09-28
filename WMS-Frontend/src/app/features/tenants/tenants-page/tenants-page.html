@@ -15,9 +15,8 @@
     </div>
     <button
       type="button"
-      disabled
-      title="Tenant provisioning is coming soon"
-      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white opacity-80"
+      (click)="openCreateModal()"
+      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
     >
       <svg
         class="h-5 w-5"
@@ -152,9 +151,9 @@
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
-                      disabled
-                      title="Tenant details are coming soon"
-                      class="inline-flex h-9 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] opacity-70"
+                      (click)="openViewModal(tenant)"
+                      [attr.aria-label]="'View details for ' + tenant.name"
+                      class="inline-flex h-9 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
                     >
                       <svg
                         class="h-4 w-4"
@@ -227,6 +226,324 @@
     </footer>
   </div>
 </section>
+
+@if (showCreateModal()) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeCreateModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-tenant-title"
+        aria-describedby="create-tenant-description"
+        class="w-full max-w-2xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2
+              id="create-tenant-title"
+              class="text-xl font-bold tracking-[-0.025em] text-[#14243b]"
+            >
+              Create Tenant
+            </h2>
+            <p id="create-tenant-description" class="mt-1 text-sm leading-6 text-[#647590]">
+              Provision a new tenant and its first Tenant Administrator.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Create Tenant"
+            [disabled]="createTenantLoading()"
+            (click)="closeCreateModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
+              <path d="M5 5l14 14M19 5 5 19" stroke-linecap="round" />
+            </svg>
+          </button>
+        </header>
+
+        <form [formGroup]="createTenantForm" (ngSubmit)="createTenant()">
+          <div class="max-h-[calc(100dvh-14rem)] space-y-7 overflow-y-auto px-5 py-6 sm:px-7">
+            <section aria-labelledby="tenant-information-heading">
+              <h3 id="tenant-information-heading" class="text-sm font-bold text-[#14243b]">
+                Tenant Information
+              </h3>
+              <p class="mt-1 text-xs leading-5 text-[#647590]">
+                Basic details for the organization.
+              </p>
+              <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    for="create-tenant-name"
+                    class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                    >Tenant Name</label
+                  >
+                  <input
+                    id="create-tenant-name"
+                    name="tenantName"
+                    formControlName="tenantName"
+                    type="text"
+                    autocomplete="organization"
+                    placeholder="e.g. Northstar Logistics"
+                    class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                  />
+                  @if (createTenantForm.controls.tenantName.touched && createTenantForm.controls.tenantName.invalid) {
+                    <p class="mt-1 text-xs text-[#b4232d]">
+                      {{ createTenantForm.controls.tenantName.hasError('required') ? 'Tenant name is required.' : 'Tenant name must be 200 characters or fewer.' }}
+                    </p>
+                  }
+                </div>
+                <div>
+                  <label
+                    for="create-tenant-code"
+                    class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                    >Tenant Code</label
+                  >
+                  <input
+                    id="create-tenant-code"
+                    name="tenantCode"
+                    formControlName="tenantCode"
+                    type="text"
+                    placeholder="e.g. NORTHSTAR"
+                    class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                  />
+                  @if (createTenantForm.controls.tenantCode.touched && createTenantForm.controls.tenantCode.invalid) {
+                    <p class="mt-1 text-xs text-[#b4232d]">
+                      {{ createTenantForm.controls.tenantCode.hasError('required') ? 'Tenant code is required.' : 'Tenant code must be 20 characters or fewer.' }}
+                    </p>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="tenant-administrator-heading"
+              class="border-t border-[#e3eaf3] pt-6"
+            >
+              <h3 id="tenant-administrator-heading" class="text-sm font-bold text-[#14243b]">
+                First Tenant Administrator
+              </h3>
+              <p class="mt-1 text-xs leading-5 text-[#647590]">
+                The first person who will manage this tenant.
+              </p>
+              <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    for="create-admin-name"
+                    class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                    >Full Name</label
+                  >
+                  <input
+                    id="create-admin-name"
+                    name="adminFullName"
+                    formControlName="adminFullName"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="Full name"
+                    class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                  />
+                  @if (createTenantForm.controls.adminFullName.touched && createTenantForm.controls.adminFullName.invalid) {
+                    <p class="mt-1 text-xs text-[#b4232d]">
+                      {{ createTenantForm.controls.adminFullName.hasError('required') ? 'Full name is required.' : 'Full name must be 200 characters or fewer.' }}
+                    </p>
+                  }
+                </div>
+                <div>
+                  <label
+                    for="create-admin-email"
+                    class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                    >Email</label
+                  >
+                  <input
+                    id="create-admin-email"
+                    name="adminEmail"
+                    formControlName="adminEmail"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="name@company.com"
+                    class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                  />
+                  @if (createTenantForm.controls.adminEmail.touched && createTenantForm.controls.adminEmail.invalid) {
+                    <p class="mt-1 text-xs text-[#b4232d]">
+                      @if (createTenantForm.controls.adminEmail.hasError('required')) {
+                        Email is required.
+                      } @else if (createTenantForm.controls.adminEmail.hasError('email')) {
+                        Enter a valid email address.
+                      } @else {
+                        Email must be 256 characters or fewer.
+                      }
+                    </p>
+                  }
+                </div>
+                <div class="sm:col-span-2">
+                  <label
+                    for="create-admin-password"
+                    class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                    >Initial Password</label
+                  >
+                  <input
+                    id="create-admin-password"
+                    name="initialPassword"
+                    formControlName="initialPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Enter an initial password"
+                    class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                  />
+                  @if (createTenantForm.controls.initialPassword.touched && createTenantForm.controls.initialPassword.invalid) {
+                    <p class="mt-1 text-xs text-[#b4232d]">
+                      {{ createTenantForm.controls.initialPassword.hasError('required') ? 'Initial password is required.' : 'Password must be at least 5 characters.' }}
+                    </p>
+                  }
+                </div>
+              </div>
+            </section>
+          </div>
+
+          @if (createTenantError()) {
+            <p role="alert" class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7">
+              {{ createTenantError() }}
+            </p>
+          }
+
+          <footer
+            class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+          >
+            <button
+              type="button"
+              [disabled]="createTenantLoading()"
+              (click)="closeCreateModal()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="createTenantLoading()"
+              class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              {{ createTenantLoading() ? 'Creating...' : 'Create Tenant' }}
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+@if (viewedTenant(); as tenant) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeViewModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="view-tenant-title"
+        aria-describedby="view-tenant-description"
+        class="w-full max-w-xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2 id="view-tenant-title" class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              Tenant Details
+            </h2>
+            <p id="view-tenant-description" class="mt-1 text-sm text-[#647590]">
+              {{ tenant.name }}
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Tenant Details"
+            (click)="closeViewModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
+              <path d="M5 5l14 14M19 5 5 19" stroke-linecap="round" />
+            </svg>
+          </button>
+        </header>
+
+        <dl class="grid gap-x-6 gap-y-5 px-5 py-6 sm:grid-cols-2 sm:px-7">
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">
+              Tenant Name
+            </dt>
+            <dd class="mt-1 text-base font-semibold text-[#14243b]">{{ tenant.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">
+              Tenant Code
+            </dt>
+            <dd class="mt-1 break-all text-sm font-medium text-[#30435f]">{{ tenant.code }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Status</dt>
+            <dd class="mt-1">
+              <span
+                class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                [class]="
+                  tenant.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+                "
+              >
+                <span class="h-2 w-2 rounded-full bg-current"></span
+                >{{ tenant.isActive ? 'Active' : 'Suspended' }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Created At</dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ tenant.createdAtUtc | date: 'MMM d, y, h:mm a' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">
+              Created By User ID
+            </dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ tenant.createdByUserId ?? '—' }}
+            </dd>
+          </div>
+        </dl>
+
+        <footer class="flex justify-end border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7">
+          <button
+            type="button"
+            (click)="closeViewModal()"
+            class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >
+            Close
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+}
 
 @if (selectedTenant(); as tenant) {
   @if (!pendingAction()) {

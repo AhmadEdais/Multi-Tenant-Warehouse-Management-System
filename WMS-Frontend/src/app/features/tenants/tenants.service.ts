@@ -1,7 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ListTenantsParams, PagedResult, Tenant } from './models/tenant';
+import {
+  ListTenantsParams,
+  PagedResult,
+  ProvisionTenantRequest,
+  ProvisionTenantResponse,
+  Tenant,
+} from './models/tenant';
 
 @Injectable({ providedIn: 'root' })
 export class TenantsService {
@@ -21,6 +27,10 @@ export class TenantsService {
     }
 
     return this.http.get<PagedResult<Tenant>>(this.url, { params: query });
+  }
+
+  provision(request: ProvisionTenantRequest): Observable<ProvisionTenantResponse> {
+    return this.http.post<ProvisionTenantResponse>(`${this.url}/provision`, request);
   }
 
   suspend(id: number): Observable<void> {
