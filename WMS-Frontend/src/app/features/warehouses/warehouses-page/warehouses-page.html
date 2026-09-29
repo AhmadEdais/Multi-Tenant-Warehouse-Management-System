@@ -1,0 +1,664 @@
+<section
+  class="overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="warehouses-heading"
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2 id="warehouses-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Warehouses
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">Manage warehouses in your tenant workspace.</p>
+    </div>
+    <button
+      type="button"
+      (click)="openCreateModal()"
+      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+    >
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+      </svg>
+      Add Warehouse
+    </button>
+  </header>
+
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-center gap-3">
+      <label class="relative min-w-[220px] flex-1 sm:max-w-[520px]" for="warehouse-search">
+        <span class="sr-only">Search warehouses by code or name</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="warehouse-search"
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Search warehouses by code or name..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+      <label class="relative w-full sm:w-[220px]" for="warehouse-status">
+        <span class="sr-only">Filter warehouses by status</span>
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="warehouse-status"
+          [value]="status()"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </label>
+      <span class="ml-auto text-sm text-[#52647e]"
+        >{{ totalCount() }} {{ totalCount() === 1 ? 'warehouse' : 'warehouses' }}</span
+      >
+    </div>
+
+    <div class="overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[760px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="w-14 px-4 py-4">#</th>
+            <th scope="col" class="px-4 py-4">Code</th>
+            <th scope="col" class="px-4 py-4">Name</th>
+            <th scope="col" class="px-4 py-4">Address</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="w-44 px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]" role="status">
+                Loading warehouses...
+              </td>
+            </tr>
+          } @else if (error()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center">
+                <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+                <button
+                  type="button"
+                  (click)="retry()"
+                  class="mt-3 font-semibold text-[#2458c5] hover:underline"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          } @else if (warehouses().length === 0) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]">
+                No warehouses match your filters.
+              </td>
+            </tr>
+          } @else {
+            @for (warehouse of warehouses(); track warehouse.id; let index = $index) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ warehouse.code }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ warehouse.name }}</td>
+                <td class="max-w-64 truncate px-4 py-4 text-[#30435f]">
+                  {{ warehouse.address || '—' }}
+                </td>
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                    [class]="
+                      warehouse.isActive
+                        ? 'bg-[#e1f7eb] text-[#116b48]'
+                        : 'bg-[#ffe9e9] text-[#bd2d31]'
+                    "
+                  >
+                    <span class="h-2 w-2 rounded-full bg-current"></span
+                    >{{ warehouse.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="openViewModal(warehouse)"
+                      class="rounded-md border border-[#d8e2ef] px-3 py-1.5 text-xs font-semibold text-[#2458c5] hover:bg-[#f2f6fb]"
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      [attr.aria-label]="'Actions for ' + warehouse.name"
+                      [attr.aria-expanded]="
+                        selectedWarehouse()?.id === warehouse.id &&
+                        !pendingAction() &&
+                        !showEditModal()
+                      "
+                      (click)="openMenu(warehouse, $event)"
+                      class="flex h-8 w-8 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb]"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <circle cx="5" cy="12" r="1.7" />
+                        <circle cx="12" cy="12" r="1.7" />
+                        <circle cx="19" cy="12" r="1.7" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span>Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} warehouses</span>
+      <div class="flex items-center gap-2" aria-label="Warehouse pages">
+        <button
+          type="button"
+          aria-label="Previous page"
+          [disabled]="loading() || page() <= 1"
+          (click)="goToPage(page() - 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ‹
+        </button>
+        <span
+          class="rounded-md bg-[#2458c5] px-3 py-2 font-semibold text-white"
+          aria-current="page"
+          >{{ page() }}</span
+        >
+        <span class="sr-only">Page {{ page() }} of {{ pageCount() }}</span>
+        <button
+          type="button"
+          aria-label="Next page"
+          [disabled]="loading() || page() >= pageCount()"
+          (click)="goToPage(page() + 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ›
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>
+
+@if (showCreateModal()) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeCreateModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-warehouse-title"
+        aria-describedby="create-warehouse-description"
+        class="w-full max-w-2xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2
+              id="create-warehouse-title"
+              class="text-xl font-bold tracking-[-0.025em] text-[#14243b]"
+            >
+              Add Warehouse
+            </h2>
+            <p id="create-warehouse-description" class="mt-1 text-sm leading-6 text-[#647590]">
+              Add a warehouse to your tenant workspace.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Add Warehouse"
+            [disabled]="createLoading()"
+            (click)="closeCreateModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            ×
+          </button>
+        </header>
+        <form [formGroup]="createWarehouseForm" (ngSubmit)="createWarehouse()">
+          <div class="max-h-[calc(100dvh-14rem)] space-y-4 overflow-y-auto px-5 py-6 sm:px-7">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  for="create-warehouse-code"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Warehouse Code</label
+                >
+                <input
+                  id="create-warehouse-code"
+                  formControlName="code"
+                  type="text"
+                  placeholder="e.g. WH-001"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  createWarehouseForm.controls.code.touched &&
+                  createWarehouseForm.controls.code.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      createWarehouseForm.controls.code.hasError('required')
+                        ? 'Warehouse code is required.'
+                        : 'Code must be 20 characters or fewer.'
+                    }}
+                  </p>
+                }
+              </div>
+              <div>
+                <label
+                  for="create-warehouse-name"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Warehouse Name</label
+                >
+                <input
+                  id="create-warehouse-name"
+                  formControlName="name"
+                  type="text"
+                  placeholder="e.g. Main Warehouse"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  createWarehouseForm.controls.name.touched &&
+                  createWarehouseForm.controls.name.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      createWarehouseForm.controls.name.hasError('required')
+                        ? 'Warehouse name is required.'
+                        : 'Name must be 200 characters or fewer.'
+                    }}
+                  </p>
+                }
+              </div>
+            </div>
+            <div>
+              <label
+                for="create-warehouse-address"
+                class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                >Address <span class="font-normal text-[#647590]">(optional)</span></label
+              >
+              <textarea
+                id="create-warehouse-address"
+                formControlName="address"
+                rows="3"
+                placeholder="Street address"
+                class="w-full rounded-md border border-[#cdd9e9] bg-white px-3 py-2 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+              ></textarea>
+              @if (
+                createWarehouseForm.controls.address.touched &&
+                createWarehouseForm.controls.address.invalid
+              ) {
+                <p class="mt-1 text-xs text-[#b4232d]">Address must be 500 characters or fewer.</p>
+              }
+            </div>
+          </div>
+          @if (createError()) {
+            <p
+              role="alert"
+              class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7"
+            >
+              {{ createError() }}
+            </p>
+          }
+          <footer
+            class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+          >
+            <button
+              type="button"
+              [disabled]="createLoading()"
+              (click)="closeCreateModal()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="createLoading()"
+              class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] disabled:opacity-50"
+            >
+              {{ createLoading() ? 'Creating...' : 'Add Warehouse' }}
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+@if (viewedWarehouse(); as warehouse) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeViewModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="view-warehouse-title"
+        aria-describedby="view-warehouse-description"
+        class="w-full max-w-xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2
+              id="view-warehouse-title"
+              class="text-xl font-bold tracking-[-0.025em] text-[#14243b]"
+            >
+              Warehouse Details
+            </h2>
+            <p id="view-warehouse-description" class="mt-1 text-sm text-[#647590]">
+              {{ warehouse.name }}
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Warehouse Details"
+            (click)="closeViewModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb]"
+          >
+            ×
+          </button>
+        </header>
+        <dl class="grid gap-x-6 gap-y-5 px-5 py-6 sm:grid-cols-2 sm:px-7">
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">
+              Warehouse Name
+            </dt>
+            <dd class="mt-1 text-base font-semibold text-[#14243b]">{{ warehouse.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Code</dt>
+            <dd class="mt-1 break-all text-sm font-medium text-[#30435f]">{{ warehouse.code }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Status</dt>
+            <dd class="mt-1">
+              <span
+                class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                [class]="
+                  warehouse.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+                "
+              >
+                <span class="h-2 w-2 rounded-full bg-current"></span
+                >{{ warehouse.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Address</dt>
+            <dd class="mt-1 whitespace-pre-wrap text-sm font-medium text-[#30435f]">
+              {{ warehouse.address || '—' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Created At</dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ warehouse.createdAtUtc | date: 'MMM d, y, h:mm a' }}
+            </dd>
+          </div>
+        </dl>
+        <footer class="flex justify-end border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7">
+          <button
+            type="button"
+            (click)="closeViewModal()"
+            class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb]"
+          >
+            Close
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedWarehouse(); as warehouse) {
+  @if (!showEditModal() && !pendingAction()) {
+    <div
+      role="menu"
+      [attr.aria-label]="'Actions for ' + warehouse.name"
+      class="fixed z-50 w-44 rounded-md border border-[#d8e2ef] bg-white p-1 shadow-lg"
+      [style.top.px]="menuPosition().top"
+      [style.left.px]="menuPosition().left"
+      (click)="$event.stopPropagation()"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="!warehouse.isActive"
+        (click)="openEditModal()"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="!warehouse.isActive"
+        (click)="requestDeactivate()"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Deactivate
+      </button>
+    </div>
+  }
+}
+
+@if (showEditModal()) {
+  @if (selectedWarehouse(); as warehouse) {
+    <div
+      class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+      (click)="closeEditModal()"
+    >
+      <div class="flex min-h-full items-center justify-center">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-warehouse-title"
+          aria-describedby="edit-warehouse-description"
+          class="w-full max-w-2xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+          (click)="$event.stopPropagation()"
+        >
+          <header
+            class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+          >
+            <div>
+              <h2
+                id="edit-warehouse-title"
+                class="text-xl font-bold tracking-[-0.025em] text-[#14243b]"
+              >
+                Edit Warehouse
+              </h2>
+              <p id="edit-warehouse-description" class="mt-1 text-sm leading-6 text-[#647590]">
+                Update {{ warehouse.name }}.
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Close Edit Warehouse"
+              [disabled]="editLoading()"
+              (click)="closeEditModal()"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+            >
+              ×
+            </button>
+          </header>
+          <form [formGroup]="editWarehouseForm" (ngSubmit)="updateWarehouse()">
+            <div class="max-h-[calc(100dvh-14rem)] space-y-4 overflow-y-auto px-5 py-6 sm:px-7">
+              <div>
+                <span class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Warehouse Code</span
+                >
+                <p
+                  class="flex min-h-11 items-center rounded-md border border-[#d8e2ef] bg-[#f7f9fd] px-3 text-sm text-[#52647e]"
+                >
+                  {{ warehouse.code }}
+                </p>
+              </div>
+              <div>
+                <label
+                  for="edit-warehouse-name"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Warehouse Name</label
+                >
+                <input
+                  id="edit-warehouse-name"
+                  formControlName="name"
+                  type="text"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  editWarehouseForm.controls.name.touched && editWarehouseForm.controls.name.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      editWarehouseForm.controls.name.hasError('required')
+                        ? 'Warehouse name is required.'
+                        : 'Name must be 200 characters or fewer.'
+                    }}
+                  </p>
+                }
+              </div>
+              <div>
+                <label
+                  for="edit-warehouse-address"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Address <span class="font-normal text-[#647590]">(optional)</span></label
+                >
+                <textarea
+                  id="edit-warehouse-address"
+                  formControlName="address"
+                  rows="3"
+                  class="w-full rounded-md border border-[#cdd9e9] bg-white px-3 py-2 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                ></textarea>
+                @if (
+                  editWarehouseForm.controls.address.touched &&
+                  editWarehouseForm.controls.address.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    Address must be 500 characters or fewer.
+                  </p>
+                }
+              </div>
+            </div>
+            @if (editError()) {
+              <p
+                role="alert"
+                class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7"
+              >
+                {{ editError() }}
+              </p>
+            }
+            <footer
+              class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+            >
+              <button
+                type="button"
+                [disabled]="editLoading()"
+                (click)="closeEditModal()"
+                class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                [disabled]="editLoading()"
+                class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] disabled:opacity-50"
+              >
+                {{ editLoading() ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </footer>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+@if (selectedWarehouse(); as warehouse) {
+  @if (pendingAction()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+      (click)="closeMenu()"
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="warehouse-confirm-title"
+        aria-describedby="warehouse-confirm-description"
+        class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 id="warehouse-confirm-title" class="text-lg font-bold text-[#14243b]">
+          Deactivate warehouse?
+        </h3>
+        <p id="warehouse-confirm-description" class="mt-2 text-sm leading-6 text-[#52647e]">
+          "{{ warehouse.name }}" will no longer be active for warehouse operations.
+        </p>
+        @if (actionError()) {
+          <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ actionError() }}</p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="closeMenu()"
+            class="rounded-md border border-[#d8e2ef] px-4 py-2 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="confirmDeactivate()"
+            class="rounded-md bg-[#2458c5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+          >
+            {{ actionLoading() ? 'Working...' : 'Deactivate' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}
