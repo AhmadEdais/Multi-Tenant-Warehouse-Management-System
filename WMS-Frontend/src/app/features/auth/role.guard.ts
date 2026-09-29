@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from './auth.services';
+import { AuthService, landingRouteFor } from './auth.services';
 
 export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
@@ -15,5 +15,6 @@ export const roleGuard: CanActivateFn = (route) => {
     return true;
   }
 
-  return router.createUrlTree([authService.hasRole('SystemAdmin') ? '/tenants' : '/dashboard']);
+  const user = authService.currentUser();
+  return router.createUrlTree([user ? landingRouteFor(user) : '/login']);
 };

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from './auth.services';
+import { AuthService, landingRouteFor } from './auth.services';
 import { catchError, map, of } from 'rxjs';
 
 export const guestGuard: CanActivateFn = () => {
@@ -12,9 +12,7 @@ export const guestGuard: CanActivateFn = () => {
   }
 
   return authService.ensureCurrentUser().pipe(
-    map((user) =>
-      router.createUrlTree([user.roles.includes('SystemAdmin') ? '/tenants' : '/dashboard']),
-    ),
+    map((user) => router.createUrlTree([landingRouteFor(user)])),
     catchError(() => of(true)),
   );
 };

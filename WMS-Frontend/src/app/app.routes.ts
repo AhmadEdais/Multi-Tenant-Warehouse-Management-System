@@ -62,6 +62,17 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/tenants/tenants-page/tenants-page').then((m) => m.TenantsPage),
       },
+      {
+        path: 'users',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin'] },
+        loadComponent: () =>
+          import('./features/users/users-page/users-page').then((m) => m.UsersPage),
+      },
+      {
+        path: 'no-access',
+        loadComponent: () => import('./pages/no-access/no-access').then((m) => m.NoAccess),
+      },
     ],
   },
 

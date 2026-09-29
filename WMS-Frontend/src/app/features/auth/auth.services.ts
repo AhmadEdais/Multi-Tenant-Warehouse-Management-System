@@ -7,6 +7,18 @@ import { CurrentUser } from './models/current-user';
 import { SignupResponse } from './models/signup-response';
 import { SignupRequest } from './models/signup-request';
 
+export function landingRouteFor(user: CurrentUser): string {
+  if (user.roles.includes('SystemAdmin')) return '/tenants';
+  if (
+    user.roles.some((role) =>
+      ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'].includes(role),
+    )
+  ) {
+    return '/dashboard';
+  }
+  return '/no-access';
+}
+
 export class SessionInitializationError extends Error {
   constructor() {
     super('Unable to load the current user.');

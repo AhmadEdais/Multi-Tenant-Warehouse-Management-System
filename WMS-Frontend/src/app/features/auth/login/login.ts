@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService, SessionInitializationError } from '../auth.services';
+import { AuthService, landingRouteFor, SessionInitializationError } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -55,9 +55,7 @@ export class Login {
       )
       .subscribe({
         next: (user) => {
-          void this.router.navigate([
-            user.roles.includes('SystemAdmin') ? '/tenants' : '/dashboard',
-          ]);
+          void this.router.navigateByUrl(landingRouteFor(user));
         },
 
         error: (error) => {
