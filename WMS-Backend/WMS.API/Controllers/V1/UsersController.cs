@@ -60,17 +60,6 @@ namespace WMS.API.Controllers.V1
             return NoContent();
         }
 
-        [Authorize(Roles = "SystemAdmin")] 
-        [HttpPut("{userId}/tenant")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AssignUserToTenant(int userId, [FromBody] AssignUserToTenantDto dto)
-        {
-            var command = new AssignUserToTenantCommand(userId, dto.TenantId);
-            await sender.Send(command);
-            return NoContent();
-        }
         [Authorize(Roles = Roles.TenantAdmin)]
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<UserDto>), StatusCodes.Status200OK)]

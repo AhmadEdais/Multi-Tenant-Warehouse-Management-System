@@ -72,10 +72,4 @@ public sealed class User
             AssignRole(roleId, assignedByUserId);
         }
     }
-
-    public void AssignToTenant(int tenantId)
-    {
-        // Optional: Add domain rules here (e.g., "Cannot move a user if they have active tasks")
-        TenantId = tenantId;
-    }
 }
