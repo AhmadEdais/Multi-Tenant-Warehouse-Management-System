@@ -6,33 +6,40 @@ This file contains SQL statements that will be appended to the build script.
 
 PRINT 'Seeding [dbo].[Roles]...';
 
+-- Stop before removing unsupported roles if users still depend on them.
+-- An administrator must review and replace those assignments with supported roles.
+IF EXISTS (
+    SELECT 1
+    FROM [dbo].[UserRoles] AS ur
+    INNER JOIN [dbo].[Roles] AS r ON r.[Id] = ur.[RoleId]
+    WHERE r.[Name] NOT IN (
+        'SystemAdmin', 'TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'
+    )
+)
+BEGIN
+    THROW 51000, 'Unsupported role assignments exist. Reassign affected users to supported roles before deploying.', 1;
+END;
+
 MERGE INTO [dbo].[Roles] AS Target
 USING (VALUES
-    ('SystemAdmin', 'Global system administrator with access across all tenants.'),
+    ('SystemAdmin', 'Platform tenant administration and system health; no tenant warehouse data access.'),
     ('TenantAdmin', 'Administrator for a specific tenant workspace.'),
-    ('WarehouseManager', 'Full control over operations within a specific warehouse.'),
+    ('WarehouseManager', 'Manages tenant operations; warehouse settings require assignment scope.'),
     ('WarehouseOperator', 'Executes day-to-day warehouse operations.'),
-    ('Analyst', 'Read-only access to warehouse reports and data.'),
-    ('InventoryOperator', 'Executes day-to-day inbound, outbound, and movement tasks.'),
-    ('Auditor', 'Read-only access for compliance and stock level verification.')
+    ('Analyst', 'Read-only access to warehouse reports and data.')
 ) AS Source ([Name], [Description])
 ON (Target.[Name] = Source.[Name])
+WHEN MATCHED AND ISNULL(Target.[Description], '') <> Source.[Description] THEN
+    UPDATE SET [Description] = Source.[Description]
 WHEN NOT MATCHED BY TARGET THEN
     INSERT ([Name], [Description])
     VALUES (Source.[Name], Source.[Description]);
 
+-- The guard above ensures these rows have no user assignments before deletion.
+DELETE FROM [dbo].[Roles]
+WHERE [Name] NOT IN ('SystemAdmin', 'TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst');
+
 PRINT 'Finished seeding [dbo].[Roles].';
 
-PRINT 'Seeding [dbo].[UserRoles] (Admin Assignment)...';
-
--- We use MERGE to ensure we don't create duplicate assignments if we run this twice.
-MERGE INTO [dbo].[UserRoles] AS Target
-USING (VALUES
-    (1, 1, 1, GETUTCDATE()) -- UserId: 1, RoleId: 1, AssignedBy: 1, AssignedAt: Now
-) AS Source ([UserId], [RoleId], [AssignedByUserId], [AssignedAtUtc])
-ON (Target.[UserId] = Source.[UserId] AND Target.[RoleId] = Source.[RoleId])
-WHEN NOT MATCHED BY TARGET THEN
-    INSERT ([UserId], [RoleId], [AssignedByUserId], [AssignedAtUtc])
-    VALUES (Source.[UserId], Source.[RoleId], Source.[AssignedByUserId], Source.[AssignedAtUtc]);
-
-PRINT 'Finished seeding [dbo].[UserRoles].';
+-- No SystemAdmin user is seeded here. Bootstrap that account through a controlled
+-- deployment process, resolving its role by name rather than by an identity value.
