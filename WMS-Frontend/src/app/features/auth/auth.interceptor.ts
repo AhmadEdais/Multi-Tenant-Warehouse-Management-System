@@ -21,7 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authenticatedRequest).pipe(
     catchError((error: unknown) => {
-      const isAuthRequest = /\/api\/v1\/Authorization\/(login|register)(?:[/?]|$)/i.test(req.url);
+      const isAuthRequest = /\/api\/v1\/Authorization\/login(?:[/?]|$)/i.test(req.url);
 
       if (
         error instanceof HttpErrorResponse &&
