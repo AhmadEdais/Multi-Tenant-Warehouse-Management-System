@@ -4,8 +4,7 @@ import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { LoginRequest } from './models/login-request';
 import { LoginResponse } from './models/login-response';
 import { CurrentUser } from './models/current-user';
-import { SignupResponse } from './models/signup-response';
-import { SignupRequest } from './models/signup-request';
+import { environment } from '../../../environments/environment';
 
 export function landingRouteFor(user: CurrentUser): string {
   if (user.roles.includes('SystemAdmin')) return '/tenants';
@@ -30,11 +29,12 @@ export class SessionInitializationError extends Error {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = environment.apiBaseUrl;
   private readonly currentUserState = signal<CurrentUser | null>(null);
   readonly currentUser = this.currentUserState.asReadonly();
 
   login(request: LoginRequest, rememberMe: boolean): Observable<CurrentUser> {
-    const url = 'https://localhost:7105/api/v1/Authorization/login';
+    const url = `${this.apiBaseUrl}/Authorization/login`;
     return this.http.post<LoginResponse>(url, request).pipe(
       switchMap(({ token }) => {
         this.saveToken(token, rememberMe);
@@ -45,13 +45,8 @@ export class AuthService {
     );
   }
 
-  signup(request: SignupRequest): Observable<SignupResponse> {
-    const url = 'https://localhost:7105/api/v1/Authorization/register';
-    return this.http.post<SignupResponse>(url, request);
-  }
-
   loadCurrentUser(): Observable<CurrentUser> {
-    const url = 'https://localhost:7105/api/v1/users/me';
+    const url = `${this.apiBaseUrl}/users/me`;
     return this.http.get<CurrentUser>(url).pipe(
       tap((user) => this.currentUserState.set(user)),
       catchError((error) => {

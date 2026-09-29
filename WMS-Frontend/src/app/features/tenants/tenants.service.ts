@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PagedResult } from '../../shared/models/paged-result';
+import { environment } from '../../../environments/environment';
 import {
   ListTenantsParams,
   ProvisionTenantRequest,
@@ -12,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TenantsService {
   private readonly http = inject(HttpClient);
-  private readonly url = 'https://localhost:7105/api/v1/Tenants';
+  private readonly url = `${environment.apiBaseUrl}/Tenants`;
 
   list(params: ListTenantsParams): Observable<PagedResult<Tenant>> {
     let query = new HttpParams()

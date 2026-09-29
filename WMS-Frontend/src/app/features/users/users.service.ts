@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PagedResult } from '../../shared/models/paged-result';
+import { environment } from '../../../environments/environment';
 import {
   AssignableRole,
   CreateUserRequest,
@@ -14,7 +15,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
-  private readonly url = 'https://localhost:7105/api/v1/Users';
+  private readonly url = `${environment.apiBaseUrl}/Users`;
 
   list(params: ListUsersParams): Observable<PagedResult<User>> {
     let query = new HttpParams()
@@ -27,7 +28,7 @@ export class UsersService {
   }
 
   assignableRoles(): Observable<AssignableRole[]> {
-    return this.http.get<AssignableRole[]>('https://localhost:7105/api/v1/Roles/assignable');
+    return this.http.get<AssignableRole[]>(`${environment.apiBaseUrl}/Roles/assignable`);
   }
 
   create(request: CreateUserRequest): Observable<CreateUserResponse> {
