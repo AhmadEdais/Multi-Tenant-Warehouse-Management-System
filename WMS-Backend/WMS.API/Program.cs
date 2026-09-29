@@ -14,15 +14,15 @@ builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>(
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(SecurityPolicies.CanManageCategories, policy =>
-        policy.RequireRole(Roles.TenantAdmin))
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
     .AddPolicy(SecurityPolicies.CanViewCatalog, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanManageLocations, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+        policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanViewLocationsTree, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanDeactivateLocations, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+        policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanManageSuppliers, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
     .AddPolicy(SecurityPolicies.CanViewSuppliers, policy =>
@@ -32,9 +32,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(SecurityPolicies.CanViewCustomers, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanViewInventory, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator))
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanViewInventorySummary, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanManageInbound, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager));
 
