@@ -9,7 +9,8 @@ public record UserDto(
     DateTime? LastLoginAtUtc,
     List<string> Roles);
 
-public record ListUsersQuery(string? SearchTerm = null, int PageNumber = 1, int PageSize = 10)
+public record ListUsersQuery(string? SearchTerm = null, int PageNumber = 1, int PageSize = 10,
+    bool? IsActive = null, string? Role = null)
     : IRequest<PagedResult<UserDto>>;
 
 public sealed class ListUsersQueryValidator : AbstractValidator<ListUsersQuery>
@@ -18,6 +19,9 @@ public sealed class ListUsersQueryValidator : AbstractValidator<ListUsersQuery>
     {
         RuleFor(x => x.PageNumber).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0).LessThanOrEqualTo(100);
+        RuleFor(x => x.Role)
+            .Must(role => role is null || Roles.TenantAssignable.Contains(role))
+            .WithMessage("Role must be a tenant-assignable role.");
     }
 }
 
@@ -38,6 +42,16 @@ internal sealed class ListUsersQueryHandler(IWmsDbContext context, ITenantContex
         {
             var searchTerm = request.SearchTerm.Trim();
             query = query.Where(u => u.FullName.Contains(searchTerm) || u.Email.Contains(searchTerm));
+        }
+
+        if (request.IsActive is bool isActive)
+        {
+            query = query.Where(u => u.IsActive == isActive);
+        }
+
+        if (request.Role is not null)
+        {
+            query = query.Where(u => u.UserRoles.Any(ur => ur.Role.Name == request.Role));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

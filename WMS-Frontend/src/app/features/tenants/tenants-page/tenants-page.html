@@ -300,9 +300,16 @@
                     placeholder="e.g. Northstar Logistics"
                     class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
                   />
-                  @if (createTenantForm.controls.tenantName.touched && createTenantForm.controls.tenantName.invalid) {
+                  @if (
+                    createTenantForm.controls.tenantName.touched &&
+                    createTenantForm.controls.tenantName.invalid
+                  ) {
                     <p class="mt-1 text-xs text-[#b4232d]">
-                      {{ createTenantForm.controls.tenantName.hasError('required') ? 'Tenant name is required.' : 'Tenant name must be 200 characters or fewer.' }}
+                      {{
+                        createTenantForm.controls.tenantName.hasError('required')
+                          ? 'Tenant name is required.'
+                          : 'Tenant name must be 200 characters or fewer.'
+                      }}
                     </p>
                   }
                 </div>
@@ -320,9 +327,16 @@
                     placeholder="e.g. NORTHSTAR"
                     class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
                   />
-                  @if (createTenantForm.controls.tenantCode.touched && createTenantForm.controls.tenantCode.invalid) {
+                  @if (
+                    createTenantForm.controls.tenantCode.touched &&
+                    createTenantForm.controls.tenantCode.invalid
+                  ) {
                     <p class="mt-1 text-xs text-[#b4232d]">
-                      {{ createTenantForm.controls.tenantCode.hasError('required') ? 'Tenant code is required.' : 'Tenant code must be 20 characters or fewer.' }}
+                      {{
+                        createTenantForm.controls.tenantCode.hasError('required')
+                          ? 'Tenant code is required.'
+                          : 'Tenant code must be 20 characters or fewer.'
+                      }}
                     </p>
                   }
                 </div>
@@ -355,9 +369,16 @@
                     placeholder="Full name"
                     class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
                   />
-                  @if (createTenantForm.controls.adminFullName.touched && createTenantForm.controls.adminFullName.invalid) {
+                  @if (
+                    createTenantForm.controls.adminFullName.touched &&
+                    createTenantForm.controls.adminFullName.invalid
+                  ) {
                     <p class="mt-1 text-xs text-[#b4232d]">
-                      {{ createTenantForm.controls.adminFullName.hasError('required') ? 'Full name is required.' : 'Full name must be 200 characters or fewer.' }}
+                      {{
+                        createTenantForm.controls.adminFullName.hasError('required')
+                          ? 'Full name is required.'
+                          : 'Full name must be 200 characters or fewer.'
+                      }}
                     </p>
                   }
                 </div>
@@ -376,7 +397,10 @@
                     placeholder="name@company.com"
                     class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
                   />
-                  @if (createTenantForm.controls.adminEmail.touched && createTenantForm.controls.adminEmail.invalid) {
+                  @if (
+                    createTenantForm.controls.adminEmail.touched &&
+                    createTenantForm.controls.adminEmail.invalid
+                  ) {
                     <p class="mt-1 text-xs text-[#b4232d]">
                       @if (createTenantForm.controls.adminEmail.hasError('required')) {
                         Email is required.
@@ -403,9 +427,16 @@
                     placeholder="Enter an initial password"
                     class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
                   />
-                  @if (createTenantForm.controls.initialPassword.touched && createTenantForm.controls.initialPassword.invalid) {
+                  @if (
+                    createTenantForm.controls.initialPassword.touched &&
+                    createTenantForm.controls.initialPassword.invalid
+                  ) {
                     <p class="mt-1 text-xs text-[#b4232d]">
-                      {{ createTenantForm.controls.initialPassword.hasError('required') ? 'Initial password is required.' : 'Password must be at least 5 characters.' }}
+                      {{
+                        createTenantForm.controls.initialPassword.hasError('required')
+                          ? 'Initial password is required.'
+                          : 'Password must be at least 5 characters.'
+                      }}
                     </p>
                   }
                 </div>
@@ -414,7 +445,10 @@
           </div>
 
           @if (createTenantError()) {
-            <p role="alert" class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7">
+            <p
+              role="alert"
+              class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7"
+            >
               {{ createTenantError() }}
             </p>
           }

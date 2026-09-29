@@ -1,0 +1,735 @@
+<section
+  class="overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="users-heading"
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2 id="users-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Users
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">Manage the people in your tenant workspace.</p>
+    </div>
+    <button
+      type="button"
+      (click)="openCreateModal()"
+      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+    >
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+      </svg>
+      Add User
+    </button>
+  </header>
+
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-center gap-3">
+      <label class="relative min-w-[220px] flex-1 sm:max-w-[520px]" for="user-search">
+        <span class="sr-only">Search users by name or email</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="user-search"
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Search users by name or email..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+      <label class="relative w-full sm:w-[180px]" for="user-status">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="user-status"
+          [value]="status()"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </label>
+      <label class="relative w-full sm:w-[200px]" for="user-role">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Role</span
+        >
+        <select
+          id="user-role"
+          [value]="roleFilter()"
+          (change)="onRoleChange($event)"
+          [disabled]="rolesLoading() || !!rolesError()"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+        >
+          <option value="all">All</option>
+          @for (role of roles(); track role.id) {
+            <option [value]="role.name">{{ roleLabel(role.name) }}</option>
+          }
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </label>
+      <span class="ml-auto text-sm text-[#52647e]"
+        >{{ totalCount() }} {{ totalCount() === 1 ? 'user' : 'users' }}</span
+      >
+    </div>
+    @if (rolesError()) {
+      <p role="alert" class="mb-4 text-sm text-[#b4232d]">
+        {{ rolesError() }}
+        <button
+          type="button"
+          (click)="loadRoles()"
+          class="font-semibold text-[#2458c5] hover:underline"
+        >
+          Try again
+        </button>
+      </p>
+    }
+
+    <div class="overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[760px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="w-14 px-4 py-4">#</th>
+            <th scope="col" class="px-4 py-4">Full Name</th>
+            <th scope="col" class="px-4 py-4">Email</th>
+            <th scope="col" class="px-4 py-4">Roles</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="w-44 px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]" role="status">
+                Loading users...
+              </td>
+            </tr>
+          } @else if (error()) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center">
+                <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+                <button
+                  type="button"
+                  (click)="retry()"
+                  class="mt-3 font-semibold text-[#2458c5] hover:underline"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          } @else if (users().length === 0) {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-[#52647e]">
+                No users match your filters.
+              </td>
+            </tr>
+          } @else {
+            @for (user of users(); track user.id; let index = $index) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ user.fullName }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ user.email }}</td>
+                <td class="px-4 py-4">
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (role of user.roles; track role) {
+                      <span
+                        class="rounded-md bg-[#eaf1ff] px-2 py-1 text-xs font-semibold text-[#2458a8]"
+                        >{{ roleLabel(role) }}</span
+                      >
+                    }
+                    @if (!user.roles.length) {
+                      <span class="text-xs text-[#647590]">No roles</span>
+                    }
+                  </div>
+                </td>
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                    [class]="
+                      user.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+                    "
+                    ><span class="h-2 w-2 rounded-full bg-current"></span
+                    >{{ user.isActive ? 'Active' : 'Inactive' }}</span
+                  >
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="openViewModal(user)"
+                      [attr.aria-label]="'View details for ' + user.fullName"
+                      class="inline-flex h-9 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4"
+                          stroke-linejoin="round"
+                        /></svg
+                      >View
+                    </button>
+                    <button
+                      type="button"
+                      [attr.aria-label]="'Actions for ' + user.fullName"
+                      [attr.aria-expanded]="
+                        selectedUser()?.id === user.id && !pendingAction() && !showEditRolesModal()
+                      "
+                      aria-haspopup="menu"
+                      (click)="openMenu(user, $event)"
+                      class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <circle cx="5" cy="12" r="1.7" />
+                        <circle cx="12" cy="12" r="1.7" />
+                        <circle cx="19" cy="12" r="1.7" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span>Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} users</span>
+      <div class="flex items-center gap-2" aria-label="User pages">
+        <button
+          type="button"
+          aria-label="Previous page"
+          [disabled]="loading() || page() <= 1"
+          (click)="goToPage(page() - 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ‹
+        </button>
+        <span
+          class="rounded-md bg-[#2458c5] px-3 py-2 font-semibold text-white"
+          aria-current="page"
+          >{{ page() }}</span
+        ><span class="sr-only">Page {{ page() }} of {{ pageCount() }}</span>
+        <button
+          type="button"
+          aria-label="Next page"
+          [disabled]="loading() || page() >= pageCount()"
+          (click)="goToPage(page() + 1)"
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          ›
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>
+
+@if (showCreateUserModal()) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeCreateModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-user-title"
+        class="w-full max-w-2xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2 id="add-user-title" class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              Add User
+            </h2>
+            <p class="mt-1 text-sm leading-6 text-[#647590]">
+              Create a user in your tenant workspace.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Add User"
+            [disabled]="createLoading()"
+            (click)="closeCreateModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            ✕
+          </button>
+        </header>
+        <form [formGroup]="createUserForm" (ngSubmit)="createUser()">
+          <div class="max-h-[calc(100dvh-14rem)] space-y-5 overflow-y-auto px-5 py-6 sm:px-7">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="add-user-name" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Full Name</label
+                ><input
+                  id="add-user-name"
+                  formControlName="fullName"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Full name"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  createUserForm.controls.fullName.touched &&
+                  createUserForm.controls.fullName.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      createUserForm.controls.fullName.hasError('required')
+                        ? 'Full name is required.'
+                        : 'Full name must be 200 characters or fewer.'
+                    }}
+                  </p>
+                }
+              </div>
+              <div>
+                <label
+                  for="add-user-email"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Email</label
+                ><input
+                  id="add-user-email"
+                  formControlName="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="name@company.com"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  createUserForm.controls.email.touched && createUserForm.controls.email.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      createUserForm.controls.email.hasError('required')
+                        ? 'Email is required.'
+                        : createUserForm.controls.email.hasError('email')
+                          ? 'Enter a valid email address.'
+                          : 'Email must be 256 characters or fewer.'
+                    }}
+                  </p>
+                }
+              </div>
+              <div class="sm:col-span-2">
+                <label
+                  for="add-user-password"
+                  class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+                  >Initial Password</label
+                ><input
+                  id="add-user-password"
+                  formControlName="initialPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Enter an initial password"
+                  class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  createUserForm.controls.initialPassword.touched &&
+                  createUserForm.controls.initialPassword.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    {{
+                      createUserForm.controls.initialPassword.hasError('required')
+                        ? 'Initial password is required.'
+                        : 'Password must be at least 5 characters.'
+                    }}
+                  </p>
+                }
+              </div>
+            </div>
+            <fieldset class="border-t border-[#e3eaf3] pt-5">
+              <legend class="text-sm font-bold text-[#14243b]">Roles</legend>
+              <p class="mt-1 text-xs text-[#647590]">Select one or more roles.</p>
+              @if (rolesLoading()) {
+                <p class="mt-3 text-sm text-[#52647e]">Loading roles...</p>
+              } @else if (rolesError()) {
+                <p role="alert" class="mt-3 text-sm text-[#b4232d]">
+                  {{ rolesError() }}
+                  <button
+                    type="button"
+                    (click)="loadRoles()"
+                    class="font-semibold text-[#2458c5] hover:underline"
+                  >
+                    Try again
+                  </button>
+                </p>
+              } @else {
+                <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                  @for (role of roles(); track role.id) {
+                    <label
+                      class="flex cursor-pointer items-start gap-3 rounded-md border border-[#d8e2ef] px-3 py-2 text-sm text-[#30435f] hover:bg-[#f2f6fb]"
+                      ><input
+                        #createRoleBox
+                        type="checkbox"
+                        [disabled]="createLoading()"
+                        [checked]="createUserForm.controls.roleIds.value.includes(role.id)"
+                        (change)="
+                          toggleRole(
+                            createUserForm.controls.roleIds,
+                            role.id,
+                            createRoleBox.checked
+                          )
+                        "
+                        class="mt-0.5 accent-[#2458c5]"
+                      /><span>{{ roleLabel(role.name) }}</span></label
+                    >
+                  }
+                </div>
+              }
+              @if (
+                createUserForm.controls.roleIds.touched && createUserForm.controls.roleIds.invalid
+              ) {
+                <p class="mt-2 text-xs text-[#b4232d]">Select at least one role.</p>
+              }
+            </fieldset>
+            @if (createError()) {
+              <p
+                role="alert"
+                class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d]"
+              >
+                {{ createError() }}
+              </p>
+            }
+          </div>
+          <footer
+            class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+          >
+            <button
+              type="button"
+              [disabled]="createLoading()"
+              (click)="closeCreateModal()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              [disabled]="createLoading() || rolesLoading() || !!rolesError()"
+              class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] disabled:opacity-50"
+            >
+              {{ createLoading() ? 'Creating...' : 'Add User' }}
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+@if (viewedUser(); as user) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeViewModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="view-user-title"
+        class="w-full max-w-xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2 id="view-user-title" class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              User Details
+            </h2>
+            <p class="mt-1 text-sm text-[#647590]">{{ user.fullName }}</p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close User Details"
+            (click)="closeViewModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb]"
+          >
+            ✕
+          </button>
+        </header>
+        <dl
+          class="grid max-h-[calc(100dvh-14rem)] gap-x-6 gap-y-5 overflow-y-auto px-5 py-6 sm:grid-cols-2 sm:px-7"
+        >
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Full Name</dt>
+            <dd class="mt-1 text-base font-semibold text-[#14243b]">{{ user.fullName }}</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Email</dt>
+            <dd class="mt-1 break-all text-sm font-medium text-[#30435f]">{{ user.email }}</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Roles</dt>
+            <dd class="mt-2 flex flex-wrap gap-1.5">
+              @for (role of user.roles; track role) {
+                <span
+                  class="rounded-md bg-[#eaf1ff] px-2 py-1 text-xs font-semibold text-[#2458a8]"
+                  >{{ roleLabel(role) }}</span
+                >
+              }
+              @if (!user.roles.length) {
+                <span class="text-sm text-[#647590]">No roles</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Status</dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Created At</dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ user.createdAtUtc | date: 'MMM d, y, h:mm a' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[#647590]">Last Login</dt>
+            <dd class="mt-1 text-sm font-medium text-[#30435f]">
+              {{ user.lastLoginAtUtc ? (user.lastLoginAtUtc | date: 'MMM d, y, h:mm a') : 'Never' }}
+            </dd>
+          </div>
+        </dl>
+        <footer class="flex justify-end border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7">
+          <button
+            type="button"
+            (click)="closeViewModal()"
+            class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb]"
+          >
+            Close
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedUser(); as user) {
+  @if (!pendingAction() && !showEditRolesModal()) {
+    <div
+      role="menu"
+      [attr.aria-label]="'Actions for ' + user.fullName"
+      class="fixed z-50 w-44 rounded-md border border-[#d8e2ef] bg-white p-1 shadow-lg"
+      [style.top.px]="menuPosition().top"
+      [style.left.px]="menuPosition().left"
+      (click)="$event.stopPropagation()"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="rolesLoading() || !!rolesError() || user.id === currentUser()?.id"
+        (click)="openEditRolesModal()"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-40"
+      >
+        Edit Roles
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="!user.isActive || user.id === currentUser()?.id"
+        (click)="requestAction('deactivate')"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-40"
+      >
+        Deactivate
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        [disabled]="user.isActive"
+        (click)="requestAction('reactivate')"
+        class="w-full rounded px-3 py-2 text-left text-sm text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-40"
+      >
+        Reactivate
+      </button>
+    </div>
+  }
+}
+
+@if (showEditRolesModal() && selectedUser(); as user) {
+  <div
+    class="fixed inset-0 z-[60] overflow-y-auto bg-[#081728]/65 p-4 sm:p-6"
+    (click)="closeEditRolesModal()"
+  >
+    <div class="flex min-h-full items-center justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-roles-title"
+        class="w-full max-w-xl overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_24px_70px_rgba(8,23,40,0.28)]"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+        >
+          <div>
+            <h2 id="edit-roles-title" class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              Edit Roles
+            </h2>
+            <p class="mt-1 text-sm text-[#647590]">{{ user.fullName }}</p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close Edit Roles"
+            [disabled]="roleUpdateLoading()"
+            (click)="closeEditRolesModal()"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            ✕
+          </button>
+        </header>
+        <form [formGroup]="editRolesForm" (ngSubmit)="updateRoles()">
+          <div class="max-h-[calc(100dvh-14rem)] overflow-y-auto px-5 py-6 sm:px-7">
+            <fieldset>
+              <legend class="text-sm font-bold text-[#14243b]">Roles</legend>
+              <p class="mt-1 text-xs text-[#647590]">Select one or more roles.</p>
+              <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                @for (role of roles(); track role.id) {
+                  <label
+                    class="flex cursor-pointer items-start gap-3 rounded-md border border-[#d8e2ef] px-3 py-2 text-sm text-[#30435f] hover:bg-[#f2f6fb]"
+                    ><input
+                      #editRoleBox
+                      type="checkbox"
+                      [disabled]="roleUpdateLoading()"
+                      [checked]="editRolesForm.controls.roleIds.value.includes(role.id)"
+                      (change)="
+                        toggleRole(editRolesForm.controls.roleIds, role.id, editRoleBox.checked)
+                      "
+                      class="mt-0.5 accent-[#2458c5]"
+                    /><span>{{ roleLabel(role.name) }}</span></label
+                  >
+                }
+              </div>
+              @if (
+                editRolesForm.controls.roleIds.touched && editRolesForm.controls.roleIds.invalid
+              ) {
+                <p class="mt-2 text-xs text-[#b4232d]">Select at least one role.</p>
+              }
+            </fieldset>
+            @if (roleUpdateError()) {
+              <p
+                role="alert"
+                class="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d]"
+              >
+                {{ roleUpdateError() }}
+              </p>
+            }
+          </div>
+          <footer
+            class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+          >
+            <button
+              type="button"
+              [disabled]="roleUpdateLoading()"
+              (click)="closeEditRolesModal()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+            >
+              Cancel</button
+            ><button
+              type="submit"
+              [disabled]="roleUpdateLoading()"
+              class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] disabled:opacity-50"
+            >
+              {{ roleUpdateLoading() ? 'Saving...' : 'Save Roles' }}
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedUser(); as user) {
+  @if (pendingAction(); as action) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+      (click)="closeMenu()"
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="user-confirm-title"
+        class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 id="user-confirm-title" class="text-lg font-bold text-[#14243b]">
+          {{ action === 'deactivate' ? 'Deactivate user?' : 'Reactivate user?' }}
+        </h3>
+        <p class="mt-2 text-sm leading-6 text-[#52647e]">
+          {{ action === 'deactivate' ? 'Deactivate' : 'Reactivate' }} {{ user.fullName }}?
+        </p>
+        @if (actionError()) {
+          <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ actionError() }}</p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="closeMenu()"
+            class="rounded-md border border-[#d8e2ef] px-4 py-2 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+          >
+            Cancel</button
+          ><button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="confirmAction()"
+            class="rounded-md bg-[#2458c5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+          >
+            {{
+              actionLoading() ? 'Working...' : action === 'deactivate' ? 'Deactivate' : 'Reactivate'
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

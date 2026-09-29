@@ -34,9 +34,13 @@ internal sealed class ReplaceUserRolesCommandHandler(
         var tenantAdminId = currentUser.UserId
             ?? throw new UnauthorizedAccessException("An authenticated TenantAdmin is required to replace user roles.");
 
+        await using var transaction = await context.Database.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable, cancellationToken);
+
         var user = await context.Users
             .IgnoreQueryFilters()
             .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Id == request.TargetUserId && u.TenantId == tenantId, cancellationToken)
             ?? throw new NotFoundException($"User with Id {request.TargetUserId} not found.");
 
@@ -60,7 +64,14 @@ internal sealed class ReplaceUserRolesCommandHandler(
             throw new UnauthorizedAccessException("One or more selected roles are not assignable tenant roles.");
         }
 
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        if (user.IsActive && user.UserRoles.Any(ur => ur.Role.Name == Roles.TenantAdmin) &&
+            !roles.Any(r => r.Name == Roles.TenantAdmin) &&
+            !await context.Users.IgnoreQueryFilters().AnyAsync(u =>
+                u.TenantId == tenantId && u.Id != user.Id && u.IsActive &&
+                u.UserRoles.Any(ur => ur.Role.Name == Roles.TenantAdmin), cancellationToken))
+        {
+            throw new ConflictException("The last active TenantAdmin must keep that role.");
+        }
 
         context.UserRoles.RemoveRange(user.UserRoles.ToList());
         await context.SaveChangesAsync(cancellationToken);

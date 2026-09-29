@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { PagedResult } from '../../shared/models/paged-result';
 import {
   ListTenantsParams,
-  PagedResult,
   ProvisionTenantRequest,
   ProvisionTenantResponse,
   Tenant,

@@ -7,13 +7,6 @@ export interface Tenant {
   createdByUserId: number | null;
 }
 
-export interface PagedResult<T> {
-  data: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-}
-
 export interface ListTenantsParams {
   pageNumber: number;
   pageSize: number;
