@@ -8,7 +8,7 @@ interface NavigationItem {
   label: string;
   route: string;
   allowedRoles: readonly string[];
-  icon: 'dashboard' | 'tenants' | 'users';
+  icon: 'dashboard' | 'tenants' | 'users' | 'warehouses';
 }
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
@@ -29,6 +29,12 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     route: '/users',
     allowedRoles: ['TenantAdmin'],
     icon: 'users',
+  },
+  {
+    label: 'Warehouses',
+    route: '/warehouses',
+    allowedRoles: ['TenantAdmin'],
+    icon: 'warehouses',
   },
 ];
 

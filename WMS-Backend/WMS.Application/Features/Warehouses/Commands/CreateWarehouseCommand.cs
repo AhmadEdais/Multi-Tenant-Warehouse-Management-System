@@ -6,11 +6,11 @@
         public CreateWarehouseCommandValidator() 
         {            
             RuleFor(x => x.Code)
-                .NotEmpty().WithMessage("Code is required.")
+                .Must(code => !string.IsNullOrWhiteSpace(code)).WithMessage("Code is required.")
                 .MaximumLength(20).WithMessage("Code cannot exceed 20 characters.");
 
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.")
+                .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Name is required.")
                 .MaximumLength(200).WithMessage("Name cannot exceed 200 characters.");
             RuleFor(x => x.Address)
                 .MaximumLength(500).WithMessage("Address cannot exceed 500 characters.");
@@ -21,6 +21,9 @@
     {
         public async Task<int> Handle(CreateWarehouseCommand request, CancellationToken cancellationToken)
         {
+            var code = request.Code.Trim();
+            var name = request.Name.Trim();
+            var address = string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim();
             var tenantId = tenantContext.TenantId;
             if(!tenantId.HasValue)
             {
@@ -28,14 +31,13 @@
             }
 
             var exists = await context.Warehouses
-                .IgnoreQueryFilters()
-                .AnyAsync(w => w.TenantId == tenantId && w.Code == request.Code, cancellationToken);
+                .AnyAsync(w => w.TenantId == tenantId && w.Code == code, cancellationToken);
 
             if (exists)
             {
-                throw new ConflictException($"A warehouse with code '{request.Code}' already exists for this tenant.");
+                throw new ConflictException($"A warehouse with code '{code}' already exists for this tenant.");
             }
-            var warehouse =  Warehouse.Create(tenantId.Value, request.Code, request.Name, request.Address);
+            var warehouse = Warehouse.Create(tenantId.Value, code, name, address);
             
             context.Warehouses.Add(warehouse);
             await context.SaveChangesAsync(cancellationToken);

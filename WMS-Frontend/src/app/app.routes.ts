@@ -70,6 +70,15 @@ export const routes: Routes = [
           import('./features/users/users-page/users-page').then((m) => m.UsersPage),
       },
       {
+        path: 'warehouses',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin'] },
+        loadComponent: () =>
+          import('./features/warehouses/warehouses-page/warehouses-page').then(
+            (m) => m.WarehousesPage,
+          ),
+      },
+      {
         path: 'no-access',
         loadComponent: () => import('./pages/no-access/no-access').then((m) => m.NoAccess),
       },

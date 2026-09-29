@@ -9,7 +9,7 @@
         public UpdateWarehouseCommandValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0);
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.Name).Must(name => !string.IsNullOrWhiteSpace(name)).MaximumLength(200);
             RuleFor(x => x.Address).MaximumLength(500);
         }
     }
@@ -21,7 +21,11 @@
                 .Where(w => w.Id == request.Id)
                 .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException($"Warehouse with ID {request.Id} not found.");
-            warehouse.Update(request.Name, request.Address);
+            if (!warehouse.IsActive)
+            {
+                throw new ConflictException("Inactive warehouses cannot be edited.");
+            }
+            warehouse.Update(request.Name.Trim(), string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim());
             await context.SaveChangesAsync(cancellationToken);
 
         }

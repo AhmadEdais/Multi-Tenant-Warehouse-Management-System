@@ -13,8 +13,12 @@
         public async Task Handle(DeactivateWarehouseCommand request, CancellationToken cancellationToken)
         {
             var warehouse = await dbContext.Warehouses
-                .FindAsync([ request.Id,cancellationToken ], cancellationToken : cancellationToken)
+                .FirstOrDefaultAsync(w => w.Id == request.Id, cancellationToken)
                 ?? throw new NotFoundException($"Warehouse with Id {request.Id} not found.");
+            if (!warehouse.IsActive)
+            {
+                throw new ConflictException("Warehouse is already inactive.");
+            }
             warehouse.Deactivate();
             await dbContext.SaveChangesAsync(cancellationToken);
         }
