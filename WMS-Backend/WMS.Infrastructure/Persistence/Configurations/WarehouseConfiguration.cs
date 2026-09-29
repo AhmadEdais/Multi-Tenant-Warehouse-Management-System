@@ -42,7 +42,5 @@ public sealed class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
                .HasDatabaseName("UQ_Warehouses_Tenant_Code") 
                .IsClustered(false); 
 
-        builder.HasQueryFilter(w => w.IsActive);
-
     }
 }

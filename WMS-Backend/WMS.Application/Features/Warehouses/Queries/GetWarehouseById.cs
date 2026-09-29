@@ -2,9 +2,10 @@
 {
     public record WarehouseDto(
          int Id,
-         string? Code,
-         string? Name,
+         string Code,
+         string Name,
          string? Address,
+         bool IsActive,
          DateTime CreatedAtUtc
     );
     public record GetWarehouseByIdQuery(int Id) : IRequest<WarehouseDto>;
@@ -27,6 +28,7 @@
                     w.Code,
                     w.Name,
                     w.Address,
+                    w.IsActive,
                     w.CreatedAtUtc
                 ))
                 .FirstOrDefaultAsync(cancellationToken);
