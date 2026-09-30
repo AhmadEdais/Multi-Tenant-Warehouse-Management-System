@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, expand, of, reduce, Subject, switchMap } from 'rxjs';
@@ -5,11 +6,11 @@ import { Warehouse } from '../../warehouses/models/warehouse';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { LocationTreeNode } from '../location-node/location-tree-node';
 import { LocationsService } from '../locations.service';
-import { LocationNode } from '../models/location';
+import { LocationDetails, LocationNode } from '../models/location';
 
 @Component({
   selector: 'app-locations-page',
-  imports: [LocationTreeNode],
+  imports: [DecimalPipe, LocationTreeNode],
   templateUrl: './locations-page.html',
   styleUrl: './locations-page.css',
 })
@@ -18,6 +19,7 @@ export class LocationsPage implements OnInit {
   private readonly warehousesService = inject(WarehousesService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly treeLoad$ = new Subject<number>();
+  private readonly detailsSelection$ = new Subject<LocationNode | null>();
 
   readonly warehouses = signal<Warehouse[]>([]);
   readonly selectedWarehouse = signal<Warehouse | null>(null);
@@ -29,6 +31,10 @@ export class LocationsPage implements OnInit {
   readonly searchTerm = signal('');
   readonly expandedIds = signal<Set<number>>(new Set());
   readonly warehouseRootExpanded = signal(true);
+  readonly selectedLocationNode = signal<LocationNode | null>(null);
+  readonly selectedLocationDetails = signal<LocationDetails | null>(null);
+  readonly detailsLoading = signal(false);
+  readonly detailsError = signal<string | null>(null);
 
   readonly isSearching = computed(() => this.searchTerm().trim().length > 0);
   readonly filteredTree = computed(() => {
@@ -54,6 +60,30 @@ export class LocationsPage implements OnInit {
       .subscribe((tree) => {
         this.treeLoading.set(false);
         this.locationTree.set(tree ?? []);
+      });
+
+    this.detailsSelection$
+      .pipe(
+        switchMap((node) => {
+          this.selectedLocationNode.set(node);
+          this.selectedLocationDetails.set(null);
+          this.detailsError.set(null);
+          this.detailsLoading.set(node !== null);
+          if (!node) return EMPTY;
+
+          return this.locationsService.getById(node.id).pipe(
+            catchError(() => {
+              this.detailsLoading.set(false);
+              this.detailsError.set('Could not load location details. Please try again.');
+              return EMPTY;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((details) => {
+        this.detailsLoading.set(false);
+        this.selectedLocationDetails.set(details);
       });
 
     this.loadWarehouses();
@@ -99,6 +129,7 @@ export class LocationsPage implements OnInit {
   }
 
   private selectWarehouse(warehouse: Warehouse): void {
+    this.detailsSelection$.next(null);
     this.selectedWarehouse.set(warehouse);
     this.locationTree.set([]);
     this.searchTerm.set('');
@@ -110,6 +141,15 @@ export class LocationsPage implements OnInit {
   retryTree(): void {
     const warehouse = this.selectedWarehouse();
     if (warehouse) this.treeLoad$.next(warehouse.id);
+  }
+
+  onLocationSelected(node: LocationNode): void {
+    this.detailsSelection$.next(node);
+  }
+
+  retryDetails(): void {
+    const node = this.selectedLocationNode();
+    if (node) this.detailsSelection$.next(node);
   }
 
   onSearchInput(event: Event): void {

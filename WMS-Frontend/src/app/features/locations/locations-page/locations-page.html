@@ -206,7 +206,9 @@
                       [node]="location"
                       [expandedIds]="expandedIds()"
                       [searchActive]="isSearching()"
+                      [selectedId]="selectedLocationNode()?.id ?? null"
                       (toggle)="toggleExpanded($event)"
+                      (selectLocation)="onLocationSelected($event)"
                     />
                   }
                 </div>
@@ -221,30 +223,214 @@
       class="min-w-0 rounded-md border border-[#dfe7f1] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
       aria-labelledby="details-heading"
     >
-      <header class="border-b border-[#e3eaf3] px-5 py-4">
-        <h3 id="details-heading" class="text-sm font-bold text-[#14243b]">Location Details</h3>
-      </header>
-      <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
-        <div
-          class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4ff] text-[#2458c5]"
+      <header class="flex items-center gap-2 border-b border-[#e3eaf3] px-5 py-4">
+        <svg
+          class="h-[18px] w-[18px] text-[#405573]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
           aria-hidden="true"
         >
-          <svg
-            class="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
+          <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" stroke-linejoin="round" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+        <h3 id="details-heading" class="text-sm font-bold text-[#14243b]">Location Details</h3>
+      </header>
+      @if (!selectedLocationNode()) {
+        <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
+          <div
+            class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4ff] text-[#2458c5]"
+            aria-hidden="true"
           >
-            <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" stroke-linejoin="round" />
-            <circle cx="12" cy="10" r="2.5" />
-          </svg>
+            <svg
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+            >
+              <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" stroke-linejoin="round" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+          </div>
+          <h4 class="text-base font-semibold text-[#14243b]">Select a location</h4>
+          <p class="mt-2 max-w-sm text-sm leading-6 text-[#647590]">
+            Choose a location from the hierarchy to view its details and available actions.
+          </p>
         </div>
-        <h4 class="text-base font-semibold text-[#14243b]">Select a location</h4>
-        <p class="mt-2 max-w-sm text-sm leading-6 text-[#647590]">
-          Choose a location from the hierarchy to view its details and available actions.
-        </p>
-      </div>
+      } @else if (detailsLoading()) {
+        <div
+          class="flex min-h-[30rem] items-center justify-center px-6 py-10 text-sm text-[#647590]"
+          role="status"
+        >
+          Loading location details...
+        </div>
+      } @else if (detailsError()) {
+        <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
+          <p class="text-sm text-[#b4232d]" role="alert">{{ detailsError() }}</p>
+          <button
+            type="button"
+            (click)="retryDetails()"
+            class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      } @else if (selectedLocationDetails(); as location) {
+        <div class="px-5 py-6 sm:px-6">
+          <div class="flex flex-wrap items-center gap-3">
+            @switch (location.locationType.toLowerCase()) {
+              @case ('zone') {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f1ff] text-[#1479d4]"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <path
+                      d="m12 2 9 5-9 5-9-5 9-5ZM3 7v10l9 5 9-5V7M12 12v10"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              }
+              @case ('aisle') {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f7ed] text-[#22a05b]"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <rect x="5" y="3" width="14" height="18" rx="1" />
+                    <path d="M5 9h14M5 15h14M9 5v2M15 11v2M9 17v2" stroke-linecap="round" />
+                  </svg>
+                </span>
+              }
+              @case ('rack') {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#fff2db] text-[#e39513]"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <path
+                      d="M4 3h16v18H4V3ZM4 10h16M4 17h16M9 5v3M15 12v3M10 19h4"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              }
+              @case ('bin') {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#f3e9ff] text-[#9b43dc]"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <path
+                      d="M5 6h14l-1 15H6L5 6ZM8 6V4h8v2M9 11h6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              }
+              @default {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#eef3f8] text-[#52647e]"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <path d="M4 5h16v14H4V5ZM8 9h8M8 13h8" stroke-linecap="round" />
+                  </svg>
+                </span>
+              }
+            }
+            <h4 class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              {{ location.name }}
+            </h4>
+            <span
+              class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+              [class]="
+                location.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+              "
+            >
+              <span class="h-2 w-2 rounded-full bg-current"></span>
+              {{ location.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+
+          <dl
+            class="mt-6 divide-y divide-[#e3eaf3] overflow-hidden rounded-md border border-[#dfe7f1] text-sm"
+          >
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Location Type</dt>
+              <dd class="px-4 py-3 text-[#20324d]">{{ location.locationType }}</dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Name</dt>
+              <dd class="px-4 py-3 text-[#20324d]">{{ location.name }}</dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Parent</dt>
+              <dd class="px-4 py-3 text-[#20324d]">{{ location.parentLocationName || '—' }}</dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Warehouse</dt>
+              <dd class="px-4 py-3 text-[#20324d]">
+                {{ location.warehouseName }} ({{ location.warehouseCode }})
+              </dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Barcode</dt>
+              <dd class="break-all px-4 py-3 text-[#20324d]">{{ location.barcode || '—' }}</dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Max Weight</dt>
+              <dd class="px-4 py-3 text-[#20324d]">
+                @if (location.maxWeightCapacityKg !== null) {
+                  {{ location.maxWeightCapacityKg | number: '1.0-2' }} kg
+                } @else {
+                  —
+                }
+              </dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Status</dt>
+              <dd class="px-4 py-3 text-[#20324d]">
+                {{ location.isActive ? 'Active' : 'Inactive' }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      }
     </section>
   </div>
 </div>

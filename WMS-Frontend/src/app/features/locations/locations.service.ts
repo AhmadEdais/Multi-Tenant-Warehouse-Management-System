@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LocationNode } from './models/location';
+import { LocationDetails, LocationNode } from './models/location';
 
 @Injectable({
   providedIn: 'root',
@@ -13,5 +13,9 @@ export class LocationsService {
 
   getTree(warehouseId: number): Observable<LocationNode[]> {
     return this.http.get<LocationNode[]>(`${this.apiUrl}/warehouse/${warehouseId}/tree`);
+  }
+
+  getById(id: number): Observable<LocationDetails> {
+    return this.http.get<LocationDetails>(`${this.apiUrl}/${id}`);
   }
 }

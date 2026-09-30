@@ -31,6 +31,18 @@ public class LocationsController(ISender sender) : ControllerBase
         var result = await sender.Send(new GetLocationTreeQuery(warehouseId));
         return Ok(result);
     }
+    [HttpGet("{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanViewLocationsTree)]
+    [ProducesResponseType(typeof(LocationDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetLocationById(int id)
+    {
+        var location = await sender.Send(new GetLocationByIdQuery(id));
+        return Ok(location);
+    }
     [HttpPut("Update/{id}")]
     [Authorize(Policy =SecurityPolicies.CanManageLocations)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

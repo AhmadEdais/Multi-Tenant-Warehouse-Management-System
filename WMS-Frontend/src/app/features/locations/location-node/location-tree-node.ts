@@ -11,8 +11,14 @@ export class LocationTreeNode {
   readonly node = input.required<LocationNode>();
   readonly expandedIds = input.required<Set<number>>();
   readonly searchActive = input(false);
+  readonly selectedId = input<number | null>(null);
 
   readonly toggle = output<number>();
+  readonly selectLocation = output<LocationNode>();
+
+  isSelected(): boolean {
+    return this.selectedId() === this.node().id;
+  }
 
   isExpanded(): boolean {
     return this.searchActive() || this.expandedIds().has(this.node().id);
@@ -21,5 +27,9 @@ export class LocationTreeNode {
   onToggle(event: MouseEvent): void {
     event.stopPropagation();
     if (!this.searchActive()) this.toggle.emit(this.node().id);
+  }
+
+  onSelect(): void {
+    this.selectLocation.emit(this.node());
   }
 }
