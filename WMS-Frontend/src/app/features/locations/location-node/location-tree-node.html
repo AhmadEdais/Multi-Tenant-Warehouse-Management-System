@@ -1,0 +1,132 @@
+<div
+  class="tree-row flex min-h-9 min-w-0 items-center gap-1 rounded-md px-1 py-1 hover:bg-[#f2f6fb]"
+>
+  @if (node().children.length > 0) {
+    <button
+      type="button"
+      [attr.aria-label]="(isExpanded() ? 'Collapse ' : 'Expand ') + node().name"
+      [attr.aria-expanded]="isExpanded()"
+      [disabled]="searchActive()"
+      (click)="onToggle($event)"
+      class="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[#405573] hover:bg-[#e6edf7] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:cursor-default"
+    >
+      <svg
+        class="h-3.5 w-3.5 transition-transform"
+        [class.rotate-90]="isExpanded()"
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        aria-hidden="true"
+      >
+        <path d="m7 4 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  } @else {
+    <span class="h-7 w-7 shrink-0" aria-hidden="true"></span>
+  }
+
+  @switch (node().locationType.toLowerCase()) {
+    @case ('zone') {
+      <span
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f1ff] text-[#1479d4]"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-[18px] w-[18px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <path d="m12 2 9 5-9 5-9-5 9-5ZM3 7v10l9 5 9-5V7M12 12v10" stroke-linejoin="round" />
+        </svg>
+      </span>
+    }
+    @case ('aisle') {
+      <span
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f7ed] text-[#22a05b]"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-[18px] w-[18px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <rect x="5" y="3" width="14" height="18" rx="1" />
+          <path d="M5 9h14M5 15h14M9 5v2M15 11v2M9 17v2" stroke-linecap="round" />
+        </svg>
+      </span>
+    }
+    @case ('rack') {
+      <span
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#fff2db] text-[#e39513]"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-[18px] w-[18px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <path d="M4 3h16v18H4V3ZM4 10h16M4 17h16M9 5v3M15 12v3M10 19h4" stroke-linejoin="round" />
+        </svg>
+      </span>
+    }
+    @case ('bin') {
+      <span
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#f3e9ff] text-[#9b43dc]"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-[18px] w-[18px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <path
+            d="M5 6h14l-1 15H6L5 6ZM8 6V4h8v2M9 11h6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+    }
+    @default {
+      <span
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#eef3f8] text-[#52647e]"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-[18px] w-[18px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <path d="M4 5h16v14H4V5ZM8 9h8M8 13h8" stroke-linecap="round" />
+        </svg>
+      </span>
+    }
+  }
+  <span class="min-w-0 truncate px-1 text-sm font-medium text-[#20324d]" [title]="node().name">{{
+    node().name
+  }}</span>
+</div>
+
+@if (node().children.length > 0 && isExpanded()) {
+  <div class="tree-children">
+    @for (child of node().children; track child.id) {
+      <app-location-tree-node
+        [node]="child"
+        [expandedIds]="expandedIds()"
+        [searchActive]="searchActive()"
+        (toggle)="toggle.emit($event)"
+      />
+    }
+  </div>
+}

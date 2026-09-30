@@ -1,10 +1,5 @@
-<section
-  class="overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
-  aria-labelledby="locations-heading"
->
-  <header
-    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
-  >
+<div class="space-y-5">
+  <header class="flex flex-wrap items-center justify-between gap-4">
     <div>
       <h2 id="locations-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
         Locations
@@ -31,18 +26,30 @@
     </button>
   </header>
 
-  <div class="px-5 py-5 sm:px-6">
-    <div class="mb-5 grid gap-3 sm:grid-cols-[minmax(220px,280px)_minmax(0,1fr)]">
+  <section
+    class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
+    aria-label="Location filters"
+  >
+    <div class="grid gap-3 sm:grid-cols-[minmax(220px,2fr)_minmax(0,3fr)]">
       <label class="relative block" for="location-warehouse">
         <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
           >Warehouse</span
         >
         <select
           id="location-warehouse"
-          disabled
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none disabled:cursor-not-allowed disabled:text-[#6f809a]"
+          [value]="selectedWarehouse()?.id ?? ''"
+          [disabled]="warehousesLoading() || !!warehousesError() || warehouses().length === 0"
+          (change)="onWarehouseChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 pr-9 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:cursor-not-allowed disabled:text-[#6f809a]"
         >
-          <option value="">Select a warehouse</option>
+          <option value="">
+            {{ warehousesLoading() ? 'Loading warehouses...' : 'Select a warehouse' }}
+          </option>
+          @for (warehouse of warehouses(); track warehouse.id) {
+            <option [value]="warehouse.id" [selected]="warehouse.id === selectedWarehouse()?.id">
+              {{ warehouse.name }} ({{ warehouse.code }})
+            </option>
+          }
         </select>
         <svg
           class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
@@ -56,7 +63,7 @@
         </svg>
       </label>
       <label class="relative block" for="location-search">
-        <span class="sr-only">Search locations</span>
+        <span class="sr-only">Search locations by name or barcode</span>
         <svg
           class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
           viewBox="0 0 24 24"
@@ -71,53 +78,173 @@
         <input
           id="location-search"
           type="search"
+          [value]="searchTerm()"
+          [disabled]="!selectedWarehouse() || treeLoading() || !!treeError()"
+          (input)="onSearchInput($event)"
           placeholder="Search by name or barcode..."
-          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:cursor-not-allowed disabled:bg-[#f7f9fd]"
         />
       </label>
     </div>
+  </section>
 
-    <div class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <section
-        class="min-w-0 rounded-md border border-[#dfe7f1]"
-        aria-labelledby="hierarchy-heading"
-      >
-        <header class="border-b border-[#e3eaf3] bg-[#f7f9fd] px-5 py-4">
-          <h3 id="hierarchy-heading" class="text-sm font-bold text-[#14243b]">
-            Location Hierarchy
-          </h3>
-        </header>
-        <div class="flex min-h-80 items-center justify-center px-5 py-10 text-center">
-          <p class="text-sm text-[#647590]">Location hierarchy will appear here.</p>
-        </div>
-      </section>
-
-      <section class="min-w-0 rounded-md border border-[#dfe7f1]" aria-labelledby="details-heading">
-        <header class="border-b border-[#e3eaf3] bg-[#f7f9fd] px-5 py-4">
-          <h3 id="details-heading" class="text-sm font-bold text-[#14243b]">Location Details</h3>
-        </header>
-        <div class="flex min-h-80 flex-col items-center justify-center px-6 py-10 text-center">
-          <div
-            class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4ff] text-[#2458c5]"
-            aria-hidden="true"
-          >
-            <svg
-              class="h-6 w-6"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-            >
-              <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" stroke-linejoin="round" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
-          </div>
-          <h4 class="text-base font-semibold text-[#14243b]">Select a location</h4>
-          <p class="mt-2 max-w-sm text-sm leading-6 text-[#647590]">
-            Choose a location from the hierarchy to view its details and available actions.
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <section
+      class="min-w-0 rounded-md border border-[#dfe7f1] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="hierarchy-heading"
+    >
+      <header class="flex items-center gap-2 border-b border-[#e3eaf3] px-5 py-4">
+        <svg
+          class="h-[18px] w-[18px] text-[#405573]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M3 6h7l2 2h9v12H3V6Z" stroke-linejoin="round" />
+        </svg>
+        <h3 id="hierarchy-heading" class="text-sm font-bold text-[#14243b]">Location Hierarchy</h3>
+      </header>
+      <div class="min-h-[30rem] overflow-x-auto px-4 py-5 sm:px-5">
+        @if (warehousesLoading()) {
+          <p role="status" class="py-12 text-center text-sm text-[#647590]">
+            Loading warehouses...
           </p>
+        } @else if (warehousesError()) {
+          <div class="py-12 text-center">
+            <p role="alert" class="text-sm text-[#b4232d]">{{ warehousesError() }}</p>
+            <button
+              type="button"
+              (click)="loadWarehouses()"
+              class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        } @else if (!selectedWarehouse()) {
+          <p class="py-12 text-center text-sm text-[#647590]">
+            No active warehouses are available.
+          </p>
+        } @else if (treeLoading()) {
+          <p role="status" class="py-12 text-center text-sm text-[#647590]">Loading locations...</p>
+        } @else if (treeError()) {
+          <div class="py-12 text-center">
+            <p role="alert" class="text-sm text-[#b4232d]">{{ treeError() }}</p>
+            <button
+              type="button"
+              (click)="retryTree()"
+              class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        } @else if (selectedWarehouse(); as warehouse) {
+          <div class="min-w-max">
+            <div class="flex min-h-9 items-center gap-1 rounded-md px-1 py-1">
+              @if (locationTree().length > 0) {
+                <button
+                  type="button"
+                  [attr.aria-label]="
+                    (isSearching() || warehouseRootExpanded() ? 'Collapse ' : 'Expand ') +
+                    warehouse.name
+                  "
+                  [attr.aria-expanded]="isSearching() || warehouseRootExpanded()"
+                  [disabled]="isSearching()"
+                  (click)="toggleWarehouseRoot()"
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[#405573] hover:bg-[#e6edf7] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:cursor-default"
+                >
+                  <svg
+                    class="h-3.5 w-3.5 transition-transform"
+                    [class.rotate-90]="isSearching() || warehouseRootExpanded()"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    aria-hidden="true"
+                  >
+                    <path d="m7 4 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              } @else {
+                <span class="h-7 w-7 shrink-0" aria-hidden="true"></span>
+              }
+              <span
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e9f0fa] text-[#304f79]"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-[18px] w-[18px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                >
+                  <path
+                    d="m3 9 9-6 9 6v12H3V9ZM3 9h18M7 21v-8h10v8M10 16h4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span class="px-1 text-sm font-semibold text-[#20324d]"
+                >{{ warehouse.name }} ({{ warehouse.code }})</span
+              >
+            </div>
+
+            @if (isSearching() || warehouseRootExpanded()) {
+              @if (locationTree().length === 0) {
+                <p class="ml-10 mt-3 text-sm text-[#647590]">
+                  No locations found for this warehouse.
+                </p>
+              } @else if (filteredTree().length === 0) {
+                <p class="ml-10 mt-3 text-sm text-[#647590]">No locations match your search.</p>
+              } @else {
+                <div class="warehouse-children">
+                  @for (location of filteredTree(); track location.id) {
+                    <app-location-tree-node
+                      [node]="location"
+                      [expandedIds]="expandedIds()"
+                      [searchActive]="isSearching()"
+                      (toggle)="toggleExpanded($event)"
+                    />
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section
+      class="min-w-0 rounded-md border border-[#dfe7f1] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="details-heading"
+    >
+      <header class="border-b border-[#e3eaf3] px-5 py-4">
+        <h3 id="details-heading" class="text-sm font-bold text-[#14243b]">Location Details</h3>
+      </header>
+      <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4ff] text-[#2458c5]"
+          aria-hidden="true"
+        >
+          <svg
+            class="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          >
+            <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" stroke-linejoin="round" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
         </div>
-      </section>
-    </div>
+        <h4 class="text-base font-semibold text-[#14243b]">Select a location</h4>
+        <p class="mt-2 max-w-sm text-sm leading-6 text-[#647590]">
+          Choose a location from the hierarchy to view its details and available actions.
+        </p>
+      </div>
+    </section>
   </div>
-</section>
+</div>

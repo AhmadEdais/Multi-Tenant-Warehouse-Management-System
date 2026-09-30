@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  position: relative;
+  padding-left: 16px;
+}
+
+:host::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed #d5e0ed;
+}
+
+:host::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 16px;
+  border-top: 1px dashed #d5e0ed;
+}
+
+:host:last-child::before {
+  bottom: auto;
+  height: 18px;
+}
+
+.tree-children {
+  margin-left: 22px;
+}
