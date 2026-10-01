@@ -15,9 +15,15 @@ internal sealed class ReactivateLocationCommandHandler(IWmsDbContext context)
 {
     public async Task Handle(ReactivateLocationCommand request, CancellationToken cancellationToken)
     {
+        
         var location = await context.Locations
             .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException($"Location with ID {request.Id} not found.");
+        var warehouseExists = await context.Warehouses
+            .AnyAsync(w => w.Id == location.WarehouseId && w.IsActive, cancellationToken);
+        if (!warehouseExists) {
+            throw new ConflictException("Cannot reactivate location because the warehouse is not active.");
+        }
         if (location.IsActive)
             throw new ConflictException("Location is already active.");
 
