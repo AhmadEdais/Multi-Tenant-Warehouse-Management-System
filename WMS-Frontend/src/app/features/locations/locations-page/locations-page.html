@@ -10,7 +10,9 @@
     </div>
     <button
       type="button"
-      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+      [disabled]="!selectedWarehouse() || treeLoading() || !!treeError()"
+      (click)="openAddLocation()"
+      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] disabled:cursor-not-allowed disabled:opacity-50"
     >
       <svg
         class="h-5 w-5"
@@ -30,8 +32,10 @@
     class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
     aria-label="Location filters"
   >
-    <div class="grid gap-3 sm:grid-cols-[minmax(220px,2fr)_minmax(0,3fr)]">
-      <label class="relative block" for="location-warehouse">
+    <div
+      class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_minmax(130px,1fr)]"
+    >
+      <label class="relative block min-w-0" for="location-warehouse">
         <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
           >Warehouse</span
         >
@@ -62,7 +66,7 @@
           <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </label>
-      <label class="relative block" for="location-search">
+      <label class="relative block min-w-0" for="location-search">
         <span class="sr-only">Search locations by name or barcode</span>
         <svg
           class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
@@ -84,6 +88,31 @@
           placeholder="Search by name or barcode..."
           class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:cursor-not-allowed disabled:bg-[#f7f9fd]"
         />
+      </label>
+      <label class="relative block min-w-0" for="location-status">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="location-status"
+          [value]="status()"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 pr-8 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
       </label>
     </div>
   </section>
@@ -146,17 +175,17 @@
                 <button
                   type="button"
                   [attr.aria-label]="
-                    (isSearching() || warehouseRootExpanded() ? 'Collapse ' : 'Expand ') +
+                    (isFiltering() || warehouseRootExpanded() ? 'Collapse ' : 'Expand ') +
                     warehouse.name
                   "
-                  [attr.aria-expanded]="isSearching() || warehouseRootExpanded()"
-                  [disabled]="isSearching()"
+                  [attr.aria-expanded]="isFiltering() || warehouseRootExpanded()"
+                  [disabled]="isFiltering()"
                   (click)="toggleWarehouseRoot()"
                   class="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[#405573] hover:bg-[#e6edf7] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:cursor-default"
                 >
                   <svg
                     class="h-3.5 w-3.5 transition-transform"
-                    [class.rotate-90]="isSearching() || warehouseRootExpanded()"
+                    [class.rotate-90]="isFiltering() || warehouseRootExpanded()"
                     viewBox="0 0 20 20"
                     fill="none"
                     stroke="currentColor"
@@ -192,23 +221,24 @@
               >
             </div>
 
-            @if (isSearching() || warehouseRootExpanded()) {
+            @if (isFiltering() || warehouseRootExpanded()) {
               @if (locationTree().length === 0) {
                 <p class="ml-10 mt-3 text-sm text-[#647590]">
                   No locations found for this warehouse.
                 </p>
               } @else if (filteredTree().length === 0) {
-                <p class="ml-10 mt-3 text-sm text-[#647590]">No locations match your search.</p>
+                <p class="ml-10 mt-3 text-sm text-[#647590]">No locations match your filters.</p>
               } @else {
                 <div class="warehouse-children">
                   @for (location of filteredTree(); track location.id) {
                     <app-location-tree-node
                       [node]="location"
                       [expandedIds]="expandedIds()"
-                      [searchActive]="isSearching()"
+                      [searchActive]="isFiltering()"
                       [selectedId]="selectedLocationNode()?.id ?? null"
                       (toggle)="toggleExpanded($event)"
                       (selectLocation)="onLocationSelected($event)"
+                      (openContextMenu)="openLocationContext($event)"
                     />
                   }
                 </div>
@@ -385,6 +415,74 @@
               <span class="h-2 w-2 rounded-full bg-current"></span>
               {{ location.isActive ? 'Active' : 'Inactive' }}
             </span>
+            <div class="ml-auto flex flex-wrap items-center gap-2">
+              @if (location.isActive) {
+                <button
+                  type="button"
+                  (click)="openEditLocation(selectedLocationNode())"
+                  class="inline-flex min-h-9 items-center gap-2 rounded-md border border-[#d8e2ef] bg-white px-3 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  (click)="requestAction('deactivate', selectedLocationNode())"
+                  class="inline-flex min-h-9 items-center gap-2 rounded-md border border-[#efced1] bg-white px-3 text-sm font-semibold text-[#b4232d] hover:bg-[#fff0f0] focus-visible:outline-2 focus-visible:outline-[#b4232d]"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Deactivate
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="requestAction('reactivate', selectedLocationNode())"
+                  class="inline-flex min-h-9 items-center gap-2 rounded-md border border-[#d8e2ef] bg-white px-3 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M20 11a8 8 0 1 1-2.2-5.5M20 4v6h-6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Reactivate
+                </button>
+              }
+            </div>
           </div>
 
           <dl
@@ -433,4 +531,176 @@
       }
     </section>
   </div>
+  @if (contextLocation(); as location) {
+    <div
+      class="fixed z-40 w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
+      [style.top.px]="contextPosition().top"
+      [style.left.px]="contextPosition().left"
+      (click)="$event.stopPropagation()"
+      role="menu"
+      [attr.aria-label]="'Actions for ' + location.name"
+    >
+      @if (location.isActive) {
+        @if (location.locationType !== 'Bin') {
+          <button
+            type="button"
+            role="menuitem"
+            (click)="openAddChild()"
+            class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb]"
+          >
+            <svg
+              class="h-4 w-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+            </svg>
+            Add Location
+          </button>
+        }
+        <button
+          type="button"
+          role="menuitem"
+          (click)="openEditLocation()"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb]"
+        >
+          <svg
+            class="h-4 w-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Edit
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          (click)="requestAction('deactivate')"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#b4232d] hover:bg-[#fff0f0]"
+        >
+          <svg
+            class="h-4 w-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Deactivate
+        </button>
+      } @else {
+        <button
+          type="button"
+          role="menuitem"
+          (click)="requestAction('reactivate')"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#2458c5] hover:bg-[#eef4ff]"
+        >
+          <svg
+            class="h-4 w-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 11a8 8 0 1 1-2.2-5.5M20 4v6h-6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Reactivate
+        </button>
+      }
+    </div>
+  }
+  @if (formState(); as form) {
+    @if (selectedWarehouse(); as warehouse) {
+      <app-location-form
+        [mode]="form.mode"
+        [warehouse]="warehouse"
+        [locationTree]="locationTree()"
+        [location]="form.location"
+        [lockedParent]="form.lockedParent"
+        [saving]="formLoading()"
+        [error]="formError()"
+        (close)="closeLocationForm()"
+        (submitLocation)="saveLocation($event)"
+      />
+    }
+  }
+  @if (pendingAction(); as pending) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-[#14243b]/50 p-4">
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="location-action-title"
+        class="w-full max-w-md rounded-md border border-[#d7e1ef] bg-white p-6 shadow-xl"
+      >
+        <h3 id="location-action-title" class="text-lg font-bold text-[#14243b]">
+          {{ pending.action === 'deactivate' ? 'Deactivate' : 'Reactivate' }} location?
+        </h3>
+        <p class="mt-2 text-sm leading-6 text-[#647590]">
+          @if (pending.action === 'deactivate') {
+            "{{ pending.location.name }}" will no longer be available for active warehouse
+            operations.
+          } @else {
+            "{{ pending.location.name }}" will become available for active warehouse operations
+            again.
+          }
+        </p>
+        @if (actionError()) {
+          <p role="alert" class="mt-4 rounded-md bg-[#fff0f0] px-3 py-2 text-sm text-[#b4232d]">
+            {{ actionError() }}
+          </p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="closeAction()"
+            class="min-h-10 rounded-md border border-[#cdd9e9] px-4 text-sm font-semibold text-[#405573] disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="confirmAction()"
+            class="min-h-10 rounded-md px-5 text-sm font-semibold text-white disabled:opacity-50"
+            [class]="
+              pending.action === 'deactivate'
+                ? 'bg-[#b4232d] hover:bg-[#94212a]'
+                : 'bg-[#2458c5] hover:bg-[#1b49a9]'
+            "
+          >
+            {{
+              actionLoading()
+                ? 'Saving...'
+                : pending.action === 'deactivate'
+                  ? 'Deactivate'
+                  : 'Reactivate'
+            }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </div>

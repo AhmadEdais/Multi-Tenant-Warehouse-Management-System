@@ -15,6 +15,7 @@ export class LocationTreeNode {
 
   readonly toggle = output<number>();
   readonly selectLocation = output<LocationNode>();
+  readonly openContextMenu = output<{ node: LocationNode; x: number; y: number }>();
 
   isSelected(): boolean {
     return this.selectedId() === this.node().id;
@@ -31,5 +32,11 @@ export class LocationTreeNode {
 
   onSelect(): void {
     this.selectLocation.emit(this.node());
+  }
+
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.openContextMenu.emit({ node: this.node(), x: event.clientX, y: event.clientY });
   }
 }

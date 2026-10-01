@@ -68,4 +68,15 @@ public class LocationsController(ISender sender) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("Reactivate/{id}")]
+    [Authorize(Policy = SecurityPolicies.CanDeactivateLocations)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReactivateLocation(int id)
+    {
+        await sender.Send(new ReactivateLocationCommand(id));
+        return NoContent();
+    }
+
 }

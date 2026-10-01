@@ -1,6 +1,7 @@
 <div
   class="tree-row flex min-h-9 min-w-0 items-center gap-1 rounded-md px-1 py-1"
   [class]="isSelected() ? 'bg-[#e6f1ff]' : 'hover:bg-[#f2f6fb]'"
+  (contextmenu)="onContextMenu($event)"
 >
   @if (node().children.length > 0) {
     <button
@@ -37,6 +38,7 @@
       @case ('zone') {
         <span
           class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f1ff] text-[#1479d4]"
+          [class.opacity-50]="!node().isActive"
           aria-hidden="true"
         >
           <svg
@@ -53,6 +55,7 @@
       @case ('aisle') {
         <span
           class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f7ed] text-[#22a05b]"
+          [class.opacity-50]="!node().isActive"
           aria-hidden="true"
         >
           <svg
@@ -70,6 +73,7 @@
       @case ('rack') {
         <span
           class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#fff2db] text-[#e39513]"
+          [class.opacity-50]="!node().isActive"
           aria-hidden="true"
         >
           <svg
@@ -89,6 +93,7 @@
       @case ('bin') {
         <span
           class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#f3e9ff] text-[#9b43dc]"
+          [class.opacity-50]="!node().isActive"
           aria-hidden="true"
         >
           <svg
@@ -125,10 +130,11 @@
     }
     <span
       class="min-w-0 truncate px-1 text-sm font-medium"
-      [class]="isSelected() ? 'text-[#2458c5]' : 'text-[#20324d]'"
+      [class]="!node().isActive ? 'text-[#8290a3]' : isSelected() ? 'text-[#2458c5]' : 'text-[#20324d]'"
       [title]="node().name"
       >{{ node().name }}</span
     >
+    @if (!node().isActive) { <span class="rounded bg-[#eef1f5] px-1.5 py-0.5 text-[10px] font-semibold text-[#69788d]">Inactive</span> }
   </button>
 </div>
 
@@ -142,6 +148,7 @@
         [selectedId]="selectedId()"
         (toggle)="toggle.emit($event)"
         (selectLocation)="selectLocation.emit($event)"
+        (openContextMenu)="openContextMenu.emit($event)"
       />
     }
   </div>

@@ -1,0 +1,141 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#14243b]/50 p-4">
+  <section
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="location-form-title"
+    class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-md border border-[#d7e1ef] bg-white shadow-xl"
+  >
+    <header class="flex items-center justify-between border-b border-[#e3eaf3] px-6 py-4">
+      <h3 id="location-form-title" class="text-lg font-bold text-[#14243b]">
+        {{ mode() === 'edit' ? 'Edit Location' : 'Add Location' }}
+      </h3>
+      <button
+        type="button"
+        [disabled]="saving()"
+        (click)="close.emit()"
+        aria-label="Close"
+        class="rounded p-1 text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M5 5l14 14M19 5 5 19" />
+        </svg>
+      </button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 px-6 py-5">
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Warehouse
+        <input
+          type="text"
+          [value]="warehouse().name + ' (' + warehouse().code + ')'"
+          disabled
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-[#f7f9fd] px-3 text-sm text-[#52647e]"
+        />
+      </label>
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Location Type
+        <select
+          formControlName="locationType"
+          (change)="onTypeChange($event)"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:bg-[#f7f9fd]"
+        >
+          @for (type of types; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </label>
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Parent Location
+        <select
+          formControlName="parentLocationId"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:bg-[#f7f9fd]"
+        >
+          <option [ngValue]="null">
+            {{ form.controls.locationType.value === 'Zone' ? 'None' : 'Select a parent' }}
+          </option>
+          @for (parent of parentOptions; track parent.id) {
+            <option [ngValue]="parent.id">{{ parent.name }}</option>
+          }
+        </select>
+        @if (form.controls.parentLocationId.touched && form.controls.parentLocationId.invalid) {
+          <span class="mt-1 block text-xs text-[#b4232d]"
+            >Select an active
+            {{
+              form.controls.locationType.value === 'Aisle'
+                ? 'Zone'
+                : form.controls.locationType.value === 'Rack'
+                  ? 'Aisle'
+                  : 'Rack'
+            }}.</span
+          >
+        }
+      </label>
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Name
+        <input
+          type="text"
+          formControlName="name"
+          maxlength="100"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="mt-1 block text-xs text-[#b4232d]"
+            >Name is required (maximum 100 characters).</span
+          >
+        }
+      </label>
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Barcode
+        <input
+          type="text"
+          formControlName="barcode"
+          maxlength="100"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Max Weight Capacity (kg)
+        <input
+          type="number"
+          formControlName="maxWeightCapacityKg"
+          min="0"
+          step="0.01"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+        @if (
+          form.controls.maxWeightCapacityKg.touched && form.controls.maxWeightCapacityKg.invalid
+        ) {
+          <span class="mt-1 block text-xs text-[#b4232d]">Capacity cannot be negative.</span>
+        }
+      </label>
+      @if (error()) {
+        <p role="alert" class="rounded-md bg-[#fff0f0] px-3 py-2 text-sm text-[#b4232d]">
+          {{ error() }}
+        </p>
+      }
+      <div class="flex justify-end gap-3 border-t border-[#e3eaf3] pt-4">
+        <button
+          type="button"
+          [disabled]="saving()"
+          (click)="close.emit()"
+          class="min-h-10 rounded-md border border-[#cdd9e9] px-4 text-sm font-semibold text-[#405573] disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+        >
+          {{ saving() ? 'Saving...' : mode() === 'edit' ? 'Save Changes' : 'Add Location' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

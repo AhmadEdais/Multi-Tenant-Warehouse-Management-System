@@ -32,6 +32,8 @@ namespace WMS.Domain.Entities
             string? barcode,
             decimal? maxWeightCapacityKg)
         {
+            if (!WMS.Domain.Constants.LocationTypes.IsValid(locationType))
+                throw new ArgumentException("Invalid location type.", nameof(locationType));
             return new Location
             {
                 WarehouseId = warehouseId,
@@ -44,8 +46,9 @@ namespace WMS.Domain.Entities
             };
         }
 
-        public void Update(string name, string? barcode, decimal? maxWeightCapacityKg)
+        public void Update(int? parentLocationId, string name, string? barcode, decimal? maxWeightCapacityKg)
         {
+            ParentLocationId = parentLocationId;
             Name = name;
             Barcode = barcode;
             MaxWeightCapacityKg = maxWeightCapacityKg;
@@ -54,6 +57,11 @@ namespace WMS.Domain.Entities
         public void Deactivate()
         {
             IsActive = false;
+        }
+
+        public void Reactivate()
+        {
+            IsActive = true;
         }
     }
 }
