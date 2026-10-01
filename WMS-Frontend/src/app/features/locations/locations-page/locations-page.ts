@@ -1,6 +1,14 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, HostListener, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, expand, Observable, of, reduce, Subject, switchMap } from 'rxjs';
 import { Warehouse } from '../../warehouses/models/warehouse';
@@ -8,10 +16,19 @@ import { WarehousesService } from '../../warehouses/warehouses.service';
 import { LocationTreeNode } from '../location-node/location-tree-node';
 import { LocationFormComponent, LocationFormValue } from '../location-form/location-form';
 import { LocationsService } from '../locations.service';
-import { CreateLocationRequest, LocationDetails, LocationNode, UpdateLocationRequest } from '../models/location';
+import {
+  CreateLocationRequest,
+  LocationDetails,
+  LocationNode,
+  UpdateLocationRequest,
+} from '../models/location';
 
 type LocationStatus = 'all' | 'active' | 'inactive';
-type FormState = { mode: 'add' | 'edit'; location: LocationNode | null; lockedParent: LocationNode | null };
+type FormState = {
+  mode: 'add' | 'edit';
+  location: LocationNode | null;
+  lockedParent: LocationNode | null;
+};
 type ActionState = { action: 'deactivate' | 'reactivate'; location: LocationNode };
 
 @Component({
@@ -52,7 +69,7 @@ export class LocationsPage implements OnInit {
   readonly actionError = signal<string | null>(null);
 
   readonly isSearching = computed(() => this.searchTerm().trim().length > 0);
-  readonly isFiltering = computed(() => this.isSearching() || this.status() !== 'all');
+  readonly isFiltering = computed(() => this.isSearching());
   readonly filteredTree = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const status = this.status();
@@ -211,11 +228,17 @@ export class LocationsPage implements OnInit {
     });
   }
 
-  private filterLocations(locations: LocationNode[], term: string, status: LocationStatus): LocationNode[] {
+  private filterLocations(
+    locations: LocationNode[],
+    term: string,
+    status: LocationStatus,
+  ): LocationNode[] {
     return locations
       .map((location) => {
         const filteredChildren = this.filterLocations(location.children, term, status);
-        const matchesSearch = !term || location.name.toLowerCase().includes(term) ||
+        const matchesSearch =
+          !term ||
+          location.name.toLowerCase().includes(term) ||
           !!location.barcode?.toLowerCase().includes(term);
         const matchesStatus = status === 'all' || location.isActive === (status === 'active');
 
@@ -272,14 +295,18 @@ export class LocationsPage implements OnInit {
     if (!state || !warehouse || this.formLoading()) return;
     this.formLoading.set(true);
     this.formError.set(null);
-    const request: Observable<unknown> = state.mode === 'add'
-      ? this.locationsService.create({ warehouseId: warehouse.id, ...value } satisfies CreateLocationRequest)
-      : this.locationsService.update(state.location!.id, {
-          parentLocationId: value.parentLocationId,
-          name: value.name,
-          barcode: value.barcode,
-          maxWeightCapacityKg: value.maxWeightCapacityKg,
-        } satisfies UpdateLocationRequest);
+    const request: Observable<unknown> =
+      state.mode === 'add'
+        ? this.locationsService.create({
+            warehouseId: warehouse.id,
+            ...value,
+          } satisfies CreateLocationRequest)
+        : this.locationsService.update(state.location!.id, {
+            parentLocationId: value.parentLocationId,
+            name: value.name,
+            barcode: value.barcode,
+            maxWeightCapacityKg: value.maxWeightCapacityKg,
+          } satisfies UpdateLocationRequest);
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.formLoading.set(false);
@@ -294,7 +321,10 @@ export class LocationsPage implements OnInit {
     });
   }
 
-  requestAction(action: 'deactivate' | 'reactivate', location: LocationNode | null = this.contextLocation()): void {
+  requestAction(
+    action: 'deactivate' | 'reactivate',
+    location: LocationNode | null = this.contextLocation(),
+  ): void {
     if (!location || location.isActive !== (action === 'deactivate')) return;
     this.pendingAction.set({ action, location });
     this.actionError.set(null);
@@ -313,9 +343,10 @@ export class LocationsPage implements OnInit {
     if (!pending || !warehouse || this.actionLoading()) return;
     this.actionLoading.set(true);
     this.actionError.set(null);
-    const request = pending.action === 'deactivate'
-      ? this.locationsService.deactivate(pending.location.id)
-      : this.locationsService.reactivate(pending.location.id);
+    const request =
+      pending.action === 'deactivate'
+        ? this.locationsService.deactivate(pending.location.id)
+        : this.locationsService.reactivate(pending.location.id);
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.actionLoading.set(false);
@@ -325,9 +356,15 @@ export class LocationsPage implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         this.actionLoading.set(false);
-        const message = this.locationError(error, `Could not ${pending.action} location. Please try again.`);
-        this.actionError.set(pending.action === 'reactivate' && message === 'The selected parent is inactive.'
-          ? 'This location cannot be reactivated until its parent is active.' : message);
+        const message = this.locationError(
+          error,
+          `Could not ${pending.action} location. Please try again.`,
+        );
+        this.actionError.set(
+          pending.action === 'reactivate' && message === 'The selected parent is inactive.'
+            ? 'This location cannot be reactivated until its parent is active.'
+            : message,
+        );
       },
     });
   }
@@ -344,14 +381,22 @@ export class LocationsPage implements OnInit {
       'Cannot add a location to an inactive warehouse.',
       'Inactive locations cannot be edited.',
     ];
-    if (error.status === 409 && (known.includes(detail) || /^A (Aisle|Rack|Bin) must belong to a (Zone|Aisle|Rack)\.$/.test(detail))) return detail;
-    if (error.status === 404) return 'This location or its parent is no longer available. Refresh and try again.';
+    if (
+      error.status === 409 &&
+      (known.includes(detail) ||
+        /^A (Aisle|Rack|Bin) must belong to a (Zone|Aisle|Rack)\.$/.test(detail))
+    )
+      return detail;
+    if (error.status === 404)
+      return 'This location or its parent is no longer available. Refresh and try again.';
     if (error.status === 400) return 'Please check the location information and try again.';
     return fallback;
   }
 
   @HostListener('document:click')
-  onOutsideClick(): void { this.closeContextMenu(); }
+  onOutsideClick(): void {
+    this.closeContextMenu();
+  }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
