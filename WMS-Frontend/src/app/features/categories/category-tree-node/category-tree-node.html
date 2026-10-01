@@ -1,0 +1,85 @@
+<div
+  class="flex min-h-9 min-w-0 items-center gap-1 rounded-md px-1 py-1"
+  [class]="selectedId() === node().id ? 'bg-[#e6f1ff]' : 'hover:bg-[#f2f6fb]'"
+  (contextmenu)="onContextMenu($event)"
+>
+  @if (node().children.length) {
+    <button
+      type="button"
+      (click)="onToggle($event)"
+      [disabled]="searchActive()"
+      [attr.aria-label]="(isExpanded() ? 'Collapse ' : 'Expand ') + node().name"
+      [attr.aria-expanded]="isExpanded()"
+      class="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[#405573] hover:bg-[#e6edf7] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:cursor-default"
+    >
+      <svg
+        class="h-3.5 w-3.5 transition-transform"
+        [class.rotate-90]="isExpanded()"
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        aria-hidden="true"
+      >
+        <path d="m7 4 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  } @else {
+    <span class="h-7 w-7 shrink-0" aria-hidden="true"></span>
+  }
+  <button
+    type="button"
+    (click)="selectCategory.emit(node())"
+    [attr.aria-current]="selectedId() === node().id ? 'true' : null"
+    class="flex min-w-0 flex-1 items-center gap-2 rounded text-left focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+  >
+    <span
+      class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f1ff] text-[#1479d4]"
+      [class.opacity-50]="!node().isActive"
+      aria-hidden="true"
+    >
+      <svg
+        class="h-[18px] w-[18px]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+      >
+        <path d="M3 6h7l2 2h11v11H3V6Z" stroke-linejoin="round" />
+      </svg>
+    </span>
+    <span
+      class="min-w-0 truncate text-sm font-medium"
+      [class]="
+        !node().isActive
+          ? 'text-[#8290a3]'
+          : selectedId() === node().id
+            ? 'text-[#2458c5]'
+            : 'text-[#20324d]'
+      "
+      [title]="node().name"
+      >{{ node().name }}</span
+    >
+    @if (!node().isActive) {
+      <span class="rounded bg-[#eef1f5] px-1.5 py-0.5 text-[10px] font-semibold text-[#69788d]"
+        >Inactive</span
+      >
+    }
+  </button>
+</div>
+@if (node().children.length && isExpanded()) {
+  <div class="tree-children">
+    @for (child of node().children; track child.id) {
+      <app-category-tree-node
+        [node]="child"
+        [expandedIds]="expandedIds()"
+        [searchActive]="searchActive()"
+        [selectedId]="selectedId()"
+        [canManage]="canManage()"
+        (toggle)="toggle.emit($event)"
+        (selectCategory)="selectCategory.emit($event)"
+        (openContextMenu)="openContextMenu.emit($event)"
+      />
+    }
+  </div>
+}
