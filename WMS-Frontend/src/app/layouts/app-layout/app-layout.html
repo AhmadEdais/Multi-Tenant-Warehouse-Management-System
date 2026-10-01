@@ -129,6 +129,23 @@
                         <path d="M2 9h20M7 21v-8h10v8M10 16h4" stroke-linecap="round" />
                       </svg>
                     }
+                    @case ('locations') {
+                      <svg
+                        class="h-[18px] w-[18px] shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M12 21c-4.97-5.5-8-9.5-8-13a8 8 0 0 1 16 0c0 3.5-3.03 7.5-8 13Z"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <circle cx="12" cy="8" r="2" />
+                      </svg>
+                    }
                   }
                   <span>{{ item.label }}</span>
                 </a>

@@ -14,8 +14,10 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
     {
         RuleFor(x => x.WarehouseId).GreaterThan(0);
         RuleFor(x => x.ParentLocationId).GreaterThan(0).When(x => x.ParentLocationId.HasValue);
-        RuleFor(x => x.LocationType).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.LocationType)
+            .Must(type => LocationTypes.IsValid(type?.Trim()))
+            .WithMessage("Location type must be Zone, Aisle, Rack, or Bin.");
+        RuleFor(x => x.Name).Must(name => !string.IsNullOrWhiteSpace(name)).MaximumLength(100);
         RuleFor(x => x.Barcode).MaximumLength(100);
         RuleFor(x => x.MaxWeightCapacityKg).GreaterThanOrEqualTo(0);
     }
@@ -24,30 +26,36 @@ internal class CreateLocationCommandHandler(IWmsDbContext context) : IRequestHan
 {
     public async Task<int> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(request.Barcode))
+        var warehouse = await context.Warehouses
+            .AsNoTracking()
+            .Where(w => w.Id == request.WarehouseId)
+            .Select(w => new { w.IsActive })
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException("Warehouse was not found.");
+        if (!warehouse.IsActive)
+            throw new ConflictException("Cannot add a location to an inactive warehouse.");
+
+        var locationType = request.LocationType.Trim();
+        var name = request.Name.Trim();
+        var barcode = string.IsNullOrWhiteSpace(request.Barcode) ? null : request.Barcode.Trim();
+        await LocationHierarchy.ValidateParentAsync(
+            context, request.WarehouseId, locationType, request.ParentLocationId, cancellationToken);
+
+        if (barcode is not null)
         {
             var barcodeExists = await context.Locations
-            .AnyAsync(l => l.WarehouseId == request.WarehouseId && l.Barcode == request.Barcode, cancellationToken);
+                .AnyAsync(l => l.WarehouseId == request.WarehouseId && l.Barcode == barcode, cancellationToken);
             if (barcodeExists)
             {
-                throw new ConflictException($"A location with barcode '{request.Barcode}' already exists in the warehouse.");
-            }
-        }
-        if (request.ParentLocationId.HasValue)
-        {
-            var parentLocationExists = await context.Locations
-                .AnyAsync(l => l.Id == request.ParentLocationId && l.WarehouseId == request.WarehouseId, cancellationToken);
-            if (!parentLocationExists)
-            {
-                throw new NotFoundException($"Parent location with ID '{request.ParentLocationId}' does not exist in the warehouse.");
+                throw new ConflictException("Barcode already exists in this warehouse.");
             }
         }
         var location = Location.Create(
             request.WarehouseId,
             request.ParentLocationId,
-            request.LocationType,
-            request.Name,
-            request.Barcode,
+            locationType,
+            name,
+            barcode,
             request.MaxWeightCapacityKg);
         context.Locations.Add(location);
         await context.SaveChangesAsync(cancellationToken);
