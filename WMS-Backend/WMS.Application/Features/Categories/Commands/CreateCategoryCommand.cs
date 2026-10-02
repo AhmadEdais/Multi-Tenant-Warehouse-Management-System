@@ -8,7 +8,7 @@
         public CreateCategoryCommandValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty()
+                .Must(name => !string.IsNullOrWhiteSpace(name))
                 .MaximumLength(200);
 
             RuleFor(x => x.ParentCategoryId)
@@ -16,24 +16,26 @@
                 .When(x => x.ParentCategoryId.HasValue);
         }
     }
-    internal class CreateCategoryCommandHandler(IWmsDbContext context) : IRequestHandler<CreateCategoryCommand, int>
+    internal class CreateCategoryCommandHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<CreateCategoryCommand, int>
     {
         public async Task<int> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
+            if (!tenantContext.TenantId.HasValue)
+                throw new UnauthorizedAccessException("A tenant workspace is required to create categories.");
+            await using var transaction = await context.Database.BeginTransactionAsync(
+                System.Data.IsolationLevel.Serializable, cancellationToken);
             if (request.ParentCategoryId.HasValue)
             {
-                var existingParentCategory = await context.Categories
-                    .AnyAsync(c => c.Id == request.ParentCategoryId.Value, cancellationToken);
-                if (!existingParentCategory)
-                {
-                    throw new InvalidOperationException("The specified parent category does not exist.");
-                }
+                await CategoryHierarchy.ValidateActiveParentAsync(
+                    context, request.ParentCategoryId.Value, cancellationToken);
             }
-            var category = Category.Create(request.Name, request.ParentCategoryId);
+            var category = Category.Create(request.Name.Trim(), request.ParentCategoryId);
 
             context.Categories.Add(category);
 
             await context.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
 
             return category.Id;
         }

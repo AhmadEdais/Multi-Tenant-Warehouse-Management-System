@@ -37,9 +37,52 @@ public class CategoriesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetCategoryTree([FromQuery] GetCategoryTreeQuery query)
+    public async Task<IActionResult> GetCategoryTree()
     {
-        var result = await sender.Send(query);
+        var result = await sender.Send(new GetCategoryTreeQuery());
         return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanViewCatalog)]
+    [ProducesResponseType(typeof(CategoryDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCategoryById(int id)
+    {
+        return Ok(await sender.Send(new GetCategoryByIdQuery(id)));
+    }
+
+    [HttpPut("Update/{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanManageCategories)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryCommand command)
+    {
+        await sender.Send(command with { Id = id });
+        return NoContent();
+    }
+
+    [HttpPost("Deactivate/{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanManageCategories)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeactivateCategory(int id)
+    {
+        await sender.Send(new DeactivateCategoryCommand(id));
+        return NoContent();
+    }
+
+    [HttpPost("Reactivate/{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanManageCategories)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReactivateCategory(int id)
+    {
+        await sender.Send(new ReactivateCategoryCommand(id));
+        return NoContent();
     }
 }

@@ -1,0 +1,119 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#14243b]/50 p-4">
+  <section
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="category-form-title"
+    class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-md border border-[#d7e1ef] bg-white shadow-xl"
+  >
+    <header class="flex items-center justify-between border-b border-[#e3eaf3] px-6 py-4">
+      <h3 id="category-form-title" class="text-lg font-bold text-[#14243b]">
+        {{ mode() === 'edit' ? 'Edit Category' : 'Add Category' }}
+      </h3>
+      <button
+        type="button"
+        [disabled]="saving()"
+        (click)="close.emit()"
+        aria-label="Close"
+        class="rounded p-1 text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M5 5l14 14M19 5 5 19" />
+        </svg>
+      </button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5 px-6 py-5">
+      <label class="block text-sm font-semibold text-[#405573]"
+        >Name
+        <input
+          type="text"
+          formControlName="name"
+          maxlength="200"
+          class="mt-1 h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="mt-1 block text-xs text-[#b4232d]"
+            >Name is required (maximum 200 characters).</span
+          >
+        }
+      </label>
+      <div>
+        <span class="block text-sm font-semibold text-[#405573]">Parent Category</span>
+        <button
+          type="button"
+          (click)="togglePicker($event)"
+          [disabled]="!!lockedParent()"
+          [attr.aria-expanded]="pickerOpen()"
+          aria-haspopup="menu"
+          class="mt-1 flex h-11 w-full items-center justify-between rounded-md border border-[#cdd9e9] bg-white px-3 text-left text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:bg-[#f7f9fd] disabled:text-[#52647e]"
+        >
+          <span class="truncate">{{ parentName }}</span>
+          <svg
+            class="h-4 w-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+      @if (error()) {
+        <p role="alert" class="rounded-md bg-[#fff0f0] px-3 py-2 text-sm text-[#b4232d]">
+          {{ error() }}
+        </p>
+      }
+      <div class="flex justify-end gap-3 border-t border-[#e3eaf3] pt-4">
+        <button
+          type="button"
+          [disabled]="saving()"
+          (click)="close.emit()"
+          class="min-h-10 rounded-md border border-[#cdd9e9] px-4 text-sm font-semibold text-[#405573] disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+        >
+          {{ saving() ? 'Saving...' : mode() === 'edit' ? 'Save Changes' : 'Add Category' }}
+        </button>
+      </div>
+    </form>
+  </section>
+  @if (pickerOpen()) {
+    <div
+      role="menu"
+      aria-label="Choose parent category"
+      (click)="$event.stopPropagation()"
+      class="fixed z-[60] max-h-[60vh] w-56 overflow-y-auto rounded-md border border-[#d7e1ef] bg-white p-1 shadow-lg"
+      [style.top.px]="pickerPosition().top"
+      [style.left.px]="pickerPosition().left"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        (click)="chooseParent(null)"
+        class="block w-full rounded px-3 py-2 text-left text-sm text-[#20324d] hover:bg-[#f2f6fb]"
+      >
+        None (Root)
+      </button>
+      @for (parent of parentOptions(); track parent.id) {
+        <app-category-parent-menu-item
+          [node]="parent"
+          [openLeft]="openLeft()"
+          (choose)="chooseParent($event)"
+        />
+      }
+    </div>
+  }
+</div>

@@ -14,9 +14,15 @@ builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>(
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(SecurityPolicies.CanManageCategories, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanViewCatalog, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanManageLocations, policy =>
         policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanViewLocationsTree, policy =>

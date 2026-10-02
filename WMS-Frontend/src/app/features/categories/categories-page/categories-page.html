@@ -1,0 +1,457 @@
+<div class="space-y-5">
+  <header class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Categories</h2>
+      <p class="mt-1 text-sm text-[#647590]">Manage the tenant catalogue hierarchy.</p>
+    </div>
+    @if (canManage()) {
+      <button
+        type="button"
+        (click)="openAddCategory()"
+        [disabled]="treeLoading() || !!treeError()"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Add Category
+      </button>
+    }
+  </header>
+
+  <section
+    class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
+    aria-label="Category filters"
+  >
+    <div class="grid gap-3 sm:grid-cols-[minmax(0,4fr)_minmax(130px,1fr)]">
+      <label class="relative block min-w-0" for="category-search">
+        <span class="sr-only">Search categories</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="category-search"
+          type="search"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          [disabled]="treeLoading() || !!treeError()"
+          placeholder="Search categories..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:bg-[#f7f9fd]"
+        />
+      </label>
+      @if (canManage()) {
+        <label class="relative block min-w-0" for="category-status">
+          <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+            >Status</span
+          >
+          <select
+            id="category-status"
+            [value]="status()"
+            (change)="onStatusChange($event)"
+            class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 pr-8 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+
+            <option value="inactive">Inactive</option>
+          </select>
+          <svg
+            class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </label>
+      }
+    </div>
+  </section>
+
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <section
+      class="min-w-0 rounded-md border border-[#dfe7f1] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="category-hierarchy-heading"
+    >
+      <header class="flex items-center gap-2 border-b border-[#e3eaf3] px-5 py-4">
+        <svg
+          class="h-[18px] w-[18px] text-[#405573]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M3 6h7l2 2h9v12H3V6Z" stroke-linejoin="round" />
+        </svg>
+        <h3 id="category-hierarchy-heading" class="text-sm font-bold text-[#14243b]">
+          Category Hierarchy
+        </h3>
+      </header>
+      <div class="min-h-[30rem] overflow-x-auto px-4 py-5 sm:px-5">
+        @if (treeLoading()) {
+          <p role="status" class="py-12 text-center text-sm text-[#647590]">
+            Loading categories...
+          </p>
+        } @else if (treeError()) {
+          <div class="py-12 text-center">
+            <p role="alert" class="text-sm text-[#b4232d]">{{ treeError() }}</p>
+            <button
+              type="button"
+              (click)="retryTree()"
+              class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        } @else if (!categoryTree().length) {
+          <p class="py-12 text-center text-sm text-[#647590]">No categories found.</p>
+        } @else if (!filteredTree().length) {
+          <p class="py-12 text-center text-sm text-[#647590]">No categories match your filters.</p>
+        } @else {
+          <div class="min-w-max">
+            @for (category of filteredTree(); track category.id) {
+              <app-category-tree-node
+                [node]="category"
+                [expandedIds]="expandedIds()"
+                [searchActive]="isSearching()"
+                [selectedId]="selectedCategoryNode()?.id ?? null"
+                [canManage]="canManage()"
+                (toggle)="toggleExpanded($event)"
+                (selectCategory)="selectCategory($event)"
+                (openContextMenu)="openContextMenu($event)"
+              />
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section
+      class="min-w-0 rounded-md border border-[#dfe7f1] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="category-details-heading"
+    >
+      <header class="flex items-center gap-2 border-b border-[#e3eaf3] px-5 py-4">
+        <svg
+          class="h-[18px] w-[18px] text-[#405573]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M3 6h7l2 2h9v12H3V6Z" stroke-linejoin="round" />
+        </svg>
+        <h3 id="category-details-heading" class="text-sm font-bold text-[#14243b]">
+          Category Details
+        </h3>
+      </header>
+      @if (!selectedCategoryNode()) {
+        <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
+          <span
+            class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4ff] text-[#2458c5]"
+            aria-hidden="true"
+          >
+            <svg
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+            >
+              <path d="M3 6h7l2 2h9v12H3V6Z" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <h4 class="text-base font-semibold text-[#14243b]">Select a category</h4>
+          <p class="mt-2 max-w-sm text-sm leading-6 text-[#647590]">
+            Choose a category from the hierarchy to view its details and available actions.
+          </p>
+        </div>
+      } @else if (detailsLoading()) {
+        <div
+          class="flex min-h-[30rem] items-center justify-center px-6 py-10 text-sm text-[#647590]"
+          role="status"
+        >
+          Loading category details...
+        </div>
+      } @else if (detailsError()) {
+        <div class="flex min-h-[30rem] flex-col items-center justify-center px-6 py-10 text-center">
+          <p role="alert" class="text-sm text-[#b4232d]">{{ detailsError() }}</p>
+          <button
+            type="button"
+            (click)="retryDetails()"
+            class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      } @else if (selectedCategoryDetails(); as category) {
+        <div class="px-5 py-6 sm:px-6">
+          <div class="flex flex-wrap items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f1ff] text-[#1479d4]"
+              aria-hidden="true"
+            >
+              <svg
+                class="h-7 w-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              >
+                <path d="M3 6h7l2 2h9v12H3V6Z" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <h4 class="text-xl font-bold tracking-[-0.025em] text-[#14243b]">
+              {{ category.name }}
+            </h4>
+            <span
+              class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+              [class]="
+                category.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+              "
+            >
+              <span class="h-2 w-2 rounded-full bg-current"></span
+              >{{ category.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            @if (canManage()) {
+              <div class="ml-auto flex items-center gap-2">
+                @if (category.isActive) {
+                  <button
+                    type="button"
+                    (click)="openEditCategory(selectedCategoryNode())"
+                    class="inline-flex min-h-9 items-center gap-2 rounded-md border border-[#d8e2ef] bg-white px-3 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb]"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      /></svg
+                    >Edit
+                  </button>
+                }
+                <button
+                  type="button"
+                  (click)="openSelectedActions($event)"
+                  [attr.aria-label]="'Actions for ' + category.name"
+                  class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#52647e] hover:bg-[#f2f6fb]"
+                >
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <circle cx="5" cy="12" r="1.7" />
+                    <circle cx="12" cy="12" r="1.7" />
+                    <circle cx="19" cy="12" r="1.7" />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+          <dl
+            class="mt-6 divide-y divide-[#e3eaf3] overflow-hidden rounded-md border border-[#dfe7f1] text-sm"
+          >
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Name</dt>
+              <dd class="px-4 py-3 text-[#20324d]">{{ category.name }}</dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Parent Category</dt>
+              <dd class="px-4 py-3 text-[#20324d]">
+                {{ category.parentCategoryName || '— (Root)' }}
+              </dd>
+            </div>
+            <div class="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <dt class="bg-[#f7f9fd] px-4 py-3 font-semibold text-[#405573]">Status</dt>
+              <dd class="px-4 py-3 text-[#20324d]">
+                {{ category.isActive ? 'Active' : 'Inactive' }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      }
+    </section>
+  </div>
+
+  @if (contextCategory(); as category) {
+    <div
+      role="menu"
+      [attr.aria-label]="'Actions for ' + category.name"
+      class="fixed z-40 w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
+      [style.top.px]="contextPosition().top"
+      [style.left.px]="contextPosition().left"
+      (click)="$event.stopPropagation()"
+    >
+      @if (category.isActive) {
+        <button
+          type="button"
+          role="menuitem"
+          (click)="openAddChild()"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb]"
+        >
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" stroke-linecap="round" /></svg
+          >Add Child
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          (click)="openEditCategory()"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb]"
+        >
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="m4 16 11-11 4 4L8 20H4v-4ZM13 7l4 4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            /></svg
+          >Edit
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          (click)="requestAction('deactivate')"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#b4232d] hover:bg-[#fff0f0]"
+        >
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            /></svg
+          >Deactivate
+        </button>
+      } @else {
+        <button
+          type="button"
+          role="menuitem"
+          (click)="requestAction('reactivate')"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#2458c5] hover:bg-[#eef4ff]"
+        >
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 11a8 8 0 1 1-2.2-5.5M20 4v6h-6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            /></svg
+          >Reactivate
+        </button>
+      }
+    </div>
+  }
+  @if (formState(); as form) {
+    <app-category-form
+      [mode]="form.mode"
+      [categoryTree]="categoryTree()"
+      [category]="form.category"
+      [lockedParent]="form.lockedParent"
+      [saving]="formLoading()"
+      [error]="formError()"
+      (close)="closeCategoryForm()"
+      (submitCategory)="saveCategory($event)"
+    />
+  }
+  @if (pendingAction(); as pending) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-[#14243b]/50 p-4">
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="category-action-title"
+        class="w-full max-w-md rounded-md border border-[#d7e1ef] bg-white p-6 shadow-xl"
+      >
+        <h3 id="category-action-title" class="text-lg font-bold text-[#14243b]">
+          {{ pending.action === 'deactivate' ? 'Deactivate' : 'Reactivate' }} category?
+        </h3>
+        <p class="mt-2 text-sm leading-6 text-[#647590]">
+          "{{ pending.category.name }}" will be
+          {{ pending.action === 'deactivate' ? 'marked inactive' : 'made active again' }}. Child
+          categories will not be changed.
+        </p>
+        @if (actionError()) {
+          <p role="alert" class="mt-4 rounded-md bg-[#fff0f0] px-3 py-2 text-sm text-[#b4232d]">
+            {{ actionError() }}
+          </p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="closeAction()"
+            class="min-h-10 rounded-md border border-[#cdd9e9] px-4 text-sm font-semibold text-[#405573] disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            [disabled]="actionLoading()"
+            (click)="confirmAction()"
+            class="min-h-10 rounded-md px-5 text-sm font-semibold text-white disabled:opacity-50"
+            [class]="
+              pending.action === 'deactivate'
+                ? 'bg-[#b4232d] hover:bg-[#94212a]'
+                : 'bg-[#2458c5] hover:bg-[#1b49a9]'
+            "
+          >
+            {{
+              actionLoading()
+                ? 'Saving...'
+                : pending.action === 'deactivate'
+                  ? 'Deactivate'
+                  : 'Reactivate'
+            }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+</div>
