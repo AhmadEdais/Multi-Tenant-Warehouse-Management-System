@@ -46,7 +46,7 @@ internal class GetCategoryTreeQueryHandler(
                 SELECT Id, Name, ParentCategoryId, IsActive, Level
                 FROM CategoryTreeHierarchy
                 ORDER BY Level, Name
-                OPTION (MAXRECURSION 0)"
+                OPTION (MAXRECURSION 256)"
             ).ToListAsync(cancellationToken);
         return flatCategories.BuildTree();
     }

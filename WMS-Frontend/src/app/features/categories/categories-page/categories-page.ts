@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   HostListener,
   inject,
   OnInit,
@@ -46,6 +47,9 @@ export class CategoriesPage implements OnInit {
   readonly treeError = signal<string | null>(null);
   readonly searchTerm = signal('');
   readonly status = signal<CategoryStatus>('all');
+  private readonly normalizeStatusForRole = effect(() => {
+    if (!this.canManage() && this.status() === 'inactive') this.status.set('all');
+  });
   readonly expandedIds = signal<Set<number>>(new Set());
   readonly selectedCategoryNode = signal<CategoryNode | null>(null);
   readonly selectedCategoryDetails = signal<CategoryDetails | null>(null);
@@ -142,7 +146,8 @@ export class CategoriesPage implements OnInit {
   }
   onStatusChange(event: Event): void {
     this.closeContextMenu();
-    this.status.set((event.target as HTMLSelectElement).value as CategoryStatus);
+    const selectedStatus = (event.target as HTMLSelectElement).value as CategoryStatus;
+    this.status.set(selectedStatus === 'inactive' && !this.canManage() ? 'all' : selectedStatus);
   }
   toggleExpanded(id: number): void {
     if (this.isSearching()) return;

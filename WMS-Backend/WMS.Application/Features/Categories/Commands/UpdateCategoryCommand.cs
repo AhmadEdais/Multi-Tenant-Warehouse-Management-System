@@ -60,7 +60,7 @@ internal sealed class UpdateCategoryCommandHandler(IWmsDbContext context, ITenan
                     WHERE c.TenantId = {tenantId}
                 )
                 SELECT Id FROM Descendants WHERE Id = {request.ParentCategoryId.Value}
-                OPTION (MAXRECURSION 0)")
+                OPTION (MAXRECURSION 256)")
                 .ToListAsync(cancellationToken);
 
             if (descendantsContainParent.Count > 0)

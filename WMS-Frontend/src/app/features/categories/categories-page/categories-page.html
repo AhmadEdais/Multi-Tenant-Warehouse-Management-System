@@ -54,31 +54,34 @@
           class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:bg-[#f7f9fd]"
         />
       </label>
-      <label class="relative block min-w-0" for="category-status">
-        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
-          >Status</span
-        >
-        <select
-          id="category-status"
-          [value]="status()"
-          (change)="onStatusChange($event)"
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 pr-8 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <svg
-          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </label>
+      @if (canManage()) {
+        <label class="relative block min-w-0" for="category-status">
+          <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+            >Status</span
+          >
+          <select
+            id="category-status"
+            [value]="status()"
+            (change)="onStatusChange($event)"
+            class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 pr-8 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+
+            <option value="inactive">Inactive</option>
+          </select>
+          <svg
+            class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </label>
+      }
     </div>
   </section>
 
