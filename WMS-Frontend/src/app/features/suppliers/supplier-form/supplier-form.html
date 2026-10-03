@@ -92,14 +92,19 @@
             <input
               id="supplier-phone"
               type="tel"
+              inputmode="tel"
               formControlName="phoneNumber"
               maxlength="50"
               class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
             />
             @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
-              <p class="mt-1 text-xs text-[#b4232d]">
-                Phone number is required (50 characters max).
-              </p>
+              @if (form.controls.phoneNumber.hasError('required')) {
+                <p class="mt-1 text-xs text-[#b4232d]">Phone number is required.</p>
+              } @else if (form.controls.phoneNumber.hasError('maxlength')) {
+                <p class="mt-1 text-xs text-[#b4232d]">Phone number must be 50 characters or fewer.</p>
+              } @else if (form.controls.phoneNumber.hasError('pattern')) {
+                <p class="mt-1 text-xs text-[#b4232d]">Use digits with an optional + at the start.</p>
+              }
             }
           </div>
         </div>

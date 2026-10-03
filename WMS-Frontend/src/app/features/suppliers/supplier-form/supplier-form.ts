@@ -45,7 +45,7 @@ export class SupplierFormComponent implements OnInit {
     }),
     phoneNumber: new FormControl('', {
       nonNullable: true,
-      validators: [requiredText, Validators.maxLength(50)],
+      validators: [requiredText, Validators.maxLength(50), Validators.pattern(/^\+?[0-9]+$/)],
     }),
     address: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(500)] }),
   });

@@ -16,7 +16,7 @@ public class CreateSupplierCommandValidator : AbstractValidator<CreateSupplierCo
             .Must(value => string.IsNullOrWhiteSpace(value) ||
                 new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(value.Trim()))
             .WithMessage("Contact email must be a valid email address.");
-        RuleFor(x => x.PhoneNumber).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(50);
+        RuleFor(x => x.PhoneNumber).ValidPhoneNumber();
         RuleFor(x => x.Address).MaximumLength(500);
     }
 }
