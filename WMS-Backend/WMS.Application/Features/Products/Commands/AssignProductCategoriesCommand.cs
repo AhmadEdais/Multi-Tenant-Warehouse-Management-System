@@ -11,6 +11,7 @@ public class AssignProductCategoriesCommandValidator : AbstractValidator<AssignP
         RuleFor(x => x.ProductId)
             .GreaterThan(0);
         RuleFor(x => x.CategoryIds)
+        RuleFor(x => x.CategoryIds)
             .Must(ids => ids.All(id => id > 0))
             .WithMessage("All category IDs must be greater than 0.")
             .When(x => x.CategoryIds is not null);
