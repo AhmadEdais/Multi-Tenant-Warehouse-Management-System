@@ -24,6 +24,7 @@ import {
 } from 'rxjs';
 import { AuthService } from '../../auth/auth.services';
 import { CategoriesService } from '../../categories/categories.service';
+import { CategoryParentMenuItem } from '../../categories/category-parent-menu-item/category-parent-menu-item';
 import { CategoryNode } from '../../categories/models/category';
 import {
   CreateProductRequest,
@@ -41,7 +42,7 @@ type FormState = { mode: 'create' | 'edit'; product: ProductDetails | null };
 
 @Component({
   selector: 'app-products-page',
-  imports: [DecimalPipe, ProductFormComponent],
+  imports: [DecimalPipe, ProductFormComponent, CategoryParentMenuItem],
   templateUrl: './products-page.html',
   styleUrl: './products-page.css',
 })
@@ -62,6 +63,9 @@ export class ProductsPage implements OnInit {
   readonly page = signal(1);
   readonly search = signal('');
   readonly categoryId = signal<number | null>(null);
+  readonly categoryPickerOpen = signal(false);
+  readonly categoryPickerPosition = signal({ top: 0, left: 0 });
+  readonly categoryPickerOpenLeft = signal(false);
   readonly status = signal<ProductStatus>('all');
   private readonly normalizeStatusForRole = effect(() => {
     if (!this.canManage() && this.status() !== 'all') this.status.set('all');
@@ -93,17 +97,25 @@ export class ProductsPage implements OnInit {
     this.totalCount() ? (this.page() - 1) * this.pageSize + 1 : 0,
   );
   readonly lastItem = computed(() => Math.min(this.page() * this.pageSize, this.totalCount()));
-  readonly categoryOptions = computed(() => {
-    const options: { id: number; label: string }[] = [];
-    const visit = (nodes: CategoryNode[], path: string[]): void => {
+  readonly activeCategoryTree = computed(() => {
+    const keepActive = (nodes: CategoryNode[]): CategoryNode[] =>
+      nodes
+        .filter((node) => node.isActive)
+        .map((node) => ({ ...node, children: keepActive(node.children) }));
+    return keepActive(this.categoryTree());
+  });
+  readonly selectedCategoryName = computed(() => {
+    const id = this.categoryId();
+    if (id === null) return 'All categories';
+    const find = (nodes: CategoryNode[]): string | null => {
       for (const node of nodes) {
-        const nextPath = [...path, node.name];
-        if (node.isActive) options.push({ id: node.id, label: nextPath.join(' / ') });
-        visit(node.children, nextPath);
+        if (node.id === id) return node.name;
+        const child = find(node.children);
+        if (child) return child;
       }
+      return null;
     };
-    visit(this.categoryTree(), []);
-    return options;
+    return find(this.activeCategoryTree()) ?? 'All categories';
   });
 
   ngOnInit(): void {
@@ -198,9 +210,28 @@ export class ProductsPage implements OnInit {
     this.searchInput$.next(value);
   }
 
-  onCategoryChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.categoryId.set(value ? Number(value) : null);
+  toggleCategoryPicker(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.categoriesLoading() || this.categoriesError()) return;
+    if (this.categoryPickerOpen()) {
+      this.categoryPickerOpen.set(false);
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - 232));
+    this.categoryPickerPosition.set({
+      top: Math.max(8, Math.min(rect.bottom + 4, window.innerHeight - 270)),
+      left,
+    });
+    this.categoryPickerOpenLeft.set(left + 456 > window.innerWidth);
+    this.categoryPickerOpen.set(true);
+  }
+
+  chooseCategory(category: CategoryNode | null): void {
+    this.categoryPickerOpen.set(false);
+    const id = category?.id ?? null;
+    if (id === this.categoryId()) return;
+    this.categoryId.set(id);
     this.page.set(1);
     this.reload$.next();
   }
@@ -451,11 +482,16 @@ export class ProductsPage implements OnInit {
 
   @HostListener('document:click')
   onOutsideClick(): void {
+    this.categoryPickerOpen.set(false);
     this.closeMenu();
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.categoryPickerOpen()) {
+      this.categoryPickerOpen.set(false);
+      return;
+    }
     if (this.pendingAction()) this.closeAction();
     else if (this.formState()) this.closeForm();
     else if (this.detailsOpen()) this.closeDetails();

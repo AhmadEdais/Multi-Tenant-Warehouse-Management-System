@@ -55,33 +55,35 @@
           class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         />
       </label>
-      <label class="relative min-w-0 flex-[1_1_180px] sm:max-w-[260px]" for="product-category">
-        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
-          >Category</span
-        >
-        <select
-          id="product-category"
-          [value]="categoryId() ?? ''"
-          (change)="onCategoryChange($event)"
+      <div class="min-w-0 flex-[1_1_180px] sm:max-w-[260px]">
+        <span id="product-category-label" class="sr-only">Filter products by category</span>
+        <button
+          type="button"
+          aria-labelledby="product-category-label product-category-value"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="categoryPickerOpen()"
           [disabled]="categoriesLoading() || !!categoriesError()"
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-60"
+          (click)="toggleCategoryPicker($event)"
+          class="flex h-11 w-full items-center justify-between gap-2 rounded-md border border-[#cdd9e9] bg-white px-3 text-left text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-60"
         >
-          <option value="">All categories</option>
-          @for (category of categoryOptions(); track category.id) {
-            <option [value]="category.id">{{ category.label }}</option>
-          }
-        </select>
-        <svg
-          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <path d="m5 9 7 7 7-7" />
-        </svg>
-      </label>
+          <span class="min-w-0"
+            ><span class="block text-[11px] leading-3 text-[#52647e]">Category</span
+            ><span id="product-category-value" class="block truncate pt-0.5">{{
+              selectedCategoryName()
+            }}</span></span
+          >
+          <svg
+            class="h-4 w-4 shrink-0 text-[#52647e]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="m5 9 7 7 7-7" />
+          </svg>
+        </button>
+      </div>
       @if (canManage()) {
         <label class="relative min-w-0 flex-[1_1_140px] sm:max-w-[170px]" for="product-status">
           <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
@@ -252,6 +254,33 @@
     </footer>
   </div>
 </section>
+
+@if (categoryPickerOpen()) {
+  <div
+    role="menu"
+    aria-label="Filter by category"
+    class="fixed z-40 max-h-[60vh] w-56 overflow-y-auto rounded-md border border-[#d7e1ef] bg-white p-1 shadow-lg"
+    [style.top.px]="categoryPickerPosition().top"
+    [style.left.px]="categoryPickerPosition().left"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      type="button"
+      role="menuitem"
+      (click)="chooseCategory(null)"
+      class="block w-full rounded px-3 py-2 text-left text-sm text-[#20324d] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+    >
+      All categories
+    </button>
+    @for (category of activeCategoryTree(); track category.id) {
+      <app-category-parent-menu-item
+        [node]="category"
+        [openLeft]="categoryPickerOpenLeft()"
+        (choose)="chooseCategory($event)"
+      />
+    }
+  </div>
+}
 
 @if (menuProduct(); as product) {
   <div
