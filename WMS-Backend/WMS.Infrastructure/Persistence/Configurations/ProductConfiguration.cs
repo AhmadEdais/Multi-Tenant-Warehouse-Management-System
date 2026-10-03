@@ -25,7 +25,6 @@
                 .HasDatabaseName("UQ_Products_TenantId_SKU");
 
             builder.HasIndex(p => p.TenantId).HasDatabaseName("IX_Products_TenantId");
-            builder.HasQueryFilter(p => p.IsActive);
             builder.Metadata.FindNavigation(nameof(Product.ProductCategories))!
              .SetPropertyAccessMode(PropertyAccessMode.Field);
         }

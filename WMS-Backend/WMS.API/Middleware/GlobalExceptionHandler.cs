@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using WMS.Application.Common.Exceptions; 
 
 namespace WMS.API.Middleware;
@@ -39,6 +41,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Status = StatusCodes.Status409Conflict,
                     Title = "Resource Conflict",
                     Detail = conflictException.Message 
+                };
+                break;
+
+            case DbUpdateException dbUpdateException
+                when dbUpdateException.InnerException is SqlException sqlException
+                    && sqlException.Number is 2601 or 2627
+                    && sqlException.Message.Contains("UQ_Products_TenantId_SKU", StringComparison.Ordinal):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A product with the same SKU already exists."
                 };
                 break;
 
