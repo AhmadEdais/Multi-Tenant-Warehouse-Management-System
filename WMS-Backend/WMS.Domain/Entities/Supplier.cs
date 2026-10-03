@@ -49,4 +49,9 @@ public class Supplier : IMustBelongToTenant
     {
         IsActive = false;
     }
+
+    public void Reactivate()
+    {
+        IsActive = true;
+    }
 }

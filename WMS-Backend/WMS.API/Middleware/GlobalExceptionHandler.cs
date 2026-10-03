@@ -56,6 +56,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
 
+            case DbUpdateException supplierUpdateException
+                when supplierUpdateException.InnerException is SqlException supplierSqlException
+                    && supplierSqlException.Number is 2601 or 2627
+                    && supplierSqlException.Message.Contains("UQ_Suppliers_Tenant_Code", StringComparison.Ordinal):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A supplier with the same code already exists."
+                };
+                break;
+
             case NotFoundException notFoundException:
                 problemDetails = new ProblemDetails
                 {

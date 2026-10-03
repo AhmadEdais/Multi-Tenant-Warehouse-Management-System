@@ -9,10 +9,14 @@ public class CreateSupplierCommandValidator : AbstractValidator<CreateSupplierCo
 {
     public CreateSupplierCommandValidator()
     {
-        RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.ContactEmail).MaximumLength(256).EmailAddress().When(x => !string.IsNullOrEmpty(x.ContactEmail));
-        RuleFor(x => x.PhoneNumber).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Code).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(50);
+        RuleFor(x => x.Name).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(200);
+        RuleFor(x => x.ContactEmail)
+            .MaximumLength(256)
+            .Must(value => string.IsNullOrWhiteSpace(value) ||
+                new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(value.Trim()))
+            .WithMessage("Contact email must be a valid email address.");
+        RuleFor(x => x.PhoneNumber).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(50);
         RuleFor(x => x.Address).MaximumLength(500);
     }
 }
@@ -21,21 +25,21 @@ internal sealed class CreateSupplierCommandHandler(IWmsDbContext context,ITenant
 
     public async Task<int> Handle(CreateSupplierCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = tenantContext.TenantId
-            ?? throw new UnauthorizedException("Must be in a tenant context.");
+        if (!tenantContext.TenantId.HasValue)
+            throw new UnauthorizedAccessException("A tenant workspace is required to create suppliers.");
+        var code = request.Code.Trim();
         var codeExists = await context.Suppliers
-            .IgnoreQueryFilters()
-            .AnyAsync(s => s.TenantId == tenantId && s.Code == request.Code, cancellationToken);
+            .AnyAsync(s => s.Code == code, cancellationToken);
         if (codeExists)
         {
-            throw new ConflictException($"A supplier with the code '{request.Code}' already exists.");
+            throw new ConflictException($"A supplier with the code '{code}' already exists.");
         }
         var supplier = Supplier.Create(
-            request.Code,
-            request.Name,
-            request.ContactEmail,
-            request.PhoneNumber,
-            request.Address);
+            code,
+            request.Name.Trim(),
+            string.IsNullOrWhiteSpace(request.ContactEmail) ? null : request.ContactEmail.Trim(),
+            request.PhoneNumber.Trim(),
+            string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim());
         context.Suppliers.Add(supplier);
         await context.SaveChangesAsync(cancellationToken);
         return supplier.Id;
