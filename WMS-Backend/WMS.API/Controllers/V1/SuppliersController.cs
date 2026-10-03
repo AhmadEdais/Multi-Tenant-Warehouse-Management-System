@@ -10,6 +10,7 @@ public class SuppliersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateSupplier([FromBody] CreateSupplierCommand command)
     {
@@ -22,6 +23,8 @@ public class SuppliersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateSupplier([FromRoute] int id,[FromBody] UpdateSupplierCommand command)
     {
@@ -61,10 +64,25 @@ public class SuppliersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeactivateSupplier([FromRoute] int id)
     {
         await sender.Send(new DeactivateSupplierCommand(id));
+        return NoContent();
+    }
+
+    [HttpPost("{id:int}/reactivate")]
+    [Authorize(Policy = SecurityPolicies.CanManageSuppliers)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReactivateSupplier([FromRoute] int id)
+    {
+        await sender.Send(new ReactivateSupplierCommand(id));
         return NoContent();
     }
 }

@@ -14,7 +14,7 @@ public class UpdateCustomerCommandValidator : AbstractValidator<UpdateCustomerCo
         RuleFor(x => x.Id).GreaterThan(0);
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.ContactEmail).MaximumLength(256).EmailAddress().When(x => !string.IsNullOrEmpty(x.ContactEmail));
-        RuleFor(x => x.PhoneNumber).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.PhoneNumber).ValidPhoneNumber();
         RuleFor(x => x.Address).MaximumLength(500);
         RuleFor(x => x.CreditLimit).GreaterThanOrEqualTo(0).When(x => x.CreditLimit.HasValue);
     }

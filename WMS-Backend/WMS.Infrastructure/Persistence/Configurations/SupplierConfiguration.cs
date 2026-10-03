@@ -17,6 +17,5 @@ internal sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
 
         builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
 
-        builder.HasQueryFilter(s => s.IsActive);
     }
 }
