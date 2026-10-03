@@ -5,10 +5,12 @@ public record ProductDto(
         string Name,
         decimal UnitPrice,
         int ReorderPoint,
+        bool IsActive,
         List<int> CategoryIds);
 
 public record ListProductsQuery(
     string? SearchTerm = null,
+    bool? IsActive = null,
     int? CategoryId = null,
     int PageNumber = 1,
     int PageSize = 20) : IRequest<PagedResult<ProductDto>>;
@@ -20,22 +22,33 @@ public class ListProductsQueryValidator : AbstractValidator<ListProductsQuery>
         RuleFor(x => x.PageSize).GreaterThan(0).LessThanOrEqualTo(100);
     }
 }
-public class ListProductsQueryHandler(IWmsDbContext context) : IRequestHandler<ListProductsQuery, PagedResult<ProductDto>>
+public class ListProductsQueryHandler(IWmsDbContext context, ICurrentUserService currentUser) : IRequestHandler<ListProductsQuery, PagedResult<ProductDto>>
 {
     public async Task<PagedResult<ProductDto>> Handle(ListProductsQuery request, CancellationToken cancellationToken)
     {
         var query = context.Products.AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        var search = request.SearchTerm?.Trim();
+        
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(p => p.SKU.Contains(request.SearchTerm) || p.Name.Contains(request.SearchTerm));
+            query = query.Where(p => p.SKU.Contains(search) || p.Name.Contains(search));
         }
 
         if (request.CategoryId.HasValue)
         {
             query = query.Where(p => p.ProductCategories.Any(pc => pc.CategoryId == request.CategoryId.Value));
         }
+        var canSeeInactiveProducts = currentUser.IsInRole(Roles.TenantAdmin)
+            || currentUser.IsInRole(Roles.WarehouseManager);
 
+        if(!canSeeInactiveProducts)
+        {
+            query = query.Where(p => p.IsActive);
+        }
+        else if (request.IsActive is bool isActive)
+        {
+            query = query.Where(p => p.IsActive == isActive);
+        }
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
@@ -48,6 +61,7 @@ public class ListProductsQueryHandler(IWmsDbContext context) : IRequestHandler<L
                 p.Name,
                 p.UnitPrice,
                 p.ReorderPoint,
+                p.IsActive,
                 p.ProductCategories.Select(pc => pc.CategoryId).ToList()
             ))
             .ToListAsync(cancellationToken);

@@ -37,16 +37,18 @@ internal class CreateProductCommandHandler(IWmsDbContext context, ITenantContext
     public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         var tenantId = tenantContext.TenantId;
+        var sku = request.SKU.Trim();
+        var name = request.Name.Trim();
+
         var existingProduct = await context.Products
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(p => p.SKU == request.SKU && p.TenantId == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.SKU == request.SKU, cancellationToken);
         if (existingProduct != null)
         {
             throw new InvalidOperationException("A product with the same SKU already exists.");
         }
         var product = Product.Create(
-            request.SKU,
-            request.Name,
+            sku,
+            name,
             request.Description,
             request.UnitOfMeasure,
             request.UnitCost,
