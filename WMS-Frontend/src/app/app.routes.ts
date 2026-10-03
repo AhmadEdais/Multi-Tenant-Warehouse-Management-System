@@ -100,6 +100,13 @@ export const routes: Routes = [
           import('./features/products/products-page/products-page').then((m) => m.ProductsPage),
       },
       {
+        path: 'suppliers',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager'] },
+        loadComponent: () =>
+          import('./features/suppliers/suppliers-page/suppliers-page').then((m) => m.SuppliersPage),
+      },
+      {
         path: 'no-access',
         loadComponent: () => import('./pages/no-access/no-access').then((m) => m.NoAccess),
       },
