@@ -5,6 +5,8 @@ public static class SecurityPolicies
     public const string CanViewCatalog = "CanViewCatalog";
 
     public const string CanManageCategories = "CanManageCategories";
+    public const string CanManageProducts = "CanManageProducts";
+    public const string CanViewProducts = "CanViewProducts";
 
     public const string CanManageLocations = "CanManageLocations";
 

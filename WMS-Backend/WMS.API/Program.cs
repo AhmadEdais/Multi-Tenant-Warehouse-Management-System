@@ -23,6 +23,16 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
+    .AddPolicy(SecurityPolicies.CanManageProducts, policy =>
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
+    .AddPolicy(SecurityPolicies.CanViewProducts, policy =>
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanManageLocations, policy =>
         policy.RequireRole(Roles.TenantAdmin))
     .AddPolicy(SecurityPolicies.CanViewLocationsTree, policy =>
