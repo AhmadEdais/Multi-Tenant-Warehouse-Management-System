@@ -18,6 +18,7 @@ public class ListProductsQueryValidator : AbstractValidator<ListProductsQuery>
 {
     public ListProductsQueryValidator()
     {
+        RuleFor(x => x.CategoryId).GreaterThan(0).When(x => x.CategoryId.HasValue);
         RuleFor(x => x.PageNumber).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0).LessThanOrEqualTo(100);
     }
@@ -41,7 +42,7 @@ public class ListProductsQueryHandler(IWmsDbContext context, ICurrentUserService
         var canSeeInactiveProducts = currentUser.IsInRole(Roles.TenantAdmin)
             || currentUser.IsInRole(Roles.WarehouseManager);
 
-        if(!canSeeInactiveProducts)
+        if (!canSeeInactiveProducts)
         {
             query = query.Where(p => p.IsActive);
         }
@@ -53,6 +54,7 @@ public class ListProductsQueryHandler(IWmsDbContext context, ICurrentUserService
 
         var items = await query
             .OrderBy(p => p.Name)
+            .ThenBy(p => p.Id)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(p => new ProductDto(
