@@ -111,6 +111,8 @@
         <app-category-parent-menu-item
           [node]="parent"
           [openLeft]="openLeft()"
+          [openPath]="pickerOpenPath()"
+          (openPathChange)="pickerOpenPath.set($event)"
           (choose)="chooseParent($event)"
         />
       }

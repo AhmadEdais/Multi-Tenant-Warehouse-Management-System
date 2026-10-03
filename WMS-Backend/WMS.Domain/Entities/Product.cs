@@ -64,5 +64,10 @@ namespace WMS.Domain.Entities
         {
             IsActive = false;
         }
+
+        public void Reactivate()
+        {
+            IsActive = true;
+        }
     }
 }

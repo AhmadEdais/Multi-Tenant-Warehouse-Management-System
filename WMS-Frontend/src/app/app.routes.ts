@@ -93,6 +93,13 @@ export const routes: Routes = [
           import('./features/categories/categories-page/categories-page').then((m) => m.CategoriesPage),
       },
       {
+        path: 'products',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/products/products-page/products-page').then((m) => m.ProductsPage),
+      },
+      {
         path: 'no-access',
         loadComponent: () => import('./pages/no-access/no-access').then((m) => m.NoAccess),
       },

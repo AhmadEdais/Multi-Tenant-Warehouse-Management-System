@@ -25,9 +25,11 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
             .NotEmpty()
             .MaximumLength(50);
         RuleFor(x => x.UnitCost)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .PrecisionScale(18, 4, true);
         RuleFor(x => x.UnitPrice)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .PrecisionScale(18, 4, true);
         RuleFor(x => x.ReorderPoint)
             .GreaterThanOrEqualTo(0);
     }
@@ -36,19 +38,23 @@ internal class CreateProductCommandHandler(IWmsDbContext context, ITenantContext
 {
     public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = tenantContext.TenantId;
-        var existingProduct = await context.Products
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(p => p.SKU == request.SKU && p.TenantId == tenantId, cancellationToken);
-        if (existingProduct != null)
+        if (!tenantContext.TenantId.HasValue)
+            throw new UnauthorizedAccessException("A tenant workspace is required to create products.");
+
+        var sku = request.SKU.Trim();
+        var name = request.Name.Trim();
+        var description = request.Description?.Trim();
+        var unitOfMeasure = request.UnitOfMeasure.Trim();
+
+        if (await context.Products.AnyAsync(p => p.SKU == sku, cancellationToken))
         {
-            throw new InvalidOperationException("A product with the same SKU already exists.");
+            throw new ConflictException("A product with the same SKU already exists.");
         }
         var product = Product.Create(
-            request.SKU,
-            request.Name,
-            request.Description,
-            request.UnitOfMeasure,
+            sku,
+            name,
+            description,
+            unitOfMeasure,
             request.UnitCost,
             request.UnitPrice,
             request.ReorderPoint);
