@@ -26,6 +26,7 @@ export class CategoryFormComponent implements OnInit {
     parentCategoryId: new FormControl<number | null>(null),
   });
   readonly pickerOpen = signal(false);
+  readonly pickerOpenPath = signal<number[]>([]);
   readonly pickerPosition = signal({ top: 0, left: 0 });
   readonly openLeft = signal(false);
 
@@ -75,6 +76,7 @@ export class CategoryFormComponent implements OnInit {
       left,
     });
     this.openLeft.set(left + 456 > window.innerWidth);
+    this.pickerOpenPath.set([]);
     this.pickerOpen.set(true);
   }
 

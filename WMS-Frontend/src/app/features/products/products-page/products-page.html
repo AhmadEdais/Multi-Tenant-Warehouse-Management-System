@@ -276,6 +276,8 @@
       <app-category-parent-menu-item
         [node]="category"
         [openLeft]="categoryPickerOpenLeft()"
+        [openPath]="categoryPickerOpenPath()"
+        (openPathChange)="categoryPickerOpenPath.set($event)"
         (choose)="chooseCategory($event)"
       />
     }

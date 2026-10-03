@@ -42,6 +42,9 @@
       <app-category-parent-menu-item
         [node]="child"
         [openLeft]="openLeft()"
+        [ancestors]="childAncestors()"
+        [openPath]="openPath()"
+        (openPathChange)="openPathChange.emit($event)"
         (choose)="choose.emit($event)"
       />
     }

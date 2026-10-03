@@ -64,6 +64,7 @@ export class ProductsPage implements OnInit {
   readonly search = signal('');
   readonly categoryId = signal<number | null>(null);
   readonly categoryPickerOpen = signal(false);
+  readonly categoryPickerOpenPath = signal<number[]>([]);
   readonly categoryPickerPosition = signal({ top: 0, left: 0 });
   readonly categoryPickerOpenLeft = signal(false);
   readonly status = signal<ProductStatus>('all');
@@ -224,6 +225,7 @@ export class ProductsPage implements OnInit {
       left,
     });
     this.categoryPickerOpenLeft.set(left + 456 > window.innerWidth);
+    this.categoryPickerOpenPath.set([]);
     this.categoryPickerOpen.set(true);
   }
 
