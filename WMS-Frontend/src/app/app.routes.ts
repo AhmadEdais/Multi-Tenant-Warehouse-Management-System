@@ -107,6 +107,13 @@ export const routes: Routes = [
           import('./features/suppliers/suppliers-page/suppliers-page').then((m) => m.SuppliersPage),
       },
       {
+        path: 'customers',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager'] },
+        loadComponent: () =>
+          import('./features/customers/customers-page/customers-page').then((m) => m.CustomersPage),
+      },
+      {
         path: 'no-access',
         loadComponent: () => import('./pages/no-access/no-access').then((m) => m.NoAccess),
       },

@@ -1,0 +1,182 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-3 sm:p-5"
+  (click)="close.emit()"
+>
+  <section
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="customer-form-title"
+    class="flex w-full max-w-xl flex-col overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-xl"
+    (click)="$event.stopPropagation()"
+  >
+    <header
+      class="flex items-start justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+    >
+      <div>
+        <h2 id="customer-form-title" class="text-xl font-bold text-[#14243b]">
+          {{ mode() === 'create' ? 'Add Customer' : 'Edit Customer' }}
+        </h2>
+        <p class="mt-1 text-sm text-[#647590]">
+          {{
+            mode() === 'create'
+              ? 'Add a customer to your tenant workspace.'
+              : 'Update customer contact and credit information.'
+          }}
+        </p>
+      </div>
+      <button
+        type="button"
+        aria-label="Close customer form"
+        [disabled]="saving()"
+        (click)="close.emit()"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] disabled:opacity-50"
+      >
+        ×
+      </button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="max-h-[calc(100dvh-13rem)] space-y-4 overflow-y-auto px-5 py-5 sm:px-7">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="customer-code" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+              >Code</label
+            >
+            <input
+              id="customer-code"
+              type="text"
+              formControlName="code"
+              [readOnly]="mode() === 'edit'"
+              maxlength="50"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none read-only:bg-[#f7f9fd] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+            @if (form.controls.code.touched && form.controls.code.invalid) {
+              <p class="mt-1 text-xs text-[#b4232d]">Code is required (50 characters max).</p>
+            }
+          </div>
+          <div>
+            <label for="customer-name" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+              >Customer Name</label
+            >
+            <input
+              id="customer-name"
+              type="text"
+              formControlName="name"
+              maxlength="200"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <p class="mt-1 text-xs text-[#b4232d]">Name is required (200 characters max).</p>
+            }
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="customer-email" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+              >Contact Email <span class="font-normal text-[#647590]">(optional)</span></label
+            >
+            <input
+              id="customer-email"
+              type="email"
+              formControlName="contactEmail"
+              maxlength="256"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+            @if (form.controls.contactEmail.touched && form.controls.contactEmail.invalid) {
+              <p class="mt-1 text-xs text-[#b4232d]">Enter a valid email (256 characters max).</p>
+            }
+          </div>
+          <div>
+            <label for="customer-phone" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+              >Phone Number</label
+            >
+            <input
+              id="customer-phone"
+              type="tel"
+              inputmode="tel"
+              formControlName="phoneNumber"
+              maxlength="50"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+            @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
+              @if (form.controls.phoneNumber.hasError('required')) {
+                <p class="mt-1 text-xs text-[#b4232d]">Phone number is required.</p>
+              } @else if (form.controls.phoneNumber.hasError('maxlength')) {
+                <p class="mt-1 text-xs text-[#b4232d]">
+                  Phone number must be 50 characters or fewer.
+                </p>
+              } @else if (form.controls.phoneNumber.hasError('pattern')) {
+                <p class="mt-1 text-xs text-[#b4232d]">
+                  Use digits with an optional + at the start.
+                </p>
+              }
+            }
+          </div>
+        </div>
+        <div>
+          <label for="customer-address" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+            >Address <span class="font-normal text-[#647590]">(optional)</span></label
+          >
+          <textarea
+            id="customer-address"
+            rows="3"
+            formControlName="address"
+            maxlength="500"
+            class="w-full rounded-md border border-[#cdd9e9] bg-white px-3 py-2 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          ></textarea>
+          @if (form.controls.address.touched && form.controls.address.invalid) {
+            <p class="mt-1 text-xs text-[#b4232d]">Address must be 500 characters or fewer.</p>
+          }
+        </div>
+        <div>
+          <label
+            for="customer-credit-limit"
+            class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+            >Credit Limit <span class="font-normal text-[#647590]">(optional)</span></label
+          >
+          <input
+            id="customer-credit-limit"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.01"
+            formControlName="creditLimit"
+            placeholder="No limit configured"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          />
+          @if (form.controls.creditLimit.touched && form.controls.creditLimit.invalid) {
+            <p class="mt-1 text-xs text-[#b4232d]">
+              Enter a nonnegative amount with up to 2 decimal places.
+            </p>
+          }
+        </div>
+      </div>
+      @if (error()) {
+        <p
+          role="alert"
+          class="mx-5 mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-[#b4232d] sm:mx-7"
+        >
+          {{ error() }}
+        </p>
+      }
+      <footer
+        class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] bg-[#f9fbfe] px-5 py-4 sm:px-7"
+      >
+        <button
+          type="button"
+          [disabled]="saving()"
+          (click)="close.emit()"
+          class="min-h-10 rounded-md border border-[#d8e2ef] bg-white px-5 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="min-h-10 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white hover:bg-[#1b49a9] disabled:opacity-50"
+        >
+          {{ saving() ? 'Saving...' : mode() === 'create' ? 'Create Customer' : 'Save Changes' }}
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
