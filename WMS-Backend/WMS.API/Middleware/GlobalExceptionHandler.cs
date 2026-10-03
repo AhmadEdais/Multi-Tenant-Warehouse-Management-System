@@ -68,6 +68,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
 
+            case DbUpdateException customerUpdateException
+                when customerUpdateException.InnerException is SqlException customerSqlException
+                    && customerSqlException.Number is 2601 or 2627
+                    && customerSqlException.Message.Contains("UQ_Customers_Tenant_Code", StringComparison.Ordinal):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A customer with the same code already exists."
+                };
+                break;
+
             case NotFoundException notFoundException:
                 problemDetails = new ProblemDetails
                 {

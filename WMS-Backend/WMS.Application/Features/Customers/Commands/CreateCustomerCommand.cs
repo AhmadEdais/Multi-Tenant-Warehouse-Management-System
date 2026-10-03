@@ -11,13 +11,16 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
 {
     public CreateCustomerCommandValidator()
     {
-        RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.ContactEmail).MaximumLength(256).EmailAddress()
-            .When(x => !string.IsNullOrEmpty(x.ContactEmail));
+        RuleFor(x => x.Code).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(50);
+        RuleFor(x => x.Name).Must(value => !string.IsNullOrWhiteSpace(value)).MaximumLength(200);
+        RuleFor(x => x.ContactEmail)
+            .MaximumLength(256)
+            .Must(value => string.IsNullOrWhiteSpace(value) ||
+                new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(value.Trim()))
+            .WithMessage("Contact email must be a valid email address.");
         RuleFor(x => x.PhoneNumber).ValidPhoneNumber();
         RuleFor(x => x.Address).MaximumLength(500);
-        RuleFor(x => x.CreditLimit).GreaterThanOrEqualTo(0)
+        RuleFor(x => x.CreditLimit).GreaterThanOrEqualTo(0).PrecisionScale(18, 2, true)
             .When(x => x.CreditLimit.HasValue);
 
     }
@@ -26,21 +29,21 @@ internal sealed class CreateCustomerCommandHandler(IWmsDbContext context, ITenan
 {
     public async Task<int> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = tenantContext.TenantId
-            ?? throw new UnauthorizedException("Must be in a tenant context.");
+        if (!tenantContext.TenantId.HasValue)
+            throw new UnauthorizedAccessException("A tenant workspace is required to create customers.");
+        var code = request.Code.Trim();
         var codeExists = await context.Customers
-            .IgnoreQueryFilters()
-            .AnyAsync(c => c.TenantId == tenantId && c.Code == request.Code, cancellationToken);
+            .AnyAsync(c => c.Code == code, cancellationToken);
         if (codeExists)
         {
-            throw new ConflictException($"A customer with the code '{request.Code}' already exists.");
+            throw new ConflictException($"A customer with the code '{code}' already exists.");
         }
         var customer = Customer.Create(
-            request.Code,
-            request.Name,
-            request.ContactEmail,
-            request.PhoneNumber,
-            request.Address,
+            code,
+            request.Name.Trim(),
+            string.IsNullOrWhiteSpace(request.ContactEmail) ? null : request.ContactEmail.Trim(),
+            request.PhoneNumber.Trim(),
+            string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim(),
             request.CreditLimit);
         context.Customers.Add(customer);
         await context.SaveChangesAsync(cancellationToken);

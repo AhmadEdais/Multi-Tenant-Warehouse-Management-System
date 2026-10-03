@@ -50,9 +50,15 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanManageCustomers, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanViewCustomers, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanViewInventory, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
     .AddPolicy(SecurityPolicies.CanViewInventorySummary, policy =>

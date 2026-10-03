@@ -54,4 +54,9 @@ public class Customer : IMustBelongToTenant
     {
         IsActive = false;
     }
+
+    public void Reactivate()
+    {
+        IsActive = true;
+    }
 }

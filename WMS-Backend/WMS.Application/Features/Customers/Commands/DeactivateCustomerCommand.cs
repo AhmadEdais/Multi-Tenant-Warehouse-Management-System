@@ -8,12 +8,16 @@ public class DeactivateCustomerCommandValidator : AbstractValidator<DeactivateCu
         RuleFor(x => x.Id).GreaterThan(0);
     }
 }
-internal sealed class DeactivateCustomerCommandHandler(IWmsDbContext context) : IRequestHandler<DeactivateCustomerCommand>
+internal sealed class DeactivateCustomerCommandHandler(IWmsDbContext context, ITenantContext tenantContext) : IRequestHandler<DeactivateCustomerCommand>
 {
     public async Task Handle(DeactivateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customer = await context.Customers.FindAsync([ request.Id ], cancellationToken)
+        if (!tenantContext.TenantId.HasValue)
+            throw new UnauthorizedAccessException("A tenant workspace is required to deactivate customers.");
+        var customer = await context.Customers.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException($"Customer with Id {request.Id} not found.");
+        if (!customer.IsActive)
+            throw new ConflictException("Customer is already inactive.");
 
         customer.Deactivate();
         await context.SaveChangesAsync(cancellationToken);
