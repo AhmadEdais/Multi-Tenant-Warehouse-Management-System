@@ -1,0 +1,480 @@
+<section
+  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="customers-heading"
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2 id="customers-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Customers
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">Manage customers in your tenant workspace.</p>
+    </div>
+    @if (canManage()) {
+      <button
+        type="button"
+        (click)="openCreateForm()"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Add Customer
+      </button>
+    }
+  </header>
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-center gap-3">
+      <label class="relative min-w-0 flex-[1_1_240px] sm:max-w-[520px]" for="customer-search">
+        <span class="sr-only">Search customers by code or name</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="customer-search"
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Search by code or name..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+      <label class="relative min-w-0 flex-[1_1_160px] sm:max-w-[190px]" for="customer-status">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="customer-status"
+          [value]="status()"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <svg
+          class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52647e]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="m5 9 7 7 7-7" />
+        </svg>
+      </label>
+      <span class="text-sm text-[#52647e] sm:ml-auto"
+        >{{ totalCount() }} {{ totalCount() === 1 ? 'customer' : 'customers' }}</span
+      >
+    </div>
+    @if (formOpening()) {
+      <p role="status" class="mb-4 text-sm text-[#52647e]">Loading customer for editing...</p>
+    }
+    <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[900px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="w-14 px-4 py-4">#</th>
+            <th scope="col" class="px-4 py-4">Code</th>
+            <th scope="col" class="px-4 py-4">Customer Name</th>
+            <th scope="col" class="px-4 py-4">Contact Email</th>
+            <th scope="col" class="px-4 py-4">Phone</th>
+            <th scope="col" class="px-4 py-4">Credit Limit</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="w-28 px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr>
+              <td colspan="8" role="status" class="px-4 py-12 text-center text-[#52647e]">
+                Loading customers...
+              </td>
+            </tr>
+          } @else if (error()) {
+            <tr>
+              <td colspan="8" class="px-4 py-12 text-center">
+                <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+                <button
+                  type="button"
+                  (click)="retry()"
+                  class="mt-3 font-semibold text-[#2458c5] hover:underline"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          } @else if (customers().length === 0) {
+            <tr>
+              <td colspan="8" class="px-4 py-12 text-center text-[#52647e]">
+                {{
+                  search().trim() || status() !== 'all'
+                    ? 'No customers match your filters.'
+                    : 'No customers yet.'
+                }}
+              </td>
+            </tr>
+          } @else {
+            @for (customer of customers(); track customer.id; let index = $index) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
+                <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ customer.code }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ customer.name }}</td>
+                <td class="max-w-52 truncate px-4 py-4 text-[#30435f]">
+                  {{ customer.contactEmail || '—' }}
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">{{ customer.phoneNumber }}</td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  {{
+                    customer.creditLimit === null ? '—' : (customer.creditLimit | number: '1.2-2')
+                  }}
+                </td>
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                    [class]="
+                      customer.isActive
+                        ? 'bg-[#e1f7eb] text-[#116b48]'
+                        : 'bg-[#ffe9e9] text-[#bd2d31]'
+                    "
+                    ><span class="h-2 w-2 rounded-full bg-current"></span
+                    >{{ customer.isActive ? 'Active' : 'Inactive' }}</span
+                  >
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="$event.stopPropagation(); openDetails(customer)"
+                      class="rounded-md border border-[#d8e2ef] px-3 py-1.5 text-xs font-semibold text-[#2458c5] hover:bg-[#f2f6fb]"
+                    >
+                      View
+                    </button>
+                    @if (canManage()) {
+                      <button
+                        type="button"
+                        [attr.aria-label]="'Actions for ' + customer.name"
+                        [attr.aria-expanded]="menuCustomer()?.id === customer.id"
+                        (click)="openMenu(customer, $event)"
+                        class="flex h-8 w-8 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      >
+                        <svg
+                          class="h-5 w-5"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <circle cx="5" cy="12" r="1.7" />
+                          <circle cx="12" cy="12" r="1.7" />
+                          <circle cx="19" cy="12" r="1.7" />
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span>Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} customers</span>
+      <div class="flex items-center gap-2" aria-label="Customer pages">
+        <button
+          type="button"
+          [disabled]="loading() || page() <= 1"
+          (click)="goToPage(page() - 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span class="px-2 font-semibold text-[#30435f]">{{ page() }} / {{ pageCount() }}</span>
+        <button
+          type="button"
+          [disabled]="loading() || page() >= pageCount()"
+          (click)="goToPage(page() + 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>
+
+@if (menuCustomer(); as customer) {
+  <div
+    role="menu"
+    class="fixed z-[55] w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
+    [style.top.px]="menuPosition().top"
+    [style.left.px]="menuPosition().left"
+    (click)="$event.stopPropagation()"
+  >
+    @if (customer.isActive) {
+      <button
+        type="button"
+        role="menuitem"
+        (click)="openEditForm(customer)"
+        class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#30435f] hover:bg-[#f2f6fb]"
+      >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="m4 16 11-11 4 4L8 20H4v-4Z" stroke-linejoin="round" /></svg
+        >Edit
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        (click)="requestAction('deactivate', customer)"
+        class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#b4232d] hover:bg-[#fff0f0]"
+      >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M7 12h10" /></svg
+        >Deactivate
+      </button>
+    } @else {
+      <button
+        type="button"
+        role="menuitem"
+        (click)="requestAction('reactivate', customer)"
+        class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#2458c5] hover:bg-[#eef4ff]"
+      >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path
+            d="M20 11a8 8 0 1 1-2-5.5M20 4v6h-6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          /></svg
+        >Reactivate
+      </button>
+    }
+  </div>
+}
+
+@if (detailsOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-3 sm:p-5"
+    (click)="closeDetails()"
+  >
+    <section
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customer-details-title"
+      class="w-full max-w-xl overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-xl"
+      (click)="$event.stopPropagation()"
+    >
+      <header
+        class="flex items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-5 sm:px-7"
+      >
+        <h2 id="customer-details-title" class="text-xl font-bold text-[#14243b]">
+          Customer Details
+        </h2>
+        <button
+          type="button"
+          aria-label="Close customer details"
+          (click)="closeDetails()"
+          class="flex h-9 w-9 items-center justify-center rounded-md text-[#52647e] hover:bg-[#f2f6fb]"
+        >
+          ×
+        </button>
+      </header>
+      <div class="max-h-[calc(100dvh-13rem)] overflow-y-auto px-5 py-6 sm:px-7">
+        @if (detailsLoading()) {
+          <p role="status" class="py-10 text-center text-sm text-[#52647e]">
+            Loading customer details...
+          </p>
+        } @else if (detailsError()) {
+          <div class="py-10 text-center">
+            <p role="alert" class="text-sm text-[#b4232d]">{{ detailsError() }}</p>
+            <button
+              type="button"
+              (click)="retryDetails()"
+              class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        } @else if (selectedCustomerDetails(); as customer) {
+          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <h3 class="text-lg font-bold text-[#14243b]">{{ customer.name }}</h3>
+            <span
+              class="rounded-md px-2.5 py-1 text-xs font-semibold"
+              [class]="
+                customer.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
+              "
+              >{{ customer.isActive ? 'Active' : 'Inactive' }}</span
+            >
+          </div>
+          <dl class="grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt class="font-semibold text-[#647590]">Code</dt>
+              <dd class="mt-1 text-[#20324d]">{{ customer.code }}</dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[#647590]">Name</dt>
+              <dd class="mt-1 text-[#20324d]">{{ customer.name }}</dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[#647590]">Contact Email</dt>
+              <dd class="mt-1 text-[#20324d]">{{ customer.contactEmail || '—' }}</dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[#647590]">Phone Number</dt>
+              <dd class="mt-1 text-[#20324d]">{{ customer.phoneNumber }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="font-semibold text-[#647590]">Address</dt>
+              <dd class="mt-1 whitespace-pre-wrap text-[#20324d]">{{ customer.address || '—' }}</dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[#647590]">Credit Limit</dt>
+              <dd class="mt-1 text-[#20324d]">
+                {{ customer.creditLimit === null ? '—' : (customer.creditLimit | number: '1.2-2') }}
+              </dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[#647590]">Status</dt>
+              <dd class="mt-1 text-[#20324d]">{{ customer.isActive ? 'Active' : 'Inactive' }}</dd>
+            </div>
+          </dl>
+          @if (canManage()) {
+            <div class="mt-6 flex flex-wrap justify-end gap-2 border-t border-[#e3eaf3] pt-4">
+              @if (customer.isActive) {
+                <button
+                  type="button"
+                  (click)="openEditForm(customer)"
+                  class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#f2f6fb]"
+                >
+                  Edit
+                </button>
+              }
+              <button
+                type="button"
+                [attr.aria-label]="'Actions for ' + customer.name"
+                [attr.aria-expanded]="menuCustomer()?.id === customer.id"
+                (click)="openMenu(customer, $event)"
+                class="flex h-10 w-10 items-center justify-center rounded-md border border-[#d8e2ef] text-[#52647e] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+              >
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="5" cy="12" r="1.7" />
+                  <circle cx="12" cy="12" r="1.7" />
+                  <circle cx="19" cy="12" r="1.7" />
+                </svg>
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </section>
+  </div>
+}
+
+@if (formState(); as state) {
+  <app-customer-form
+    [mode]="state.mode"
+    [customer]="state.customer"
+    [saving]="formLoading()"
+    [error]="formError()"
+    (close)="closeForm()"
+    (save)="saveCustomer($event)"
+  />
+}
+
+@if (pendingAction(); as pending) {
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-[#081728]/55 p-4"
+    (click)="closeAction()"
+  >
+    <section
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="customer-action-title"
+      class="w-full max-w-md rounded-md border border-[#d7e1ef] bg-white p-6 shadow-xl"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 id="customer-action-title" class="text-lg font-bold text-[#14243b]">
+        {{ pending.action === 'deactivate' ? 'Deactivate' : 'Reactivate' }} customer?
+      </h3>
+      <p class="mt-2 text-sm leading-6 text-[#647590]">
+        "{{ pending.customer.name }}" will be
+        {{
+          pending.action === 'deactivate'
+            ? 'unavailable for new sales activity. Historical records will remain preserved.'
+            : 'available for new sales activity again.'
+        }}
+      </p>
+      @if (actionError()) {
+        <p role="alert" class="mt-4 rounded-md bg-[#fff0f0] px-3 py-2 text-sm text-[#b4232d]">
+          {{ actionError() }}
+        </p>
+      }
+      <div class="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          [disabled]="actionLoading()"
+          (click)="closeAction()"
+          class="min-h-10 rounded-md border border-[#cdd9e9] px-4 text-sm font-semibold text-[#405573] disabled:opacity-50"
+        >
+          Cancel</button
+        ><button
+          type="button"
+          [disabled]="actionLoading()"
+          (click)="confirmAction()"
+          class="min-h-10 rounded-md px-5 text-sm font-semibold text-white disabled:opacity-50"
+          [class]="
+            pending.action === 'deactivate'
+              ? 'bg-[#b4232d] hover:bg-[#94212a]'
+              : 'bg-[#2458c5] hover:bg-[#1b49a9]'
+          "
+        >
+          {{
+            actionLoading()
+              ? 'Working...'
+              : pending.action === 'deactivate'
+                ? 'Deactivate'
+                : 'Reactivate'
+          }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

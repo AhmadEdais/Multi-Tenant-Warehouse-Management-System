@@ -16,6 +16,5 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.CreditLimit).HasPrecision(18, 2);
 
         builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
-        builder.HasQueryFilter(c => c.IsActive);
     }
 }

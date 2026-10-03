@@ -7,11 +7,13 @@ public record CustomerListDto(
     string? ContactEmail,
     string PhoneNumber,
     string? Address,
-    decimal CreditLimit);
+    decimal? CreditLimit,
+    bool IsActive);
 public record ListCustomersQuery(
-    string? SearchTerm,
+    string? SearchTerm = null,
+    bool? IsActive = null,
     int PageNumber = 1,
-    int PageSize = 10) : IRequest<PagedResult<CustomerListDto>>;
+    int PageSize = 50) : IRequest<PagedResult<CustomerListDto>>;
 public class ListCustomersQueryValidator : AbstractValidator<ListCustomersQuery>
 {
     public ListCustomersQueryValidator()
@@ -20,21 +22,35 @@ public class ListCustomersQueryValidator : AbstractValidator<ListCustomersQuery>
         RuleFor(x => x.PageSize).GreaterThan(0).LessThanOrEqualTo(100);
     }
 }
-internal sealed class ListCustomersQueryHandler(IWmsDbContext context) : IRequestHandler<ListCustomersQuery, PagedResult<CustomerListDto>>
+internal sealed class ListCustomersQueryHandler(
+    IWmsDbContext context,
+    ITenantContext tenantContext,
+    ICurrentUserService currentUser) : IRequestHandler<ListCustomersQuery, PagedResult<CustomerListDto>>
 {
     public async Task<PagedResult<CustomerListDto>> Handle(ListCustomersQuery request, CancellationToken cancellationToken)
     {
+        if (!tenantContext.TenantId.HasValue)
+            throw new UnauthorizedAccessException("A tenant workspace is required to view customers.");
+
         var query = context.Customers.AsNoTracking();
-        if (!string.IsNullOrEmpty(request.SearchTerm))
+        var search = request.SearchTerm?.Trim();
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            var searchTerm = request.SearchTerm.Trim();
             query = query.Where(c =>
-                c.Code.Contains(searchTerm) ||
-                c.Name.Contains(searchTerm));
+                c.Code.Contains(search) ||
+                c.Name.Contains(search));
         }
+        var canSeeInactive = currentUser.IsInRole(Roles.TenantAdmin)
+            || currentUser.IsInRole(Roles.WarehouseManager);
+        if (!canSeeInactive)
+            query = query.Where(c => c.IsActive);
+        else if (request.IsActive is bool isActive)
+            query = query.Where(c => c.IsActive == isActive);
+
         var totalItems = await query.CountAsync(cancellationToken);
         var customers = await query
             .OrderBy(c => c.Name)
+            .ThenBy(c => c.Id)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(c => new CustomerListDto(
@@ -44,7 +60,8 @@ internal sealed class ListCustomersQueryHandler(IWmsDbContext context) : IReques
                 c.ContactEmail,
                 c.PhoneNumber,
                 c.Address,
-                c.CreditLimit ?? 0))
+                c.CreditLimit,
+                c.IsActive))
             .ToListAsync(cancellationToken);
         return new PagedResult<CustomerListDto>(customers, totalItems, request.PageNumber, request.PageSize);
     }
