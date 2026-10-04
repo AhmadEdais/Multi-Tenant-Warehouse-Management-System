@@ -60,9 +60,15 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanViewInventory, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanViewInventorySummary, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.Analyst))
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
     .AddPolicy(SecurityPolicies.CanManageInbound, policy =>
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager));
 
@@ -182,6 +188,14 @@ builder.Services.AddAuthentication(options =>
             }
         }
     };
+});
+builder.Logging.ClearProviders();
+
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.TimestampFormat = "HH:mm:ss ";
+    options.IncludeScopes = false;
+
 });
 builder.Services.AddAuthorization();
 var app = builder.Build();
