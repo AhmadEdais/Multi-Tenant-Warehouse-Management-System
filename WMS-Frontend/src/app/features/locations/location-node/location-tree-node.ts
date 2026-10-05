@@ -39,4 +39,12 @@ export class LocationTreeNode {
     event.stopPropagation();
     this.openContextMenu.emit({ node: this.node(), x: event.clientX, y: event.clientY });
   }
+
+  onContextMenuKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'ContextMenu' && !(event.key === 'F10' && event.shiftKey)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.openContextMenu.emit({ node: this.node(), x: rect.left, y: rect.bottom });
+  }
 }

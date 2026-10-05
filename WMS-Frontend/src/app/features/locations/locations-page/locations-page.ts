@@ -4,10 +4,12 @@ import {
   Component,
   computed,
   DestroyRef,
+  ElementRef,
   HostListener,
   inject,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, expand, Observable, of, reduce, Subject, switchMap } from 'rxjs';
@@ -16,6 +18,7 @@ import { WarehousesService } from '../../warehouses/warehouses.service';
 import { LocationTreeNode } from '../location-node/location-tree-node';
 import { LocationFormComponent, LocationFormValue } from '../location-form/location-form';
 import { LocationsService } from '../locations.service';
+import { LocationInventoryDetailsComponent } from '../../inventory/location-inventory-details/location-inventory-details';
 import {
   CreateLocationRequest,
   LocationDetails,
@@ -33,11 +36,16 @@ type ActionState = { action: 'deactivate' | 'reactivate'; location: LocationNode
 
 @Component({
   selector: 'app-locations-page',
-  imports: [DecimalPipe, LocationTreeNode, LocationFormComponent],
+  imports: [DecimalPipe, LocationTreeNode, LocationFormComponent, LocationInventoryDetailsComponent],
   templateUrl: './locations-page.html',
   styleUrl: './locations-page.css',
 })
 export class LocationsPage implements OnInit {
+  @ViewChild('locationContextMenu')
+  set locationContextMenu(element: ElementRef<HTMLElement> | undefined) {
+    element?.nativeElement.querySelector('button')?.focus();
+  }
+
   private readonly locationsService = inject(LocationsService);
   private readonly warehousesService = inject(WarehousesService);
   private readonly destroyRef = inject(DestroyRef);
@@ -60,6 +68,7 @@ export class LocationsPage implements OnInit {
   readonly detailsLoading = signal(false);
   readonly detailsError = signal<string | null>(null);
   readonly contextLocation = signal<LocationNode | null>(null);
+  readonly inventoryLocation = signal<{ id: number; name: string } | null>(null);
   readonly contextPosition = signal({ top: 0, left: 0 });
   readonly formState = signal<FormState | null>(null);
   readonly formLoading = signal(false);
@@ -252,9 +261,20 @@ export class LocationsPage implements OnInit {
   openLocationContext(event: { node: LocationNode; x: number; y: number }): void {
     this.contextLocation.set(event.node);
     this.contextPosition.set({
-      top: Math.max(8, Math.min(event.y, window.innerHeight - 150)),
+      top: Math.max(8, Math.min(event.y, window.innerHeight - 190)),
       left: Math.max(8, Math.min(event.x, window.innerWidth - 180)),
     });
+  }
+
+  openLocationInventory(): void {
+    const location = this.contextLocation();
+    if (location?.locationType !== 'Bin') return;
+    this.inventoryLocation.set({ id: location.id, name: location.name });
+    this.closeContextMenu();
+  }
+
+  closeLocationInventory(): void {
+    this.inventoryLocation.set(null);
   }
 
   closeContextMenu(): void {
@@ -400,6 +420,7 @@ export class LocationsPage implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.inventoryLocation()) return;
     this.closeContextMenu();
     this.closeLocationForm();
     this.closeAction();

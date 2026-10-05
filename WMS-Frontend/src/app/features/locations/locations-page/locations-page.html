@@ -533,6 +533,7 @@
   </div>
   @if (contextLocation(); as location) {
     <div
+      #locationContextMenu
       class="fixed z-40 w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
       [style.top.px]="contextPosition().top"
       [style.left.px]="contextPosition().left"
@@ -540,6 +541,19 @@
       role="menu"
       [attr.aria-label]="'Actions for ' + location.name"
     >
+      @if (location.locationType === 'Bin') {
+        <button
+          type="button"
+          role="menuitem"
+          (click)="openLocationInventory()"
+          class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
+          <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          View Inventory
+        </button>
+      }
       @if (location.isActive) {
         @if (location.locationType !== 'Bin') {
           <button
@@ -630,6 +644,13 @@
         </button>
       }
     </div>
+  }
+  @if (inventoryLocation(); as location) {
+    <app-location-inventory-details
+      [locationId]="location.id"
+      [locationName]="location.name"
+      (close)="closeLocationInventory()"
+    />
   }
   @if (formState(); as form) {
     @if (selectedWarehouse(); as warehouse) {
