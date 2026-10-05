@@ -45,16 +45,18 @@ internal sealed class GetStockByProductQueryHandler(IWmsDbContext context, ITena
                         on stock.LocationId equals location.Id
                     join warehouse in context.Warehouses.AsNoTracking()
                         on location.WarehouseId equals warehouse.Id
-                    select new StockByProductDto(
-                        location.Id,
-                        location.Name,
-                        location.LocationType,
-                        warehouse.Id,
-                        warehouse.Code,
-                        warehouse.Name,
+                    select new
+                    {
+                        LocationId = location.Id,
+                        LocationName = location.Name,
+                        LocationType = location.LocationType,
+                        WarehouseId = warehouse.Id,
+                        WarehouseCode = warehouse.Code,
+                        WarehouseName = warehouse.Name,
                         stock.QuantityOnHand,
                         stock.QuantityAllocated,
-                        stock.QuantityOnHand - stock.QuantityAllocated);
+                        AvailableQuantity = stock.QuantityOnHand - stock.QuantityAllocated
+                    };
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -63,6 +65,16 @@ internal sealed class GetStockByProductQueryHandler(IWmsDbContext context, ITena
             .ThenBy(item => item.LocationId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
+            .Select(item => new StockByProductDto(
+                item.LocationId,
+                item.LocationName,
+                item.LocationType,
+                item.WarehouseId,
+                item.WarehouseCode,
+                item.WarehouseName,
+                item.QuantityOnHand,
+                item.QuantityAllocated,
+                item.AvailableQuantity))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<StockByProductDto>(items, totalCount, request.PageNumber, request.PageSize);

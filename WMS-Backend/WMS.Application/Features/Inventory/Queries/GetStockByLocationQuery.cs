@@ -41,15 +41,16 @@ internal sealed class GetStockByLocationQueryHandler(IWmsDbContext context, ITen
                     where stock.LocationId == request.LocationId
                     join product in context.Products.AsNoTracking()
                         on stock.ProductId equals product.Id
-                    select new StockByLocationDto(
-                        product.Id,
+                    select new
+                    {
+                        ProductId = product.Id,
                         product.SKU,
-                        product.Name,
+                        ProductName = product.Name,
                         product.ReorderPoint,
                         stock.QuantityOnHand,
                         stock.QuantityAllocated,
-                        stock.QuantityOnHand - stock.QuantityAllocated,
-                        stock.QuantityOnHand - stock.QuantityAllocated <= product.ReorderPoint);
+                        AvailableQuantity = stock.QuantityOnHand - stock.QuantityAllocated
+                    };
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -57,6 +58,15 @@ internal sealed class GetStockByLocationQueryHandler(IWmsDbContext context, ITen
             .ThenBy(item => item.ProductId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
+            .Select(item => new StockByLocationDto(
+                item.ProductId,
+                item.SKU,
+                item.ProductName,
+                item.ReorderPoint,
+                item.QuantityOnHand,
+                item.QuantityAllocated,
+                item.AvailableQuantity,
+                item.AvailableQuantity <= item.ReorderPoint))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<StockByLocationDto>(items, totalCount, request.PageNumber, request.PageSize);
