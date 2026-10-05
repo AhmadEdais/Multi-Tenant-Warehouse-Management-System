@@ -36,11 +36,22 @@ internal sealed class GetStockByLocationQueryHandler(IWmsDbContext context, ITen
             .AnyAsync(location => location.Id == request.LocationId, cancellationToken);
         if (!locationExists)
             throw new NotFoundException($"Location with ID {request.LocationId} not found.");
+        var productTotals = context.StockLevels
+            .AsNoTracking()
+            .GroupBy(sl => sl.ProductId)
+            .Select(g => new
+            {
+                ProductId = g.Key,
+                TotalAvailableQuantity =
+                g.Sum(x => x.QuantityOnHand - x.QuantityAllocated)
+            });
 
         var query = from stock in context.StockLevels.AsNoTracking()
                     where stock.LocationId == request.LocationId
                     join product in context.Products.AsNoTracking()
                         on stock.ProductId equals product.Id
+                    join total in productTotals
+                    on stock.ProductId equals total.ProductId
                     select new
                     {
                         ProductId = product.Id,
@@ -49,8 +60,10 @@ internal sealed class GetStockByLocationQueryHandler(IWmsDbContext context, ITen
                         product.ReorderPoint,
                         stock.QuantityOnHand,
                         stock.QuantityAllocated,
-                        AvailableQuantity = stock.QuantityOnHand - stock.QuantityAllocated
+                        AvailableQuantity = stock.QuantityOnHand - stock.QuantityAllocated,
+                        total.TotalAvailableQuantity
                     };
+
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -66,7 +79,7 @@ internal sealed class GetStockByLocationQueryHandler(IWmsDbContext context, ITen
                 item.QuantityOnHand,
                 item.QuantityAllocated,
                 item.AvailableQuantity,
-                item.AvailableQuantity <= item.ReorderPoint))
+                item.TotalAvailableQuantity <= item.ReorderPoint))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<StockByLocationDto>(items, totalCount, request.PageNumber, request.PageSize);
