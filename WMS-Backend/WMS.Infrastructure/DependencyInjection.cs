@@ -13,6 +13,7 @@ public static class DependencyInjection
             var interceptor = sp.GetRequiredService<TenantStampingInterceptor>();
             options.UseSqlServer(configuration.GetConnectionString("WmsConnection"))
                    .AddInterceptors(interceptor);
+            options.EnableSensitiveDataLogging(); // remove later
         });
 
         services.AddHttpContextAccessor();

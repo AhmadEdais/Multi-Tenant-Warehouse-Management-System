@@ -100,6 +100,13 @@ export const routes: Routes = [
           import('./features/products/products-page/products-page').then((m) => m.ProductsPage),
       },
       {
+        path: 'inventory',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
+      },
+      {
         path: 'suppliers',
         canActivate: [roleGuard],
         data: { roles: ['TenantAdmin', 'WarehouseManager'] },

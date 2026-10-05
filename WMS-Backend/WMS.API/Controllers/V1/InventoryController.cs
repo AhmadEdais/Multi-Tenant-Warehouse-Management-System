@@ -6,7 +6,7 @@ public class InventoryController(ISender sender) : ControllerBase
 {
     [HttpGet("product/{productId}")]
     [Authorize(Policy = SecurityPolicies.CanViewInventory)]
-    [ProducesResponseType(typeof(PagedResult<StockLevelDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<StockByProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -20,7 +20,7 @@ public class InventoryController(ISender sender) : ControllerBase
     }
     [HttpGet("Location/{locationId}")]
     [Authorize(Policy = SecurityPolicies.CanViewInventory)]
-    [ProducesResponseType(typeof(PagedResult<StockLevelDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<StockByLocationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -34,15 +34,13 @@ public class InventoryController(ISender sender) : ControllerBase
     }
     [HttpGet("summary")]
     [Authorize(Policy = SecurityPolicies.CanViewInventorySummary)]
-    [ProducesResponseType(typeof(List<TenantStockSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<TenantStockSummaryDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)] 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetInventorySummary()
+    public async Task<IActionResult> GetInventorySummary([FromQuery] GetTenantStockSummaryQuery query)
     {
-        var query = new GetTenantStockSummaryQuery();
         var result = await sender.Send(query);
         return Ok(result);
     }
