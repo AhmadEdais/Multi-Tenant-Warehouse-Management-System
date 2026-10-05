@@ -15,6 +15,8 @@ internal class DeactivateLocationCommandHandler(IWmsDbContext context) : IReques
         var location = await context.Locations
             .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException($"Location with ID {request.Id} not found.");
+        if (!LocationTypes.IsEditable(location.LocationType))
+            throw new ConflictException("System-managed locations cannot be deactivated.");
         if (!location.IsActive)
             throw new ConflictException("Location is already inactive.");
         var hasActiveChildLocations = await context.Locations.AnyAsync(l => l.ParentLocationId == request.Id && l.IsActive, cancellationToken);

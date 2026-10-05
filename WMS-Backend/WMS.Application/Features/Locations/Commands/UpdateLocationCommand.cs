@@ -25,6 +25,8 @@ internal class UpdateLocationCommandHandler(IWmsDbContext context) : IRequestHan
         var location = await context.Locations
             .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException($"Location with ID {request.Id} not found.");
+        if (!LocationTypes.IsEditable(location.LocationType))
+            throw new ConflictException("System-managed locations cannot be edited.");
         if (!location.IsActive)
             throw new ConflictException("Inactive locations cannot be edited.");
 

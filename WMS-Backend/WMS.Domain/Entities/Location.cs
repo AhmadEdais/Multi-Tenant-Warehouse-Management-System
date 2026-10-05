@@ -1,5 +1,5 @@
 ﻿using WMS.Domain.Interfaces;
-
+using WMS.Domain.Constants;
 namespace WMS.Domain.Entities
 {
     public class Location : IMustBelongToTenant
@@ -32,8 +32,10 @@ namespace WMS.Domain.Entities
             string? barcode,
             decimal? maxWeightCapacityKg)
         {
-            if (!WMS.Domain.Constants.LocationTypes.IsValid(locationType))
+            if (!LocationTypes.IsValid(locationType))
                 throw new ArgumentException("Invalid location type.", nameof(locationType));
+            if (locationType == LocationTypes.Dock && parentLocationId.HasValue)
+                throw new ArgumentException("A Dock cannot have a parent location.", nameof(parentLocationId));
             return new Location
             {
                 WarehouseId = warehouseId,

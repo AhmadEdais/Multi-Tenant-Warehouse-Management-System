@@ -38,10 +38,31 @@
                 throw new ConflictException($"A warehouse with code '{code}' already exists for this tenant.");
             }
             var warehouse = Warehouse.Create(tenantId.Value, code, name, address);
-            
-            context.Warehouses.Add(warehouse);
-            await context.SaveChangesAsync(cancellationToken);
-            return warehouse.Id;
+
+            await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                context.Warehouses.Add(warehouse);
+                await context.SaveChangesAsync(cancellationToken);
+
+                var dock = Location.Create(
+                    warehouse.Id,
+                    null,
+                    LocationTypes.Dock,
+                    "Receiving Dock",
+                    null,
+                    null);
+                context.Locations.Add(dock);
+                await context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+                return warehouse.Id;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

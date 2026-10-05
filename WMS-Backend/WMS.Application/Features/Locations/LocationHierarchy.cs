@@ -9,7 +9,7 @@ internal static class LocationHierarchy
         int? parentLocationId,
         CancellationToken cancellationToken)
     {
-        if (!LocationTypes.IsValid(locationType))
+        if (!LocationTypes.IsAddable(locationType))
             throw new ConflictException("Location type must be Zone, Aisle, Rack, or Bin.");
         var requiredParentType = LocationTypes.RequiredParentType(locationType);
         if (requiredParentType is null)

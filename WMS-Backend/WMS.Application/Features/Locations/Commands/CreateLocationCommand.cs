@@ -15,7 +15,7 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
         RuleFor(x => x.WarehouseId).GreaterThan(0);
         RuleFor(x => x.ParentLocationId).GreaterThan(0).When(x => x.ParentLocationId.HasValue);
         RuleFor(x => x.LocationType)
-            .Must(type => LocationTypes.IsValid(type?.Trim()))
+            .Must(type => LocationTypes.IsAddable(type?.Trim()))
             .WithMessage("Location type must be Zone, Aisle, Rack, or Bin.");
         RuleFor(x => x.Name).Must(name => !string.IsNullOrWhiteSpace(name)).MaximumLength(100);
         RuleFor(x => x.Barcode).MaximumLength(100);

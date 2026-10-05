@@ -19,6 +19,8 @@ internal sealed class ReactivateLocationCommandHandler(IWmsDbContext context)
         var location = await context.Locations
             .FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException($"Location with ID {request.Id} not found.");
+        if (!LocationTypes.IsEditable(location.LocationType))
+            throw new ConflictException("System-managed locations cannot be reactivated.");
         var warehouseExists = await context.Warehouses
             .AnyAsync(w => w.Id == location.WarehouseId && w.IsActive, cancellationToken);
         if (!warehouseExists) {
