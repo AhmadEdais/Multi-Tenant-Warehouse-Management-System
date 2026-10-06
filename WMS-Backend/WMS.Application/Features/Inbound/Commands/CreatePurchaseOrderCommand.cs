@@ -52,7 +52,7 @@ internal sealed class CreatePurchaseOrderCommandHandler(
         "A signed-in user is required to create a Purchase Order.");
 
         var supplierExists = await context.Suppliers
-            .AnyAsync(s => s.Id == request.SupplierId, cancellationToken);
+            .AnyAsync(s => s.Id == request.SupplierId && s.IsActive, cancellationToken);
         if (!supplierExists)
         {
             throw new NotFoundException("The specified supplier does not exist.");
