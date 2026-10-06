@@ -61,6 +61,8 @@ public sealed class PurchaseOrder : IMustBelongToTenant
             throw new InvalidOperationException($"Product {productId} is already on this Purchase Order.");
 
         _lines.Add(PurchaseOrderLine.Create(TenantId, productId, expectedQuantity, unitCost));
+        LastModifiedOnUtc = DateTime.UtcNow;
+
     }
 
     public void MarkAsPending()
@@ -72,6 +74,8 @@ public sealed class PurchaseOrder : IMustBelongToTenant
             throw new InvalidOperationException("A Purchase Order must have at least one line before approval.");
 
         Status = PurchaseOrderStatus.Pending;
+        LastModifiedOnUtc = DateTime.UtcNow;
+
     }
 
     public void MarkAsReceiving()
@@ -83,6 +87,8 @@ public sealed class PurchaseOrder : IMustBelongToTenant
             throw new InvalidOperationException("Only a pending Purchase Order can begin receiving.");
 
         Status = PurchaseOrderStatus.Receiving;
+        LastModifiedOnUtc = DateTime.UtcNow;
+
     }
 
     public void TryMarkAsFullyReceived()
@@ -92,6 +98,8 @@ public sealed class PurchaseOrder : IMustBelongToTenant
 
         if (_lines.Count > 0 && _lines.All(l => l.ReceivedQuantity == l.ExpectedQuantity))
             Status = PurchaseOrderStatus.Received;
+        LastModifiedOnUtc = DateTime.UtcNow;
+
     }
 
     public void Cancel()
@@ -100,5 +108,6 @@ public sealed class PurchaseOrder : IMustBelongToTenant
             throw new InvalidOperationException("Only a draft or pending Purchase Order can be canceled.");
 
         Status = PurchaseOrderStatus.Canceled;
+        LastModifiedOnUtc = DateTime.UtcNow;
     }
 }
