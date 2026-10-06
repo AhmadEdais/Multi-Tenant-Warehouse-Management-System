@@ -70,7 +70,12 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanManageInbound, policy =>
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager));
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager))
+    .AddPolicy(SecurityPolicies.CanViewPurchaseOrders, policy =>
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator, Roles.Analyst);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    });
 
 
 builder.Services.AddSwaggerGen(c =>

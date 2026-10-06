@@ -27,4 +27,5 @@ public static class SecurityPolicies
     public const string CanViewInventorySummary = "CanViewInventorySummary";
 
     public const string CanManageInbound = "CanManageInbound";
+    public const string CanViewPurchaseOrders = "CanViewPurchaseOrders";
 }
