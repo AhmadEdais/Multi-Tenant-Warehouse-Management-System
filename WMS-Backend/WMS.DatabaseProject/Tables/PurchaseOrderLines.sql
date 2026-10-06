@@ -7,7 +7,7 @@
     
     [ExpectedQuantity] DECIMAL(18,2) NOT NULL,
     [ReceivedQuantity] DECIMAL(18,2) NOT NULL DEFAULT 0,
-
+    [UnitCost] DECIMAL(18,2) NOT NULL,
     CONSTRAINT [PK_PurchaseOrderLines] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_PurchaseOrderLines_Tenants] FOREIGN KEY ([TenantId]) REFERENCES [dbo].[Tenants]([Id]),
     CONSTRAINT [FK_PurchaseOrderLines_PurchaseOrders] FOREIGN KEY ([PurchaseOrderId]) REFERENCES [dbo].[PurchaseOrders]([Id]) ON DELETE CASCADE,
@@ -18,6 +18,8 @@
     
     -- You can't receive negative items, AND you can't receive more than you ordered!
     CONSTRAINT [CHK_POLines_ReceivedQuantity] CHECK ([ReceivedQuantity] >= 0 AND [ReceivedQuantity] <= [ExpectedQuantity]),
+
+    CONSTRAINT [CHK_POLines_UnitCost] CHECK ([UnitCost] >= 0),
     
     -- A product should only appear once per Purchase Order
     CONSTRAINT [UQ_PurchaseOrderLines_PO_Product] UNIQUE ([PurchaseOrderId], [ProductId])

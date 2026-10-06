@@ -2,7 +2,7 @@
 
 public enum PurchaseOrderStatus : byte
 {
-    Drafted = 1,
+    Draft = 1,
     Pending = 2,
     Receiving = 3,
     Received = 4,
