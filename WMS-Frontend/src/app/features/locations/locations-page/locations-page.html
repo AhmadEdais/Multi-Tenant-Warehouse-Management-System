@@ -247,11 +247,23 @@
                         class="flex min-w-0 flex-1 items-center gap-1 rounded text-left focus-visible:outline-2 focus-visible:outline-[#2458c5]"
                       >
                         <span
-                          class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f1ff] text-[#2458c5]"
+                          class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#fff5d6] text-[#a16207]"
                           aria-hidden="true"
                         >
-                          <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                            <path d="M3 20V5h18v15M3 9h18M8 20v-7h8v7M10 16h4" stroke-linecap="round" stroke-linejoin="round" />
+                          <svg
+                            class="h-[18px] w-[18px]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                          >
+                            <path
+                              d="M2.5 6.5h11v10h-11zM13.5 9.5h3.5l4 4v3h-7.5z"
+                              fill="#facc15"
+                              stroke-linejoin="round"
+                            />
+                            <circle cx="7" cy="17.5" r="1.5" fill="white" />
+                            <circle cx="17.5" cy="17.5" r="1.5" fill="white" />
                           </svg>
                         </span>
                         <span
@@ -264,9 +276,13 @@
                                 : 'text-[#20324d]'
                           "
                           [title]="dock.name"
-                        >{{ dock.name }}</span>
+                          >{{ dock.name }}</span
+                        >
                         @if (!dock.isActive) {
-                          <span class="rounded bg-[#eef1f5] px-1.5 py-0.5 text-[10px] font-semibold text-[#69788d]">Inactive</span>
+                          <span
+                            class="rounded bg-[#eef1f5] px-1.5 py-0.5 text-[10px] font-semibold text-[#69788d]"
+                            >Inactive</span
+                          >
                         }
                       </button>
                       <button
@@ -274,7 +290,9 @@
                         (click)="openLocationInventory(dock)"
                         [attr.aria-label]="'View inventory in ' + dock.name"
                         class="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-                      >View Inventory</button>
+                      >
+                        View Inventory
+                      </button>
                     </div>
                   }
                   @for (location of filteredTree(); track location.id) {
@@ -360,11 +378,23 @@
             @switch (location.locationType.toLowerCase()) {
               @case ('dock') {
                 <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f1ff] text-[#2458c5]"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#fff5d6] text-[#a16207]"
                   aria-hidden="true"
                 >
-                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                    <path d="M3 20V5h18v15M3 9h18M8 20v-7h8v7M10 16h4" stroke-linecap="round" stroke-linejoin="round" />
+                  <svg
+                    class="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  >
+                    <path
+                      d="M2.5 6.5h11v10h-11zM13.5 9.5h3.5l4 4v3h-7.5z"
+                      fill="#facc15"
+                      stroke-linejoin="round"
+                    />
+                    <circle cx="7" cy="17.5" r="1.5" fill="white" />
+                    <circle cx="17.5" cy="17.5" r="1.5" fill="white" />
                   </svg>
                 </span>
               }
@@ -478,7 +508,9 @@
                   type="button"
                   (click)="openLocationInventory(selectedLocationNode())"
                   class="inline-flex min-h-9 items-center rounded-md border border-[#d8e2ef] bg-white px-3 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-                >View Inventory</button>
+                >
+                  View Inventory
+                </button>
               }
               @if (isEditableLocationType(location.locationType) && location.isActive) {
                 <button
@@ -612,8 +644,19 @@
           (click)="openLocationInventory()"
           class="flex w-full items-center gap-2 px-4 py-2 text-left text-[#20324d] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
         >
-          <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-            <path d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3" stroke-linecap="round" stroke-linejoin="round" />
+          <svg
+            class="h-4 w-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
           View Inventory
         </button>
