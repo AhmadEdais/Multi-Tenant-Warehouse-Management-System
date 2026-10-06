@@ -2,8 +2,9 @@
 
 public enum PurchaseOrderStatus : byte
 {
-    Pending = 1,
-    Receiving = 2,
-    Received = 3,
-    Canceled = 4
+    Drafted = 1,
+    Pending = 2,
+    Receiving = 3,
+    Received = 4,
+    Canceled = 5
 }
