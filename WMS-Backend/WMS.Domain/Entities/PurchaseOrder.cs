@@ -65,6 +65,62 @@ public sealed class PurchaseOrder : IMustBelongToTenant
 
     }
 
+    public void ReplaceDraftLines(IEnumerable<(int ProductId, decimal ExpectedQuantity, decimal UnitCost)> lines)
+    {
+        if (Status != PurchaseOrderStatus.Draft)
+            throw new InvalidOperationException("Lines can only be changed on a draft Purchase Order.");
+
+        ArgumentNullException.ThrowIfNull(lines);
+
+        var replacements = lines
+            .Select(line => PurchaseOrderLine.Create(TenantId, line.ProductId, line.ExpectedQuantity, line.UnitCost))
+            .ToList();
+
+        if (replacements.Count == 0)
+            throw new InvalidOperationException("A Purchase Order must contain at least one line.");
+
+        var productIds = replacements.Select(line => line.ProductId).ToHashSet();
+        if (productIds.Count != replacements.Count)
+            throw new InvalidOperationException("A product can only appear once on a Purchase Order.");
+
+        var existingLines = _lines.ToDictionary(line => line.ProductId);
+        _lines.RemoveAll(line => !productIds.Contains(line.ProductId));
+
+        foreach (var replacement in replacements)
+        {
+            if (existingLines.TryGetValue(replacement.ProductId, out var existingLine))
+                existingLine.UpdateDraftValues(replacement.ExpectedQuantity, replacement.UnitCost);
+            else
+                _lines.Add(replacement);
+        }
+    }
+
+    public void UpdateDraftDetails(
+        int supplierId,
+        int warehouseId,
+        DateTime? expectedDeliveryDate,
+        string modifiedBy,
+        DateTime modifiedOnUtc)
+    {
+        if (Status != PurchaseOrderStatus.Draft)
+            throw new InvalidOperationException("Only a draft Purchase Order can be edited.");
+
+        if (_lines.Count == 0)
+            throw new InvalidOperationException("A Purchase Order must contain at least one line.");
+
+        if (supplierId <= 0 || warehouseId <= 0)
+            throw new ArgumentException("Supplier and warehouse IDs must be positive.");
+
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        SupplierId = supplierId;
+        WarehouseId = warehouseId;
+        ExpectedDeliveryDate = expectedDeliveryDate;
+        LastModifiedOnUtc = modifiedOnUtc;
+        LastModifiedBy = modifiedBy;
+    }
+
     public void MarkAsPending()
     {
         if (Status != PurchaseOrderStatus.Draft)

@@ -20,11 +20,7 @@ public sealed class PurchaseOrderLine : IMustBelongToTenant
         if (tenantId <= 0 || productId <= 0)
             throw new ArgumentException("Tenant and product IDs must be positive.");
 
-        if (expectedQuantity <= 0)
-            throw new ArgumentOutOfRangeException(nameof(expectedQuantity), "Expected quantity must be greater than zero.");
-
-        if (unitCost < 0)
-            throw new ArgumentOutOfRangeException(nameof(unitCost), "Unit cost cannot be negative.");
+        ValidateDraftValues(expectedQuantity, unitCost);
 
         return new PurchaseOrderLine
         {
@@ -34,6 +30,26 @@ public sealed class PurchaseOrderLine : IMustBelongToTenant
             ReceivedQuantity = 0,
             UnitCost = unitCost
         };
+    }
+
+    internal void UpdateDraftValues(decimal expectedQuantity, decimal unitCost)
+    {
+        ValidateDraftValues(expectedQuantity, unitCost);
+
+        if (ReceivedQuantity != 0)
+            throw new InvalidOperationException("A line with received stock cannot be edited as a draft.");
+
+        ExpectedQuantity = expectedQuantity;
+        UnitCost = unitCost;
+    }
+
+    private static void ValidateDraftValues(decimal expectedQuantity, decimal unitCost)
+    {
+        if (expectedQuantity <= 0)
+            throw new ArgumentOutOfRangeException(nameof(expectedQuantity), "Expected quantity must be greater than zero.");
+
+        if (unitCost < 0)
+            throw new ArgumentOutOfRangeException(nameof(unitCost), "Unit cost cannot be negative.");
     }
 
     public void Receive(decimal quantity)
