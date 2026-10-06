@@ -38,14 +38,26 @@ internal sealed class CreatePurchaseOrderCommandHandler(
     {
         var tenantId = tenantContext.TenantId
             ?? throw new UnauthorizedException("Must be in a tenant context.");
+
+        var warehouseExists = await context.Warehouses
+            .AnyAsync(w => w.Id == request.WarehouseId && w.IsActive, cancellationToken);
+
+        if (!warehouseExists)
+        {
+            throw new NotFoundException("Active warehouse was not found.");
+        }
+
         var createdByUserId = currentUser.UserId
-            ?? throw new UnauthorizedException("A signed-in user is required to create a Purchase Order.");
+             ?? throw new UnauthorizedAccessException(
+        "A signed-in user is required to create a Purchase Order.");
+
         var supplierExists = await context.Suppliers
             .AnyAsync(s => s.Id == request.SupplierId, cancellationToken);
         if (!supplierExists)
         {
             throw new NotFoundException("The specified supplier does not exist.");
         }
+
         var orderNumberExists = await context.PurchaseOrders
             .AnyAsync(po => po.OrderNumber == request.OrderNumber, cancellationToken);
 
@@ -53,6 +65,20 @@ internal sealed class CreatePurchaseOrderCommandHandler(
         {
             throw new ConflictException($"A Purchase Order with Order Number '{request.OrderNumber}' already exists.");
         }
+        var productIds = request.Lines
+            .Select(l => l.ProductId)
+            .Distinct()
+            .ToList();
+        var validProductIds = await context.Products
+            .Where(p => productIds.Contains(p.Id) && p.IsActive)
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+        if (validProductIds.Count != productIds.Count)
+        {
+            throw new NotFoundException(
+                "One or more products were not found.");
+        }
+
         var purchaseOrder = PurchaseOrder.Create(
             tenantId,
             request.WarehouseId,
