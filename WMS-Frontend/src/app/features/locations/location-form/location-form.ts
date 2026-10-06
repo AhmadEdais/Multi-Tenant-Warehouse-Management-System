@@ -1,17 +1,23 @@
 import { Component, input, OnInit, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Warehouse } from '../../warehouses/models/warehouse';
-import { LocationNode, LocationType } from '../models/location';
+import {
+  ADDABLE_LOCATION_TYPES,
+  AddableLocationType,
+  isAddableLocationType,
+  isEditableLocationType,
+  LocationNode,
+} from '../models/location';
 
 export interface LocationFormValue {
-  locationType: LocationType;
+  locationType: AddableLocationType;
   parentLocationId: number | null;
   name: string;
   barcode: string | null;
   maxWeightCapacityKg: number | null;
 }
 
-const parentType: Record<LocationType, LocationType | null> = {
+const parentType: Record<AddableLocationType, AddableLocationType | null> = {
   Zone: null,
   Aisle: 'Zone',
   Rack: 'Aisle',
@@ -34,9 +40,9 @@ export class LocationFormComponent implements OnInit {
   readonly close = output<void>();
   readonly submitLocation = output<LocationFormValue>();
 
-  readonly types: LocationType[] = ['Zone', 'Aisle', 'Rack', 'Bin'];
+  readonly types = ADDABLE_LOCATION_TYPES;
   readonly form = new FormGroup({
-    locationType: new FormControl<LocationType>('Zone', { nonNullable: true, validators: Validators.required }),
+    locationType: new FormControl<AddableLocationType>('Zone', { nonNullable: true, validators: Validators.required }),
     parentLocationId: new FormControl<number | null>(null),
     name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100)] }),
     barcode: new FormControl('', { nonNullable: true, validators: Validators.maxLength(100) }),
@@ -46,7 +52,10 @@ export class LocationFormComponent implements OnInit {
   ngOnInit(): void {
     const location = this.location();
     const lockedParent = this.lockedParent();
-    const type = location?.locationType as LocationType | undefined ?? this.childType(lockedParent) ?? 'Zone';
+    const type =
+      location && isEditableLocationType(location.locationType)
+        ? location.locationType
+        : this.childType(lockedParent) ?? ADDABLE_LOCATION_TYPES[0];
     this.form.reset({
       locationType: type,
       parentLocationId: location?.parentLocationId ?? lockedParent?.id ?? null,
@@ -75,7 +84,9 @@ export class LocationFormComponent implements OnInit {
   }
 
   onTypeChange(event: Event): void {
-    this.form.controls.locationType.setValue((event.target as HTMLSelectElement).value as LocationType);
+    const type = (event.target as HTMLSelectElement).value;
+    if (!isAddableLocationType(type)) return;
+    this.form.controls.locationType.setValue(type);
     this.form.controls.parentLocationId.setValue(null);
     this.updateParentControl();
   }
@@ -102,7 +113,7 @@ export class LocationFormComponent implements OnInit {
     });
   }
 
-  private childType(parent: LocationNode | null): LocationType | null {
+  private childType(parent: LocationNode | null): AddableLocationType | null {
     if (!parent) return null;
     switch (parent.locationType) {
       case 'Zone': return 'Aisle';

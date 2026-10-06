@@ -20,7 +20,11 @@ import { LocationFormComponent, LocationFormValue } from '../location-form/locat
 import { LocationsService } from '../locations.service';
 import { LocationInventoryDetailsComponent } from '../../inventory/location-inventory-details/location-inventory-details';
 import {
+  canHaveChildLocation,
+  canViewLocationInventory,
   CreateLocationRequest,
+  isDockLocationType,
+  isEditableLocationType,
   LocationDetails,
   LocationNode,
   UpdateLocationRequest,
@@ -41,6 +45,11 @@ type ActionState = { action: 'deactivate' | 'reactivate'; location: LocationNode
   styleUrl: './locations-page.css',
 })
 export class LocationsPage implements OnInit {
+  readonly canHaveChildLocation = canHaveChildLocation;
+  readonly canViewLocationInventory = canViewLocationInventory;
+  readonly isDockLocationType = isDockLocationType;
+  readonly isEditableLocationType = isEditableLocationType;
+
   @ViewChild('locationContextMenu')
   set locationContextMenu(element: ElementRef<HTMLElement> | undefined) {
     element?.nativeElement.querySelector('button')?.focus();
@@ -57,6 +66,7 @@ export class LocationsPage implements OnInit {
   readonly warehousesLoading = signal(false);
   readonly warehousesError = signal<string | null>(null);
   readonly locationTree = signal<LocationNode[]>([]);
+  readonly dockLocation = signal<LocationNode | null>(null);
   readonly treeLoading = signal(false);
   readonly treeError = signal<string | null>(null);
   readonly searchTerm = signal('');
@@ -78,7 +88,17 @@ export class LocationsPage implements OnInit {
   readonly actionError = signal<string | null>(null);
 
   readonly isSearching = computed(() => this.searchTerm().trim().length > 0);
-  readonly isFiltering = computed(() => this.isSearching());
+  readonly isFiltering = computed(() => this.isSearching() || this.status() !== 'all');
+  readonly filteredDock = computed(() => {
+    const dock = this.dockLocation();
+    if (!dock) return null;
+    const term = this.searchTerm().trim().toLowerCase();
+    const matchesSearch =
+      !term || dock.name.toLowerCase().includes(term) ||
+      !!dock.barcode?.toLowerCase().includes(term);
+    const matchesStatus = this.status() === 'all' || dock.isActive === (this.status() === 'active');
+    return matchesSearch && matchesStatus ? dock : null;
+  });
   readonly filteredTree = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const status = this.status();
@@ -104,7 +124,9 @@ export class LocationsPage implements OnInit {
       )
       .subscribe((tree) => {
         this.treeLoading.set(false);
-        this.locationTree.set(tree ?? []);
+        const roots = tree ?? [];
+        this.dockLocation.set(roots.find((node) => isDockLocationType(node.locationType)) ?? null);
+        this.locationTree.set(roots.filter((node) => !isDockLocationType(node.locationType)));
       });
 
     this.detailsSelection$
@@ -192,6 +214,7 @@ export class LocationsPage implements OnInit {
     this.pendingAction.set(null);
     this.detailsSelection$.next(null);
     this.selectedWarehouse.set(warehouse);
+    this.dockLocation.set(null);
     this.locationTree.set([]);
     this.searchTerm.set('');
     this.expandedIds.set(new Set());
@@ -266,9 +289,14 @@ export class LocationsPage implements OnInit {
     });
   }
 
-  openLocationInventory(): void {
-    const location = this.contextLocation();
-    if (location?.locationType !== 'Bin') return;
+  openDockContext(event: MouseEvent, dock: LocationNode): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.openLocationContext({ node: dock, x: event.clientX, y: event.clientY });
+  }
+
+  openLocationInventory(location: LocationNode | null = this.contextLocation()): void {
+    if (!location || !canViewLocationInventory(location.locationType)) return;
     this.inventoryLocation.set({ id: location.id, name: location.name });
     this.closeContextMenu();
   }
@@ -290,14 +318,14 @@ export class LocationsPage implements OnInit {
 
   openAddChild(): void {
     const parent = this.contextLocation();
-    if (!parent?.isActive || parent.locationType === 'Bin') return;
+    if (!parent?.isActive || !canHaveChildLocation(parent.locationType)) return;
     this.formError.set(null);
     this.formState.set({ mode: 'add', location: null, lockedParent: parent });
     this.closeContextMenu();
   }
 
   openEditLocation(location: LocationNode | null = this.contextLocation()): void {
-    if (!location?.isActive) return;
+    if (!location?.isActive || !isEditableLocationType(location.locationType)) return;
     this.formError.set(null);
     this.formState.set({ mode: 'edit', location, lockedParent: null });
     this.closeContextMenu();
@@ -345,7 +373,11 @@ export class LocationsPage implements OnInit {
     action: 'deactivate' | 'reactivate',
     location: LocationNode | null = this.contextLocation(),
   ): void {
-    if (!location || location.isActive !== (action === 'deactivate')) return;
+    if (
+      !location ||
+      !isEditableLocationType(location.locationType) ||
+      location.isActive !== (action === 'deactivate')
+    ) return;
     this.pendingAction.set({ action, location });
     this.actionError.set(null);
     this.closeContextMenu();

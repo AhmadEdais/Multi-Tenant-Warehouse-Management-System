@@ -171,7 +171,7 @@
         } @else if (selectedWarehouse(); as warehouse) {
           <div class="min-w-max">
             <div class="flex min-h-9 items-center gap-1 rounded-md px-1 py-1">
-              @if (locationTree().length > 0) {
+              @if (dockLocation() || locationTree().length > 0) {
                 <button
                   type="button"
                   [attr.aria-label]="
@@ -222,14 +222,61 @@
             </div>
 
             @if (isFiltering() || warehouseRootExpanded()) {
-              @if (locationTree().length === 0) {
+              @if (!dockLocation() && locationTree().length === 0) {
                 <p class="ml-10 mt-3 text-sm text-[#647590]">
                   No locations found for this warehouse.
                 </p>
-              } @else if (filteredTree().length === 0) {
+              } @else if (!filteredDock() && filteredTree().length === 0) {
                 <p class="ml-10 mt-3 text-sm text-[#647590]">No locations match your filters.</p>
               } @else {
                 <div class="warehouse-children">
+                  @if (filteredDock(); as dock) {
+                    <div
+                      class="flex min-h-9 items-center gap-1 rounded-md py-1 pl-4 pr-1"
+                      [class]="
+                        selectedLocationNode()?.id === dock.id
+                          ? 'bg-[#e6f1ff]'
+                          : 'hover:bg-[#f2f6fb]'
+                      "
+                      (contextmenu)="openDockContext($event, dock)"
+                    >
+                      <button
+                        type="button"
+                        (click)="onLocationSelected(dock)"
+                        [attr.aria-current]="selectedLocationNode()?.id === dock.id ? 'true' : null"
+                        class="flex min-w-0 flex-1 items-center gap-1 rounded text-left focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      >
+                        <span
+                          class="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#e7f1ff] text-[#2458c5]"
+                          aria-hidden="true"
+                        >
+                          <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                            <path d="M3 20V5h18v15M3 9h18M8 20v-7h8v7M10 16h4" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </span>
+                        <span
+                          class="min-w-0 truncate px-1 text-sm font-medium"
+                          [class]="
+                            !dock.isActive
+                              ? 'text-[#8290a3]'
+                              : selectedLocationNode()?.id === dock.id
+                                ? 'text-[#2458c5]'
+                                : 'text-[#20324d]'
+                          "
+                          [title]="dock.name"
+                        >{{ dock.name }}</span>
+                        @if (!dock.isActive) {
+                          <span class="rounded bg-[#eef1f5] px-1.5 py-0.5 text-[10px] font-semibold text-[#69788d]">Inactive</span>
+                        }
+                      </button>
+                      <button
+                        type="button"
+                        (click)="openLocationInventory(dock)"
+                        [attr.aria-label]="'View inventory in ' + dock.name"
+                        class="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      >View Inventory</button>
+                    </div>
+                  }
                   @for (location of filteredTree(); track location.id) {
                     <app-location-tree-node
                       [node]="location"
@@ -311,6 +358,16 @@
         <div class="px-5 py-6 sm:px-6">
           <div class="flex flex-wrap items-center gap-3">
             @switch (location.locationType.toLowerCase()) {
+              @case ('dock') {
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f1ff] text-[#2458c5]"
+                  aria-hidden="true"
+                >
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M3 20V5h18v15M3 9h18M8 20v-7h8v7M10 16h4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              }
               @case ('zone') {
                 <span
                   class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e7f1ff] text-[#1479d4]"
@@ -416,7 +473,14 @@
               {{ location.isActive ? 'Active' : 'Inactive' }}
             </span>
             <div class="ml-auto flex flex-wrap items-center gap-2">
-              @if (location.isActive) {
+              @if (isDockLocationType(location.locationType)) {
+                <button
+                  type="button"
+                  (click)="openLocationInventory(selectedLocationNode())"
+                  class="inline-flex min-h-9 items-center rounded-md border border-[#d8e2ef] bg-white px-3 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                >View Inventory</button>
+              }
+              @if (isEditableLocationType(location.locationType) && location.isActive) {
                 <button
                   type="button"
                   (click)="openEditLocation(selectedLocationNode())"
@@ -459,7 +523,7 @@
                   </svg>
                   Deactivate
                 </button>
-              } @else {
+              } @else if (isEditableLocationType(location.locationType)) {
                 <button
                   type="button"
                   (click)="requestAction('reactivate', selectedLocationNode())"
@@ -541,7 +605,7 @@
       role="menu"
       [attr.aria-label]="'Actions for ' + location.name"
     >
-      @if (location.locationType === 'Bin') {
+      @if (canViewLocationInventory(location.locationType)) {
         <button
           type="button"
           role="menuitem"
@@ -554,8 +618,8 @@
           View Inventory
         </button>
       }
-      @if (location.isActive) {
-        @if (location.locationType !== 'Bin') {
+      @if (isEditableLocationType(location.locationType) && location.isActive) {
+        @if (canHaveChildLocation(location.locationType)) {
           <button
             type="button"
             role="menuitem"
@@ -619,7 +683,7 @@
           </svg>
           Deactivate
         </button>
-      } @else {
+      } @else if (isEditableLocationType(location.locationType)) {
         <button
           type="button"
           role="menuitem"
