@@ -27,5 +27,8 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
         builder.Property(m => m.ReferenceId)
             .IsRequired(false);
 
+        builder.Property(m => m.CreatedOnUtc).HasColumnType("datetime2").IsRequired();
+        builder.Property(m => m.CreatedBy).HasMaxLength(128).IsRequired();
+
     }
 }

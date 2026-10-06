@@ -7,6 +7,18 @@ using WMS.Application.Features.Inbound.Queries;
 [ApiController]
 public class InboundController(ISender sender) : ControllerBase
 {
+    [HttpGet("purchase-orders")]
+    [Authorize(Policy = SecurityPolicies.CanViewPurchaseOrders)]
+    [ProducesResponseType(typeof(PagedResult<PurchaseOrderListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ListPurchaseOrders([FromQuery] ListPurchaseOrdersQuery query)
+    {
+        return Ok(await sender.Send(query));
+    }
+
     [HttpGet("purchase-orders/{id:int}")]
     [Authorize(Policy = SecurityPolicies.CanViewPurchaseOrders)]
     [ProducesResponseType(typeof(PurchaseOrderDetailsDto), StatusCodes.Status200OK)]
@@ -45,6 +57,51 @@ public class InboundController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdatePurchaseOrder(int id, [FromBody] UpdatePurchaseOrderCommand command)
+    {
+        await sender.Send(command with { Id = id });
+        return NoContent();
+    }
+
+    [HttpPost("purchase-orders/{id:int}/approve")]
+    [Authorize(Policy = SecurityPolicies.CanManageInbound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ApprovePurchaseOrder(int id)
+    {
+        await sender.Send(new ApprovePurchaseOrderCommand(id));
+        return NoContent();
+    }
+
+    [HttpPost("purchase-orders/{id:int}/cancel")]
+    [Authorize(Policy = SecurityPolicies.CanManageInbound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CancelPurchaseOrder(int id)
+    {
+        await sender.Send(new CancelPurchaseOrderCommand(id));
+        return NoContent();
+    }
+
+    [HttpPost("purchase-orders/{id:int}/receive")]
+    [Authorize(Policy = SecurityPolicies.CanReceiveInbound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ReceivePurchaseOrder(int id, [FromBody] ReceivePurchaseOrderCommand command)
     {
         await sender.Send(command with { Id = id });
         return NoContent();

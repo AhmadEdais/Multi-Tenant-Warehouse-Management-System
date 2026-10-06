@@ -28,6 +28,11 @@ internal sealed class StockLevelConfiguration : IEntityTypeConfiguration<StockLe
             .IsRowVersion()
             .IsRequired();
 
+        builder.Property(s => s.CreatedOnUtc).HasColumnType("datetime2").IsRequired();
+        builder.Property(s => s.CreatedBy).HasMaxLength(128).IsRequired();
+        builder.Property(s => s.LastModifiedOnUtc).HasColumnType("datetime2");
+        builder.Property(s => s.LastModifiedBy).HasMaxLength(128);
+
         builder.HasIndex(s => new { s.TenantId, s.ProductId, s.LocationId })
             .IsUnique()
             .HasDatabaseName("UQ_StockLevels_Tenant_Product_Location");

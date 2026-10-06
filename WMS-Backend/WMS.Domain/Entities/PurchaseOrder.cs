@@ -166,4 +166,15 @@ public sealed class PurchaseOrder : IMustBelongToTenant
         Status = PurchaseOrderStatus.Canceled;
         LastModifiedOnUtc = DateTime.UtcNow;
     }
+
+    public void Touch(string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = LastModifiedOnUtc.HasValue && modifiedOnUtc <= LastModifiedOnUtc.Value
+            ? LastModifiedOnUtc.Value.AddTicks(1)
+            : modifiedOnUtc;
+    }
 }
