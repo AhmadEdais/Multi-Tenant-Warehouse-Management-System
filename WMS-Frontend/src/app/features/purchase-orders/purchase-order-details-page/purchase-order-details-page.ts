@@ -41,9 +41,15 @@ export class PurchaseOrderDetailsPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload$ = new Subject<void>();
   private cancelTrigger: HTMLElement | null = null;
+  private approveTrigger: HTMLElement | null = null;
 
   @ViewChild('keepDraftButton')
   set keepDraftButton(button: ElementRef<HTMLButtonElement> | undefined) {
+    button?.nativeElement.focus();
+  }
+
+  @ViewChild('keepApproveDraftButton')
+  set keepApproveDraftButton(button: ElementRef<HTMLButtonElement> | undefined) {
     button?.nativeElement.focus();
   }
 
@@ -55,6 +61,11 @@ export class PurchaseOrderDetailsPage implements OnInit {
   readonly canceling = signal(false);
   readonly cancelError = signal<string | null>(null);
   readonly cancelActionError = signal<string | null>(null);
+  readonly pendingApprove = signal(false);
+  readonly approving = signal(false);
+  readonly approveError = signal<string | null>(null);
+  readonly approveActionError = signal<string | null>(null);
+  readonly actionBusy = computed(() => this.canceling() || this.approving());
   readonly totalExpected = computed(
     () => this.order()?.lines.reduce((sum, line) => sum + line.expectedQuantity, 0) ?? 0,
   );
@@ -85,6 +96,9 @@ export class PurchaseOrderDetailsPage implements OnInit {
           this.pendingCancel.set(false);
           this.cancelError.set(null);
           this.cancelActionError.set(null);
+          this.pendingApprove.set(false);
+          this.approveError.set(null);
+          this.approveActionError.set(null);
           if (!Number.isSafeInteger(id) || id <= 0) {
             this.notFound.set(true);
             return of(null);
@@ -110,7 +124,7 @@ export class PurchaseOrderDetailsPage implements OnInit {
   }
 
   requestCancel(event: Event): void {
-    if (!this.canEdit() || this.canceling()) return;
+    if (!this.canEdit() || this.actionBusy() || this.pendingApprove()) return;
     this.cancelTrigger = event.currentTarget as HTMLElement;
     this.cancelError.set(null);
     this.cancelActionError.set(null);
@@ -126,7 +140,7 @@ export class PurchaseOrderDetailsPage implements OnInit {
 
   confirmCancel(): void {
     const order = this.order();
-    if (!order || !this.pendingCancel() || !this.canEdit() || this.canceling()) return;
+    if (!order || !this.pendingCancel() || !this.canEdit() || this.actionBusy()) return;
     this.canceling.set(true);
     this.cancelError.set(null);
     this.ordersService
@@ -160,8 +174,60 @@ export class PurchaseOrderDetailsPage implements OnInit {
       });
   }
 
+  requestApprove(event: Event): void {
+    if (!this.canEdit() || this.actionBusy() || this.pendingCancel()) return;
+    this.approveTrigger = event.currentTarget as HTMLElement;
+    this.approveError.set(null);
+    this.approveActionError.set(null);
+    this.pendingApprove.set(true);
+  }
+
+  closeApprove(): void {
+    if (this.approving()) return;
+    this.pendingApprove.set(false);
+    this.approveError.set(null);
+    queueMicrotask(() => this.approveTrigger?.focus());
+  }
+
+  confirmApprove(): void {
+    const order = this.order();
+    if (!order || !this.pendingApprove() || !this.canEdit() || this.actionBusy()) return;
+    this.approving.set(true);
+    this.approveError.set(null);
+    this.ordersService
+      .approvePurchaseOrder(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.approving.set(false);
+          this.pendingApprove.set(false);
+          this.reload$.next();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.approving.set(false);
+          if (error.status === 409) {
+            this.pendingApprove.set(false);
+            this.reload$.next();
+            this.approveActionError.set(
+              'This Purchase Order changed while approving. Its details have been refreshed; review them before trying again.',
+            );
+          } else if (error.status === 404) {
+            this.pendingApprove.set(false);
+            this.reload$.next();
+          } else {
+            this.approveError.set(
+              error.status === 401 || error.status === 403
+                ? 'You are not authorized to approve this Purchase Order.'
+                : 'Could not approve this Purchase Order. Please try again.',
+            );
+          }
+        },
+      });
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.pendingCancel()) this.closeCancel();
+    if (this.pendingApprove()) this.closeApprove();
   }
 }

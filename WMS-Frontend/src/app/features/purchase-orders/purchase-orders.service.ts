@@ -41,6 +41,10 @@ export class PurchaseOrdersService {
     return this.http.put<void>(`${this.url}/${id}`, request);
   }
 
+  approvePurchaseOrder(id: number): Observable<void> {
+    return this.http.post<void>(`${this.url}/${id}/approve`, null);
+  }
+
   cancelPurchaseOrder(id: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${id}/cancel`, null);
   }
