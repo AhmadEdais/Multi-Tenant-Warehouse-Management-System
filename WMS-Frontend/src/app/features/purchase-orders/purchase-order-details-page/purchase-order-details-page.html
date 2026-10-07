@@ -41,6 +41,14 @@
         Purchase Order {{ purchaseOrder.orderNumber }}
       </h2>
       <app-purchase-order-status-badge [status]="purchaseOrder.status" />
+      @if (canEdit()) {
+        <a
+          [routerLink]="['/purchase-orders', purchaseOrder.id, 'edit']"
+          class="ml-auto inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
+          Edit Purchase Order
+        </a>
+      }
     </header>
 
     <div class="grid gap-4 lg:grid-cols-3">

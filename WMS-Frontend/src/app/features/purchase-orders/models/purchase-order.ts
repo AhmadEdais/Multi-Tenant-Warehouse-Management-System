@@ -70,3 +70,5 @@ export interface CreatePurchaseOrderRequest {
   expectedDeliveryDate: string | null;
   lines: CreatePurchaseOrderLineRequest[];
 }
+
+export type UpdatePurchaseOrderRequest = CreatePurchaseOrderRequest;

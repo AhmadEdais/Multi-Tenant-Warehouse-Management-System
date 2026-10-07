@@ -1,0 +1,317 @@
+<div class="space-y-5">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="po-header-fields"
+    >
+      <div class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+        <h3 id="po-header-fields" class="text-base font-bold text-[#14243b]">Order Information</h3>
+      </div>
+      <div class="grid gap-5 px-5 py-5 sm:grid-cols-2 sm:px-6">
+        @if (mode() === 'create') {
+          <p class="text-sm text-[#647590] sm:col-span-2">
+            The Purchase Order number will be generated when you save the draft.
+          </p>
+        } @else {
+          <div class="sm:col-span-2">
+            <p class="text-xs font-semibold text-[#647590]">Order Number</p>
+            <p class="mt-1 text-sm font-semibold text-[#20324d]">{{ orderNumber() }}</p>
+          </div>
+        }
+
+        <div>
+          <label for="po-expected-date" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+            >Expected Delivery Date
+            <span class="font-normal text-[#647590]">(optional)</span></label
+          >
+          <input
+            id="po-expected-date"
+            type="date"
+            formControlName="expectedDeliveryDate"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          />
+          @if (
+            form.controls.expectedDeliveryDate.touched && form.controls.expectedDeliveryDate.invalid
+          ) {
+            <p class="mt-1 text-xs text-[#b4232d]">
+              Expected Delivery Date cannot be before today.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="po-supplier" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+            >Supplier</label
+          >
+          <select
+            id="po-supplier"
+            formControlName="supplierId"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          >
+            <option [ngValue]="null">
+              {{ suppliersLoading() ? 'Loading suppliers...' : 'Select supplier' }}
+            </option>
+            @for (supplier of supplierOptions(); track supplier.id) {
+              <option [ngValue]="supplier.id">{{ supplier.label }}</option>
+            }
+          </select>
+          @if (form.controls.supplierId.touched && form.controls.supplierId.invalid) {
+            <p class="mt-1 text-xs text-[#b4232d]">Select an active supplier.</p>
+          }
+          @if (suppliersError()) {
+            <button
+              type="button"
+              [disabled]="submitting()"
+              (click)="retrySuppliers.emit()"
+              class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            >
+              Could not load suppliers. Retry
+            </button>
+          }
+        </div>
+
+        <div>
+          <label for="po-warehouse" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
+            >Warehouse</label
+          >
+          @if (canListWarehouses()) {
+            <select
+              id="po-warehouse"
+              formControlName="warehouseId"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            >
+              <option [ngValue]="null">
+                {{ warehousesLoading() ? 'Loading warehouses...' : 'Select warehouse' }}
+              </option>
+              @for (warehouse of warehouseOptions(); track warehouse.id) {
+                <option [ngValue]="warehouse.id">
+                  {{ warehouse.label }}
+                </option>
+              }
+            </select>
+            @if (warehousesError()) {
+              <button
+                type="button"
+                [disabled]="submitting()"
+                (click)="retryWarehouses.emit()"
+                class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+              >
+                Could not load warehouses. Retry
+              </button>
+            }
+          } @else {
+            <input
+              id="po-warehouse"
+              type="number"
+              min="1"
+              step="1"
+              formControlName="warehouseId"
+              placeholder="Enter warehouse ID"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+            <p class="mt-1 text-xs text-[#647590]">Enter the destination warehouse ID.</p>
+          }
+          @if (form.controls.warehouseId.touched && form.controls.warehouseId.invalid) {
+            <p class="mt-1 text-xs text-[#b4232d]">
+              {{
+                canListWarehouses()
+                  ? 'Select an active warehouse.'
+                  : 'Enter a valid positive warehouse ID.'
+              }}
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="po-lines-heading"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+      >
+        <div>
+          <h3 id="po-lines-heading" class="text-base font-bold text-[#14243b]">
+            Purchase Order Lines
+          </h3>
+          <p class="mt-1 text-xs text-[#647590]">Add each product once.</p>
+        </div>
+        <button
+          type="button"
+          [disabled]="submitting()"
+          (click)="addLine()"
+          class="inline-flex min-h-9 items-center rounded-md border border-[#d8e2ef] px-3 text-sm font-semibold text-[#2458c5] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+        >
+          + Add Product
+        </button>
+      </div>
+      <div formArrayName="lines" class="max-w-full overflow-x-auto px-5 py-5 sm:px-6">
+        <div class="min-w-[780px]">
+          <div
+            class="grid grid-cols-[minmax(220px,1fr)_120px_140px_130px_90px] gap-3 border-b border-[#dfe7f1] bg-[#f7f9fd] px-3 py-3 text-xs font-semibold text-[#30435f]"
+          >
+            <span>Product</span><span>Expected Qty</span><span>Unit Cost</span
+            ><span class="text-right">Line Total</span><span class="text-right">Action</span>
+          </div>
+          @for (line of lines.controls; track line; let i = $index) {
+            <div
+              [formGroupName]="i"
+              class="grid grid-cols-[minmax(220px,1fr)_120px_140px_130px_90px] items-start gap-3 border-b border-[#e2e9f2] px-3 py-4 last:border-b-0"
+            >
+              <div>
+                <label [for]="'po-product-' + i" class="sr-only"
+                  >Product for line {{ i + 1 }}</label
+                >
+                <div class="flex items-center gap-2">
+                  <button
+                    [id]="'po-product-' + i"
+                    type="button"
+                    [disabled]="submitting()"
+                    aria-haspopup="dialog"
+                    [attr.aria-expanded]="selectedLine() === line"
+                    (click)="openProductPicker(line, $event)"
+                    class="flex h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded-md border border-[#cdd9e9] bg-white px-2 text-left text-sm text-[#1b2d48] hover:border-[#2458c5] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+                  >
+                    <span class="truncate">
+                      @if (selectedProduct(line); as product) {
+                        {{ product.sku }} — {{ product.name }}
+                      } @else {
+                        Choose product...
+                      }
+                    </span>
+                    <span aria-hidden="true" class="shrink-0 text-[#647590]">⌕</span>
+                  </button>
+                  @if (selectedProduct(line)) {
+                    <button
+                      type="button"
+                      [disabled]="submitting()"
+                      [attr.aria-label]="'Clear product for line ' + (i + 1)"
+                      (click)="clearProduct(line)"
+                      class="rounded-md px-1 py-2 text-xs font-semibold text-[#647590] hover:text-[#b4232d] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+                    >
+                      Clear
+                    </button>
+                  }
+                </div>
+                @if (line.controls.productId.touched && line.controls.productId.invalid) {
+                  <p class="mt-1 text-xs text-[#b4232d]">Select an active product.</p>
+                }
+              </div>
+              <div>
+                <label [for]="'po-quantity-' + i" class="sr-only"
+                  >Expected quantity for line {{ i + 1 }}</label
+                >
+                <input
+                  [id]="'po-quantity-' + i"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  formControlName="expectedQuantity"
+                  placeholder="0.00"
+                  class="h-10 w-full rounded-md border border-[#cdd9e9] bg-white px-2 text-right text-sm tabular-nums text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (
+                  line.controls.expectedQuantity.touched && line.controls.expectedQuantity.invalid
+                ) {
+                  <p class="mt-1 text-xs text-[#b4232d]">
+                    Enter a quantity above 0, up to 2 decimals.
+                  </p>
+                }
+              </div>
+              <div>
+                <label [for]="'po-unit-cost-' + i" class="sr-only"
+                  >Unit cost for line {{ i + 1 }}</label
+                >
+                <input
+                  [id]="'po-unit-cost-' + i"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="unitCost"
+                  placeholder="0.00"
+                  class="h-10 w-full rounded-md border border-[#cdd9e9] bg-white px-2 text-right text-sm tabular-nums text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+                />
+                @if (line.controls.unitCost.touched && line.controls.unitCost.invalid) {
+                  <p class="mt-1 text-xs text-[#b4232d]">Enter 0 or more, up to 2 decimals.</p>
+                }
+              </div>
+              <span class="py-2 text-right text-sm font-semibold tabular-nums text-[#20324d]">{{
+                lineTotal(i) | number: '1.2-2'
+              }}</span>
+              <button
+                type="button"
+                [disabled]="submitting() || lines.length === 1"
+                (click)="removeLine(i)"
+                [attr.aria-label]="'Remove product line ' + (i + 1)"
+                class="justify-self-end rounded-md px-2 py-2 text-xs font-semibold text-[#b4232d] hover:bg-[#fff0f0] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                Remove
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+      @if (lines.touched && lines.hasError('duplicateProducts')) {
+        <p role="alert" class="px-5 pb-3 text-xs text-[#b4232d] sm:px-6">
+          Each product can appear only once.
+        </p>
+      }
+      @if (lines.touched && lines.hasError('required')) {
+        <p role="alert" class="px-5 pb-3 text-xs text-[#b4232d] sm:px-6">
+          Add at least one product line.
+        </p>
+      }
+      <div class="flex justify-end border-t border-[#e3eaf3] px-5 py-4 sm:px-6">
+        <div class="text-right">
+          <p class="text-xs font-semibold text-[#647590]">PO Total</p>
+          <p class="mt-1 text-xl font-bold tabular-nums text-[#14243b]">
+            {{ poTotal() | number: '1.2-2' }} $
+          </p>
+        </div>
+      </div>
+    </section>
+
+    @if (submitError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+      >
+        {{ submitError() }}
+      </p>
+    }
+    <div class="flex flex-wrap justify-end gap-3">
+      <button
+        type="button"
+        [disabled]="submitting()"
+        (click)="cancel.emit()"
+        class="min-h-11 rounded-md border border-[#d8e2ef] px-5 text-sm font-semibold text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="submitting()"
+        class="min-h-11 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+      >
+        {{
+          submitting()
+            ? mode() === 'edit'
+              ? 'Saving Changes...'
+              : 'Saving Draft...'
+            : mode() === 'edit'
+              ? 'Save Changes'
+              : 'Save Draft'
+        }}
+      </button>
+    </div>
+  </form>
+  @if (selectedLine(); as line) {
+    <app-product-picker
+      [currentProductId]="line.controls.productId.value"
+      [unavailableProductIds]="unavailableProductIds()"
+      (selected)="selectProduct($event)"
+      (close)="closeProductPicker()"
+    />
+  }
+</div>

@@ -128,6 +128,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'purchase-orders/:id/edit',
+        canActivate: [roleGuard],
+        data: { roles: MANAGE_INBOUND_ROLES },
+        loadComponent: () =>
+          import('./features/purchase-orders/edit-purchase-order-page/edit-purchase-order-page').then(
+            (m) => m.EditPurchaseOrderPage,
+          ),
+      },
+      {
         path: 'purchase-orders/:id',
         canActivate: [roleGuard],
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },

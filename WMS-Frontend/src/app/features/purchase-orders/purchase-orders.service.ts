@@ -8,6 +8,7 @@ import {
   ListPurchaseOrdersParams,
   PurchaseOrderDetails,
   PurchaseOrderListItem,
+  UpdatePurchaseOrderRequest,
 } from './models/purchase-order';
 
 @Injectable({ providedIn: 'root' })
@@ -34,5 +35,9 @@ export class PurchaseOrdersService {
 
   createPurchaseOrder(request: CreatePurchaseOrderRequest): Observable<number> {
     return this.http.post<number>(this.url, request);
+  }
+
+  updatePurchaseOrder(id: number, request: UpdatePurchaseOrderRequest): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}`, request);
   }
 }
