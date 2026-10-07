@@ -101,6 +101,19 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
 
+            case DbUpdateException purchaseOrderUpdateException
+                when purchaseOrderUpdateException.InnerException is SqlException purchaseOrderSqlException
+                    && purchaseOrderSqlException.Number is 2601 or 2627
+                    && (purchaseOrderSqlException.Message.Contains("UQ_PurchaseOrders_Tenant_OrderNumber", StringComparison.Ordinal)
+                        || purchaseOrderSqlException.Message.Contains("PK_PurchaseOrderSequences", StringComparison.Ordinal)):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A Purchase Order number could not be reserved. Please try again."
+                };
+                break;
+
             case NotFoundException notFoundException:
                 problemDetails = new ProblemDetails
                 {

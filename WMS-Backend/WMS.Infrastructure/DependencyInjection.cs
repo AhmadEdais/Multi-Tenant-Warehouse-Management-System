@@ -18,6 +18,7 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IWmsDbContext>(provider => provider.GetRequiredService<WmsDbContext>());
+        services.AddScoped<IPurchaseOrderNumberGenerator, PurchaseOrderNumberGenerator>();
         services.AddScoped<ITenantContext, HttpTenantContext>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtProvider, JwtProvider>();

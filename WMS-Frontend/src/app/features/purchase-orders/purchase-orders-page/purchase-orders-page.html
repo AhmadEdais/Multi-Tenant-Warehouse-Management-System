@@ -2,11 +2,38 @@
   class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
   aria-labelledby="purchase-orders-heading"
 >
-  <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
-    <h2 id="purchase-orders-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-      Purchase Orders
-    </h2>
-    <p class="mt-1 text-sm text-[#647590]">Track supplier orders and inbound receiving progress.</p>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2
+        id="purchase-orders-heading"
+        class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]"
+      >
+        Purchase Orders
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">
+        Track supplier orders and inbound receiving progress.
+      </p>
+    </div>
+    @if (canCreate()) {
+      <a
+        routerLink="/purchase-orders/new"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Create Purchase Order
+      </a>
+    }
   </header>
 
   <div class="px-5 pb-6 pt-5 sm:px-6">

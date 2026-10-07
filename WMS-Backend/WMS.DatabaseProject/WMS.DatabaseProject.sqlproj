@@ -73,6 +73,7 @@
     <Build Include="Tables\StockLevels.sql" />
     <Build Include="Tables\StockMovements.sql" />
     <Build Include="Tables\PurchaseOrders.sql" />
+    <Build Include="Tables\PurchaseOrderSequences.sql" />
     <Build Include="Tables\PurchaseOrderLines.sql" />
   </ItemGroup>
   <ItemGroup>

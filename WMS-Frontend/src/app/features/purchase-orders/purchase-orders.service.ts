@@ -3,14 +3,21 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../../shared/models/paged-result';
-import { ListPurchaseOrdersParams, PurchaseOrderDetails, PurchaseOrderListItem } from './models/purchase-order';
+import {
+  CreatePurchaseOrderRequest,
+  ListPurchaseOrdersParams,
+  PurchaseOrderDetails,
+  PurchaseOrderListItem,
+} from './models/purchase-order';
 
 @Injectable({ providedIn: 'root' })
 export class PurchaseOrdersService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiBaseUrl}/inbound/purchase-orders`;
 
-  listPurchaseOrders(params: ListPurchaseOrdersParams): Observable<PagedResult<PurchaseOrderListItem>> {
+  listPurchaseOrders(
+    params: ListPurchaseOrdersParams,
+  ): Observable<PagedResult<PurchaseOrderListItem>> {
     let query = new HttpParams()
       .set('PageNumber', params.pageNumber)
       .set('PageSize', params.pageSize);
@@ -23,5 +30,9 @@ export class PurchaseOrdersService {
 
   getPurchaseOrderById(id: number): Observable<PurchaseOrderDetails> {
     return this.http.get<PurchaseOrderDetails>(`${this.url}/${id}`);
+  }
+
+  createPurchaseOrder(request: CreatePurchaseOrderRequest): Observable<number> {
+    return this.http.post<number>(this.url, request);
   }
 }

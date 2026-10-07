@@ -24,6 +24,7 @@ import { WarehousesService } from '../../warehouses/warehouses.service';
 import { PurchaseOrderListItem, PurchaseOrderStatus } from '../models/purchase-order';
 import { PurchaseOrderStatusBadge } from '../purchase-order-status-badge/purchase-order-status-badge';
 import { PurchaseOrdersService } from '../purchase-orders.service';
+import { MANAGE_INBOUND_ROLES } from '../permissions';
 
 @Component({
   selector: 'app-purchase-orders-page',
@@ -40,6 +41,9 @@ export class PurchaseOrdersPage implements OnInit {
   private readonly reload$ = new Subject<void>();
 
   readonly canListWarehouses = this.auth.hasRole('TenantAdmin');
+  readonly canCreate = computed(
+    () => !this.auth.hasRole('SystemAdmin') && this.auth.hasAnyRole(MANAGE_INBOUND_ROLES),
+  );
   readonly pageSize = 20;
   readonly orders = signal<PurchaseOrderListItem[]>([]);
   readonly totalCount = signal(0);

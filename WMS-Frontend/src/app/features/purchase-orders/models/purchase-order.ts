@@ -57,3 +57,16 @@ export interface ListPurchaseOrdersParams {
   pageNumber: number;
   pageSize: number;
 }
+
+export interface CreatePurchaseOrderLineRequest {
+  productId: number;
+  expectedQuantity: number;
+  unitCost: number;
+}
+
+export interface CreatePurchaseOrderRequest {
+  supplierId: number;
+  warehouseId: number;
+  expectedDeliveryDate: string | null;
+  lines: CreatePurchaseOrderLineRequest[];
+}

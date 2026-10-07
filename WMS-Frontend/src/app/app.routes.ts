@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
 import { guestGuard } from './features/auth/guest-guard';
 import { roleGuard } from './features/auth/role.guard';
+import { MANAGE_INBOUND_ROLES } from './features/purchase-orders/permissions';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -115,6 +116,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/purchase-orders/purchase-orders-page/purchase-orders-page').then(
             (m) => m.PurchaseOrdersPage,
+          ),
+      },
+      {
+        path: 'purchase-orders/new',
+        canActivate: [roleGuard],
+        data: { roles: MANAGE_INBOUND_ROLES },
+        loadComponent: () =>
+          import('./features/purchase-orders/create-purchase-order-page/create-purchase-order-page').then(
+            (m) => m.CreatePurchaseOrderPage,
           ),
       },
       {

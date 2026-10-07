@@ -4,7 +4,7 @@
     [TenantId] INT NOT NULL,
     [SupplierId] INT NOT NULL,
     [WarehouseId] INT NOT NULL,
-    [OrderNumber] NVARCHAR(50) NOT NULL, -- e.g., 'PO-2026-001'
+    [OrderNumber] NVARCHAR(50) NOT NULL, -- e.g., 'PO-000124'
     [Status] TINYINT NOT NULL DEFAULT 1, -- 1=Draft, 2=Pending, 3=Receiving, 4=Received, 5=Canceled
     [ExpectedDeliveryDate] DATE NULL,
     [RowVersion] ROWVERSION NOT NULL,

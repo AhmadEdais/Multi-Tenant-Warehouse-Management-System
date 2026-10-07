@@ -18,6 +18,7 @@ public interface IWmsDbContext
     DbSet<StockLevel> StockLevels { get; }
     DbSet<StockMovement> StockMovements { get; }
     DbSet<PurchaseOrder> PurchaseOrders { get; }
+    DbSet<PurchaseOrderSequence> PurchaseOrderSequences { get; }
     DbSet<PurchaseOrderLine> PurchaseOrderLines { get; }
     DatabaseFacade Database { get; }
 

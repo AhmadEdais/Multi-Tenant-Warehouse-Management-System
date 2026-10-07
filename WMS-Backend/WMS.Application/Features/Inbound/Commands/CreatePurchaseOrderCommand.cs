@@ -8,7 +8,6 @@ public sealed record CreatePurchaseOrderLineDto(
 public sealed record CreatePurchaseOrderCommand(
     int SupplierId,
     int WarehouseId,
-    string OrderNumber,
     DateTime? ExpectedDeliveryDate,
     List<CreatePurchaseOrderLineDto> Lines) : IRequest<int>;
 public class CreatePurchaseOrderCommandValidator : AbstractValidator<CreatePurchaseOrderCommand>
@@ -17,7 +16,6 @@ public class CreatePurchaseOrderCommandValidator : AbstractValidator<CreatePurch
     {
         RuleFor(x => x.SupplierId).GreaterThan(0);
         RuleFor(x => x.WarehouseId).GreaterThan(0);
-        RuleFor(x => x.OrderNumber).NotEmpty().MaximumLength(50);
         RuleFor(x => x.ExpectedDeliveryDate)
             .GreaterThanOrEqualTo(DateTime.Today)
             .When(x => x.ExpectedDeliveryDate.HasValue);
@@ -32,12 +30,13 @@ public class CreatePurchaseOrderCommandValidator : AbstractValidator<CreatePurch
 internal sealed class CreatePurchaseOrderCommandHandler(
     IWmsDbContext context,
     ITenantContext tenantContext,
-    ICurrentUserService currentUser) : IRequestHandler<CreatePurchaseOrderCommand, int>
+    ICurrentUserService currentUser,
+    IPurchaseOrderNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseOrderCommand, int>
 {
     public async Task<int> Handle(CreatePurchaseOrderCommand request, CancellationToken cancellationToken)
     {
         var tenantId = tenantContext.TenantId
-            ?? throw new UnauthorizedException("Must be in a tenant context.");
+            ?? throw new UnauthorizedAccessException("A tenant workspace is required to create a Purchase Order.");
 
         var warehouseExists = await context.Warehouses
             .AnyAsync(w => w.Id == request.WarehouseId && w.IsActive, cancellationToken);
@@ -58,13 +57,6 @@ internal sealed class CreatePurchaseOrderCommandHandler(
             throw new NotFoundException("The specified supplier does not exist.");
         }
 
-        var orderNumberExists = await context.PurchaseOrders
-            .AnyAsync(po => po.OrderNumber == request.OrderNumber, cancellationToken);
-
-        if (orderNumberExists)
-        {
-            throw new ConflictException($"A Purchase Order with Order Number '{request.OrderNumber}' already exists.");
-        }
         var productIds = request.Lines
             .Select(l => l.ProductId)
             .Distinct()
@@ -79,19 +71,30 @@ internal sealed class CreatePurchaseOrderCommandHandler(
                 "One or more products were not found.");
         }
 
-        var purchaseOrder = PurchaseOrder.Create(
-            tenantId,
-            request.WarehouseId,
-            request.SupplierId,
-            request.OrderNumber,
-            request.ExpectedDeliveryDate,
-            createdByUserId.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        foreach (var line in request.Lines)
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        try
         {
-            purchaseOrder.AddLine(line.ProductId, line.ExpectedQuantity, line.UnitCost);
+            var orderNumber = await numberGenerator.ReserveNextAsync(cancellationToken);
+            var purchaseOrder = PurchaseOrder.Create(
+                tenantId,
+                request.WarehouseId,
+                request.SupplierId,
+                orderNumber,
+                request.ExpectedDeliveryDate,
+                createdByUserId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            foreach (var line in request.Lines)
+            {
+                purchaseOrder.AddLine(line.ProductId, line.ExpectedQuantity, line.UnitCost);
+            }
+            context.PurchaseOrders.Add(purchaseOrder);
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return purchaseOrder.Id;
         }
-        context.PurchaseOrders.Add(purchaseOrder);
-        await context.SaveChangesAsync(cancellationToken);
-        return purchaseOrder.Id;
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 }
