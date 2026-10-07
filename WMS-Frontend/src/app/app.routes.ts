@@ -90,7 +90,9 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
         loadComponent: () =>
-          import('./features/categories/categories-page/categories-page').then((m) => m.CategoriesPage),
+          import('./features/categories/categories-page/categories-page').then(
+            (m) => m.CategoriesPage,
+          ),
       },
       {
         path: 'products',
@@ -105,6 +107,24 @@ export const routes: Routes = [
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'Analyst'] },
         loadComponent: () =>
           import('./features/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
+      },
+      {
+        path: 'purchase-orders',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/purchase-orders/purchase-orders-page/purchase-orders-page').then(
+            (m) => m.PurchaseOrdersPage,
+          ),
+      },
+      {
+        path: 'purchase-orders/:id',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/purchase-orders/purchase-order-details-page/purchase-order-details-page').then(
+            (m) => m.PurchaseOrderDetailsPage,
+          ),
       },
       {
         path: 'suppliers',
