@@ -170,24 +170,37 @@
                 <label [for]="'po-product-' + i" class="sr-only"
                   >Product for line {{ i + 1 }}</label
                 >
-                <select
-                  [id]="'po-product-' + i"
-                  formControlName="productId"
-                  (change)="onProductChanged(i)"
-                  class="h-10 w-full rounded-md border border-[#cdd9e9] bg-white px-2 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
-                >
-                  <option [ngValue]="null">
-                    {{ productsLoading() ? 'Loading products...' : 'Select product' }}
-                  </option>
-                  @for (product of products(); track product.id) {
-                    <option
-                      [ngValue]="product.id"
-                      [disabled]="productSelectedElsewhere(product.id, i)"
+                <div class="flex items-center gap-2">
+                  <button
+                    [id]="'po-product-' + i"
+                    type="button"
+                    [disabled]="submitting()"
+                    aria-haspopup="dialog"
+                    [attr.aria-expanded]="selectedLine() === line"
+                    (click)="openProductPicker(line, $event)"
+                    class="flex h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded-md border border-[#cdd9e9] bg-white px-2 text-left text-sm text-[#1b2d48] hover:border-[#2458c5] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+                  >
+                    <span class="truncate">
+                      @if (selectedProduct(line); as product) {
+                        {{ product.sku }} — {{ product.name }}
+                      } @else {
+                        Choose product...
+                      }
+                    </span>
+                    <span aria-hidden="true" class="shrink-0 text-[#647590]">⌕</span>
+                  </button>
+                  @if (selectedProduct(line)) {
+                    <button
+                      type="button"
+                      [disabled]="submitting()"
+                      [attr.aria-label]="'Clear product for line ' + (i + 1)"
+                      (click)="clearProduct(line)"
+                      class="rounded-md px-1 py-2 text-xs font-semibold text-[#647590] hover:text-[#b4232d] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
                     >
-                      {{ product.sku }} — {{ product.name }}
-                    </option>
+                      Clear
+                    </button>
                   }
-                </select>
+                </div>
                 @if (line.controls.productId.touched && line.controls.productId.invalid) {
                   <p class="mt-1 text-xs text-[#b4232d]">Select an active product.</p>
                 }
@@ -246,18 +259,6 @@
           }
         </div>
       </div>
-      @if (productsError()) {
-        <div class="px-5 pb-3 sm:px-6">
-          <button
-            type="button"
-            [disabled]="submitting()"
-            (click)="loadProducts()"
-            class="text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-          >
-            Could not load products. Retry
-          </button>
-        </div>
-      }
       @if (lines.touched && lines.hasError('duplicateProducts')) {
         <p role="alert" class="px-5 pb-3 text-xs text-[#b4232d] sm:px-6">
           Each product can appear only once.
@@ -304,4 +305,12 @@
       </button>
     </div>
   </form>
+  @if (selectedLine(); as line) {
+    <app-product-picker
+      [currentProductId]="line.controls.productId.value"
+      [unavailableProductIds]="unavailableProductIds()"
+      (selected)="selectProduct($event)"
+      (close)="closeProductPicker()"
+    />
+  }
 </div>

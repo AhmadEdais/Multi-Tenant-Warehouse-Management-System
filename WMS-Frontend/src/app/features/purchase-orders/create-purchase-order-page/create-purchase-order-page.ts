@@ -15,12 +15,12 @@ import { Router } from '@angular/router';
 import { EMPTY, expand, reduce, startWith } from 'rxjs';
 import { AuthService } from '../../auth/auth.services';
 import { ProductListItem } from '../../products/models/product';
-import { ProductsService } from '../../products/products.service';
 import { Supplier } from '../../suppliers/models/supplier';
 import { SuppliersService } from '../../suppliers/suppliers.service';
 import { Warehouse } from '../../warehouses/models/warehouse';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { CreatePurchaseOrderRequest } from '../models/purchase-order';
+import { ProductPickerComponent } from '../product-picker/product-picker';
 import { PurchaseOrdersService } from '../purchase-orders.service';
 
 type LineForm = FormGroup<{
@@ -78,14 +78,13 @@ const newLine = (): LineForm =>
 
 @Component({
   selector: 'app-create-purchase-order-page',
-  imports: [ReactiveFormsModule, DecimalPipe],
+  imports: [ReactiveFormsModule, DecimalPipe, ProductPickerComponent],
   templateUrl: './create-purchase-order-page.html',
 })
 export class CreatePurchaseOrderPage implements OnInit {
   private readonly ordersService = inject(PurchaseOrdersService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly warehousesService = inject(WarehousesService);
-  private readonly productsService = inject(ProductsService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -93,13 +92,13 @@ export class CreatePurchaseOrderPage implements OnInit {
   readonly canListWarehouses = this.auth.hasRole('TenantAdmin');
   readonly suppliers = signal<Supplier[]>([]);
   readonly warehouses = signal<Warehouse[]>([]);
-  readonly products = signal<ProductListItem[]>([]);
+  readonly selectedProducts = signal(new Map<LineForm, ProductListItem>());
+  readonly selectedLine = signal<LineForm | null>(null);
+  private pickerTrigger: HTMLElement | null = null;
   readonly suppliersLoading = signal(false);
   readonly warehousesLoading = signal(false);
-  readonly productsLoading = signal(false);
   readonly suppliersError = signal(false);
   readonly warehousesError = signal(false);
-  readonly productsError = signal(false);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
 
@@ -118,11 +117,16 @@ export class CreatePurchaseOrderPage implements OnInit {
     this.formValue();
     return this.lines.controls.reduce((total, line) => total + this.calculateLineTotal(line), 0);
   });
+  readonly unavailableProductIds = computed(() =>
+    this.lines.controls
+      .filter((line) => line !== this.selectedLine())
+      .map((line) => line.controls.productId.value)
+      .filter((id): id is number => id !== null),
+  );
 
   ngOnInit(): void {
     this.loadSuppliers();
     if (this.canListWarehouses) this.loadWarehouses();
-    this.loadProducts();
   }
 
   loadSuppliers(): void {
@@ -187,58 +191,63 @@ export class CreatePurchaseOrderPage implements OnInit {
       });
   }
 
-  loadProducts(): void {
-    this.productsLoading.set(true);
-    this.productsError.set(false);
-    this.productsService
-      .list({ searchTerm: '', categoryId: null, isActive: true, pageNumber: 1, pageSize: 100 })
-      .pipe(
-        expand((page) =>
-          page.pageNumber * page.pageSize < page.totalCount
-            ? this.productsService.list({
-                searchTerm: '',
-                categoryId: null,
-                isActive: true,
-                pageNumber: page.pageNumber + 1,
-                pageSize: 100,
-              })
-            : EMPTY,
-        ),
-        reduce((items, page) => items.concat(page.data), [] as ProductListItem[]),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (items) => {
-          this.products.set(items.filter((item) => item.isActive));
-          this.productsLoading.set(false);
-        },
-        error: () => {
-          this.productsLoading.set(false);
-          this.productsError.set(true);
-        },
-      });
-  }
-
   addLine(): void {
     if (!this.submitting()) this.lines.push(newLine());
   }
 
   removeLine(index: number): void {
-    if (!this.submitting() && this.lines.length > 1) this.lines.removeAt(index);
-  }
-
-  productSelectedElsewhere(productId: number, rowIndex: number): boolean {
-    return this.lines.controls.some(
-      (line, index) => index !== rowIndex && line.controls.productId.value === productId,
-    );
-  }
-
-  onProductChanged(index: number): void {
+    if (this.submitting() || this.lines.length === 1) return;
     const line = this.lines.at(index);
-    const product = this.products().find((item) => item.id === line.controls.productId.value);
-    line.controls.unitCost.setValue(
-      product ? Math.round((product.unitCost + Number.EPSILON) * 100) / 100 : null,
-    );
+    this.lines.removeAt(index);
+    this.selectedProducts.update((products) => {
+      const next = new Map(products);
+      next.delete(line);
+      return next;
+    });
+  }
+
+  selectedProduct(line: LineForm): ProductListItem | undefined {
+    return this.selectedProducts().get(line);
+  }
+
+  openProductPicker(line: LineForm, event: Event): void {
+    if (this.submitting()) return;
+    this.pickerTrigger = event.currentTarget as HTMLElement;
+    this.selectedLine.set(line);
+  }
+
+  selectProduct(product: ProductListItem): void {
+    const line = this.selectedLine();
+    if (!line || !this.lines.controls.includes(line) || !product.isActive) return;
+    if (
+      this.lines.controls.some(
+        (other) => other !== line && other.controls.productId.value === product.id,
+      )
+    )
+      return;
+
+    if (line.controls.productId.value !== product.id) {
+      line.controls.productId.setValue(product.id);
+      line.controls.unitCost.setValue(Math.round((product.unitCost + Number.EPSILON) * 100) / 100);
+    }
+    this.selectedProducts.update((products) => new Map(products).set(line, product));
+    this.closeProductPicker();
+  }
+
+  clearProduct(line: LineForm): void {
+    if (this.submitting()) return;
+    line.controls.productId.setValue(null);
+    line.controls.unitCost.setValue(null);
+    this.selectedProducts.update((products) => {
+      const next = new Map(products);
+      next.delete(line);
+      return next;
+    });
+  }
+
+  closeProductPicker(): void {
+    this.selectedLine.set(null);
+    queueMicrotask(() => this.pickerTrigger?.focus());
   }
 
   lineTotal(index: number): number {
