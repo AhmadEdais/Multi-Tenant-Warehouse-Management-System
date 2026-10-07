@@ -21,6 +21,8 @@ public static class SecurityPolicies
     public const string CanManageCustomers = "CanManageCustomers";
 
     public const string CanViewCustomers = "CanViewCustomers";
+    public const string CanManageWarehouses = "CanManageWarehouses";
+    public const string CanViewWarehouses = "CanViewWarehouses";
 
     public const string CanViewInventory = "CanViewInventory";
 

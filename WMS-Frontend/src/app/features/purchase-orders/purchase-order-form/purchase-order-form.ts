@@ -100,7 +100,6 @@ export class PurchaseOrderFormComponent implements OnInit {
   readonly initialValue = input<PurchaseOrderFormInitialValue | null>(null);
   readonly supplierOptions = input<PurchaseOrderFormOption[]>([]);
   readonly warehouseOptions = input<PurchaseOrderFormOption[]>([]);
-  readonly canListWarehouses = input(true);
   readonly suppliersLoading = input(false);
   readonly warehousesLoading = input(false);
   readonly suppliersError = input(false);

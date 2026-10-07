@@ -2,7 +2,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth/auth.services';
 import { SuppliersService } from '../../suppliers/suppliers.service';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { CreatePurchaseOrderRequest } from '../models/purchase-order';
@@ -26,11 +25,9 @@ export class CreatePurchaseOrderPage implements OnInit {
   private readonly ordersService = inject(PurchaseOrdersService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly warehousesService = inject(WarehousesService);
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly canListWarehouses = this.auth.hasRole('TenantAdmin');
   readonly supplierOptions = signal<PurchaseOrderFormOption[]>([]);
   readonly warehouseOptions = signal<PurchaseOrderFormOption[]>([]);
   readonly suppliersLoading = signal(false);
@@ -42,7 +39,7 @@ export class CreatePurchaseOrderPage implements OnInit {
 
   ngOnInit(): void {
     this.loadSuppliers();
-    if (this.canListWarehouses) this.loadWarehouses();
+    this.loadWarehouses();
   }
 
   loadSuppliers(): void {

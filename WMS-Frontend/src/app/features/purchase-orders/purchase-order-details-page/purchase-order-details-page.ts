@@ -1,6 +1,16 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -30,11 +40,21 @@ export class PurchaseOrderDetailsPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload$ = new Subject<void>();
+  private cancelTrigger: HTMLElement | null = null;
+
+  @ViewChild('keepDraftButton')
+  set keepDraftButton(button: ElementRef<HTMLButtonElement> | undefined) {
+    button?.nativeElement.focus();
+  }
 
   readonly order = signal<PurchaseOrderDetails | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
   readonly error = signal<string | null>(null);
+  readonly pendingCancel = signal(false);
+  readonly canceling = signal(false);
+  readonly cancelError = signal<string | null>(null);
+  readonly cancelActionError = signal<string | null>(null);
   readonly totalExpected = computed(
     () => this.order()?.lines.reduce((sum, line) => sum + line.expectedQuantity, 0) ?? 0,
   );
@@ -62,6 +82,9 @@ export class PurchaseOrderDetailsPage implements OnInit {
           this.order.set(null);
           this.notFound.set(false);
           this.error.set(null);
+          this.pendingCancel.set(false);
+          this.cancelError.set(null);
+          this.cancelActionError.set(null);
           if (!Number.isSafeInteger(id) || id <= 0) {
             this.notFound.set(true);
             return of(null);
@@ -84,5 +107,61 @@ export class PurchaseOrderDetailsPage implements OnInit {
 
   retry(): void {
     this.reload$.next();
+  }
+
+  requestCancel(event: Event): void {
+    if (!this.canEdit() || this.canceling()) return;
+    this.cancelTrigger = event.currentTarget as HTMLElement;
+    this.cancelError.set(null);
+    this.cancelActionError.set(null);
+    this.pendingCancel.set(true);
+  }
+
+  closeCancel(): void {
+    if (this.canceling()) return;
+    this.pendingCancel.set(false);
+    this.cancelError.set(null);
+    queueMicrotask(() => this.cancelTrigger?.focus());
+  }
+
+  confirmCancel(): void {
+    const order = this.order();
+    if (!order || !this.pendingCancel() || !this.canEdit() || this.canceling()) return;
+    this.canceling.set(true);
+    this.cancelError.set(null);
+    this.ordersService
+      .cancelPurchaseOrder(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.canceling.set(false);
+          this.pendingCancel.set(false);
+          this.reload$.next();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.canceling.set(false);
+          if (error.status === 409) {
+            this.pendingCancel.set(false);
+            this.reload$.next();
+            this.cancelActionError.set(
+              'This Purchase Order changed while canceling. Its details have been refreshed; review them before trying again.',
+            );
+          } else if (error.status === 404) {
+            this.pendingCancel.set(false);
+            this.reload$.next();
+          } else {
+            this.cancelError.set(
+              error.status === 401 || error.status === 403
+                ? 'You are not authorized to cancel this Purchase Order.'
+                : 'Could not cancel this Purchase Order. Please try again.',
+            );
+          }
+        },
+      });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.pendingCancel()) this.closeCancel();
   }
 }

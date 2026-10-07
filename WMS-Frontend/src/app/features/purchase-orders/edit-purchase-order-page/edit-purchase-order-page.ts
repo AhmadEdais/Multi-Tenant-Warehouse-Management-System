@@ -12,7 +12,6 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { AuthService } from '../../auth/auth.services';
 import { SuppliersService } from '../../suppliers/suppliers.service';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { PurchaseOrderDetails, UpdatePurchaseOrderRequest } from '../models/purchase-order';
@@ -39,11 +38,9 @@ export class EditPurchaseOrderPage implements OnInit {
   private readonly ordersService = inject(PurchaseOrdersService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly warehousesService = inject(WarehousesService);
-  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload$ = new Subject<void>();
 
-  readonly canListWarehouses = this.auth.hasRole('TenantAdmin');
   readonly order = signal<PurchaseOrderDetails | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
@@ -128,7 +125,7 @@ export class EditPurchaseOrderPage implements OnInit {
         this.order.set(order);
         if (order?.status === 'Draft') {
           this.loadSuppliers();
-          if (this.canListWarehouses) this.loadWarehouses();
+          this.loadWarehouses();
         }
       });
   }

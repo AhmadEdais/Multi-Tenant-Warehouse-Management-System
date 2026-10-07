@@ -1,13 +1,16 @@
 ﻿namespace WMS.API.Controllers.V1;
 
-[Authorize(Roles = Roles.TenantAdmin)]
+[Authorize]
 [Route("api/v1/[controller]")]
 [ApiController]
 public class WarehousesController(ISender sender) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Policy = SecurityPolicies.CanManageWarehouses)]
     [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateWarehouse([FromBody] CreateWarehouseCommand command)
     {
@@ -15,9 +18,11 @@ public class WarehousesController(ISender sender) : ControllerBase
         return Created("", new { Id = warehouseId });
     }
     [HttpGet]
+    [Authorize(Policy = SecurityPolicies.CanViewWarehouses)]
     [ProducesResponseType(typeof(PagedResult<WarehouseListDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetWarehouses([FromQuery] ListWarehousesQuery query)
@@ -26,6 +31,7 @@ public class WarehousesController(ISender sender) : ControllerBase
         return Ok(warehouses);
     }
     [HttpGet("{id}")]
+    [Authorize(Policy = SecurityPolicies.CanViewWarehouses)]
     [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -40,8 +46,11 @@ public class WarehousesController(ISender sender) : ControllerBase
         return Ok(warehouse);
     }
     [HttpPut("{id}")]
+    [Authorize(Policy = SecurityPolicies.CanManageWarehouses)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateWarehouse([FromRoute] int id, [FromBody] UpdateWarehouseCommand command)
@@ -51,6 +60,7 @@ public class WarehousesController(ISender sender) : ControllerBase
         return NoContent();
     }
     [HttpPost("{id}/deactivate")]
+    [Authorize(Policy = SecurityPolicies.CanManageWarehouses)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

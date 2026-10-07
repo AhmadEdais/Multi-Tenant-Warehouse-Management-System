@@ -24,8 +24,10 @@ public sealed record PurchaseOrderDetailsDto(
     DateTime? ExpectedDeliveryDate,
     DateTime CreatedOnUtc,
     string CreatedBy,
+    string CreatedByFullName,
     DateTime? LastModifiedOnUtc,
     string? LastModifiedBy,
+    string? LastModifiedByFullName,
     string RowVersion,
     decimal TotalAmount,
     List<PurchaseOrderLineDetailsDto> Lines);
@@ -47,8 +49,8 @@ internal sealed class GetPurchaseOrderByIdQueryHandler(IWmsDbContext context, IT
         GetPurchaseOrderByIdQuery request,
         CancellationToken cancellationToken)
     {
-        if (!tenantContext.TenantId.HasValue)
-            throw new UnauthorizedAccessException("A tenant workspace is required to view Purchase Orders.");
+        var tenantId = tenantContext.TenantId
+            ?? throw new UnauthorizedAccessException("A tenant workspace is required to view Purchase Orders.");
 
         var header = await (
             from purchaseOrder in context.PurchaseOrders.AsNoTracking()
@@ -98,6 +100,31 @@ internal sealed class GetPurchaseOrderByIdQueryHandler(IWmsDbContext context, IT
                 line.ExpectedQuantity * line.UnitCost))
             .ToListAsync(cancellationToken);
 
+        var actorIds = new[] { header.CreatedBy, header.LastModifiedBy }
+            .Select(value => int.TryParse(value, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var id) ? id : 0)
+            .Where(id => id > 0)
+            .Distinct()
+            .ToArray();
+
+        var actorNames = actorIds.Length == 0
+            ? new Dictionary<int, string>()
+            : await context.Users.AsNoTracking()
+                .Where(user => user.TenantId == tenantId && actorIds.Contains(user.Id))
+                .Select(user => new { user.Id, user.FullName })
+                .ToDictionaryAsync(user => user.Id, user => user.FullName, cancellationToken);
+
+        string? ResolveActorName(string? storedActorId)
+        {
+            if (string.IsNullOrWhiteSpace(storedActorId)) return storedActorId;
+            return int.TryParse(storedActorId, System.Globalization.NumberStyles.None,
+                       System.Globalization.CultureInfo.InvariantCulture, out var id)
+                   && actorNames.TryGetValue(id, out var fullName)
+                   && !string.IsNullOrWhiteSpace(fullName)
+                ? fullName
+                : storedActorId;
+        }
+
         return new PurchaseOrderDetailsDto(
             header.Id,
             header.OrderNumber,
@@ -111,8 +138,10 @@ internal sealed class GetPurchaseOrderByIdQueryHandler(IWmsDbContext context, IT
             header.ExpectedDeliveryDate,
             header.CreatedOnUtc,
             header.CreatedBy,
+            ResolveActorName(header.CreatedBy) ?? header.CreatedBy,
             header.LastModifiedOnUtc,
             header.LastModifiedBy,
+            ResolveActorName(header.LastModifiedBy),
             Convert.ToBase64String(header.RowVersion),
             header.TotalAmount,
             lines);

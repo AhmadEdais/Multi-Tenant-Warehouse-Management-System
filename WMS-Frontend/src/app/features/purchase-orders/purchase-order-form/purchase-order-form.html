@@ -74,51 +74,30 @@
           <label for="po-warehouse" class="mb-1.5 block text-sm font-semibold text-[#30435f]"
             >Warehouse</label
           >
-          @if (canListWarehouses()) {
-            <select
-              id="po-warehouse"
-              formControlName="warehouseId"
-              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
-            >
-              <option [ngValue]="null">
-                {{ warehousesLoading() ? 'Loading warehouses...' : 'Select warehouse' }}
-              </option>
-              @for (warehouse of warehouseOptions(); track warehouse.id) {
-                <option [ngValue]="warehouse.id">
-                  {{ warehouse.label }}
-                </option>
-              }
-            </select>
-            @if (warehousesError()) {
-              <button
-                type="button"
-                [disabled]="submitting()"
-                (click)="retryWarehouses.emit()"
-                class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-              >
-                Could not load warehouses. Retry
-              </button>
+          <select
+            id="po-warehouse"
+            formControlName="warehouseId"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          >
+            <option [ngValue]="null">
+              {{ warehousesLoading() ? 'Loading warehouses...' : 'Select warehouse' }}
+            </option>
+            @for (warehouse of warehouseOptions(); track warehouse.id) {
+              <option [ngValue]="warehouse.id">{{ warehouse.label }}</option>
             }
-          } @else {
-            <input
-              id="po-warehouse"
-              type="number"
-              min="1"
-              step="1"
-              formControlName="warehouseId"
-              placeholder="Enter warehouse ID"
-              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
-            />
-            <p class="mt-1 text-xs text-[#647590]">Enter the destination warehouse ID.</p>
+          </select>
+          @if (warehousesError()) {
+            <button
+              type="button"
+              [disabled]="submitting()"
+              (click)="retryWarehouses.emit()"
+              class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            >
+              Could not load warehouses. Retry
+            </button>
           }
           @if (form.controls.warehouseId.touched && form.controls.warehouseId.invalid) {
-            <p class="mt-1 text-xs text-[#b4232d]">
-              {{
-                canListWarehouses()
-                  ? 'Select an active warehouse.'
-                  : 'Enter a valid positive warehouse ID.'
-              }}
-            </p>
+            <p class="mt-1 text-xs text-[#b4232d]">Select an active warehouse.</p>
           }
         </div>
       </div>
@@ -227,7 +206,7 @@
                   [id]="'po-unit-cost-' + i"
                   type="number"
                   min="0"
-                  step="1"
+                  step="0.01"
                   formControlName="unitCost"
                   placeholder="0.00"
                   class="h-10 w-full rounded-md border border-[#cdd9e9] bg-white px-2 text-right text-sm tabular-nums text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"

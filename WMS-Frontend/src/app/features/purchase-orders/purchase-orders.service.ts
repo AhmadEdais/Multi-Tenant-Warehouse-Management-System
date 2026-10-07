@@ -40,4 +40,8 @@ export class PurchaseOrdersService {
   updatePurchaseOrder(id: number, request: UpdatePurchaseOrderRequest): Observable<void> {
     return this.http.put<void>(`${this.url}/${id}`, request);
   }
+
+  cancelPurchaseOrder(id: number): Observable<void> {
+    return this.http.post<void>(`${this.url}/${id}/cancel`, null);
+  }
 }

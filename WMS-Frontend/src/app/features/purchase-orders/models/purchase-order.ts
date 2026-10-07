@@ -42,8 +42,10 @@ export interface PurchaseOrderDetails {
   expectedDeliveryDate: string | null;
   createdOnUtc: string;
   createdBy: string;
+  createdByFullName: string;
   lastModifiedOnUtc: string | null;
   lastModifiedBy: string | null;
+  lastModifiedByFullName: string | null;
   rowVersion: string;
   totalAmount: number;
   lines: PurchaseOrderLineDetails[];

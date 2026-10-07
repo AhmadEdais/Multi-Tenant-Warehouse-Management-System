@@ -24,7 +24,5 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.RowVersion)
             .IsRowVersion();
-
-        builder.HasQueryFilter(u => u.IsActive);
     }
 }
