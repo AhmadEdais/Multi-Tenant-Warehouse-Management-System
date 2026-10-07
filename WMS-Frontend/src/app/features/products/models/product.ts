@@ -2,6 +2,7 @@ export interface ProductListItem {
   id: number;
   sku: string;
   name: string;
+  unitCost: number;
   unitPrice: number;
   reorderPoint: number;
   isActive: boolean;

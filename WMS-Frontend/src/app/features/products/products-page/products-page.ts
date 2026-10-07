@@ -428,6 +428,7 @@ export class ProductsPage implements OnInit {
       id: product.id,
       sku: product.sku,
       name: product.name,
+      unitCost: product.unitCost,
       unitPrice: product.unitPrice,
       reorderPoint: product.reorderPoint,
       isActive: product.isActive,

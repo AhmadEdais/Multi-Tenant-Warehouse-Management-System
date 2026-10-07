@@ -233,6 +233,14 @@ export class CreatePurchaseOrderPage implements OnInit {
     );
   }
 
+  onProductChanged(index: number): void {
+    const line = this.lines.at(index);
+    const product = this.products().find((item) => item.id === line.controls.productId.value);
+    line.controls.unitCost.setValue(
+      product ? Math.round((product.unitCost + Number.EPSILON) * 100) / 100 : null,
+    );
+  }
+
   lineTotal(index: number): number {
     this.formValue();
     return this.calculateLineTotal(this.lines.at(index));
