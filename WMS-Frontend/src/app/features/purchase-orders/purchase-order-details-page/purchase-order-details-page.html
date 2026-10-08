@@ -70,6 +70,16 @@
           </button>
         </div>
       }
+      @if (canReceive()) {
+        <button
+          type="button"
+          [disabled]="actionBusy()"
+          (click)="requestReceive($event)"
+          class="ml-auto min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+        >
+          {{ receiving() ? 'Receiving...' : 'Receive Items' }}
+        </button>
+      }
     </header>
     @if (cancelActionError()) {
       <p
@@ -85,6 +95,14 @@
         class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
       >
         {{ approveActionError() }}
+      </p>
+    }
+    @if (receiveActionError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+      >
+        {{ receiveActionError() }}
       </p>
     }
 
@@ -350,6 +368,123 @@
               {{ approving() ? 'Approving...' : 'Approve Purchase Order' }}
             </button>
           </div>
+        </section>
+      </div>
+    }
+  }
+
+  @if (pendingReceive()) {
+    @if (order(); as purchaseOrder) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-3 sm:p-4"
+        (click)="closeReceive()"
+      >
+        <section
+          #receiveDialog
+          tabindex="-1"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="po-receive-title"
+          aria-describedby="po-receive-description"
+          class="flex max-h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-xl focus:outline-none"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="shrink-0 border-b border-[#e3eaf3] px-5 py-4 sm:px-6">
+            <h3 id="po-receive-title" class="text-lg font-bold text-[#14243b]">
+              Receive Items — {{ purchaseOrder.orderNumber }}
+            </h3>
+            <p id="po-receive-description" class="mt-1 text-sm text-[#52647e]">
+              Received stock will be placed in {{ purchaseOrder.warehouseName }}'s Receiving Dock.
+            </p>
+          </header>
+
+          <div class="min-h-0 overflow-y-auto px-5 py-4 sm:px-6">
+            <div class="mb-3 flex justify-end">
+              <button
+                type="button"
+                [disabled]="receiving()"
+                (click)="fillAllRemaining()"
+                class="text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                Fill All Remaining
+              </button>
+            </div>
+            <div class="max-w-full overflow-x-auto">
+              <table class="w-full min-w-[720px] border-collapse text-left text-sm">
+                <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+                  <tr class="border-y border-[#dfe7f1]">
+                    <th scope="col" class="px-3 py-3">Product</th>
+                    <th scope="col" class="px-3 py-3 text-right">Expected</th>
+                    <th scope="col" class="px-3 py-3 text-right">Received</th>
+                    <th scope="col" class="px-3 py-3 text-right">Remaining</th>
+                    <th scope="col" class="px-3 py-3">Receive Now</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (line of receiveLines(); track line.id; let index = $index) {
+                    <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                      <td class="px-3 py-3">
+                        <span class="block font-semibold text-[#182a43]">{{ line.productSku }}</span>
+                        <span class="block text-[#52647e]">{{ line.productName }}</span>
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums text-[#30435f]">
+                        {{ line.expectedQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums text-[#30435f]">
+                        {{ line.receivedQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums font-semibold text-[#20324d]">
+                        {{ line.remainingQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="w-48 px-3 py-3">
+                        @if (line.remainingQuantity > 0) {
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            [attr.max]="line.remainingQuantity"
+                            [attr.aria-label]="'Receive now for ' + line.productName"
+                            [attr.aria-invalid]="receiveForm.at(index).invalid"
+                            [formControl]="receiveForm.at(index)"
+                            class="min-h-10 w-full rounded-md border border-[#d8e2ef] bg-white px-3 text-sm text-[#20324d] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                          />
+                          @if (receiveQuantityError(index); as message) {
+                            <p role="alert" class="mt-1 text-xs text-[#b4232d]">{{ message }}</p>
+                          }
+                        } @else {
+                          <span class="text-xs font-semibold text-[#647590]">Complete</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <footer class="shrink-0 border-t border-[#e3eaf3] px-5 py-4 sm:px-6">
+            @if (receiveError()) {
+              <p role="alert" class="mb-3 text-sm text-[#b4232d]">{{ receiveError() }}</p>
+            }
+            <div class="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                [disabled]="receiving()"
+                (click)="closeReceive()"
+                class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                [disabled]="!canSubmitReceive()"
+                (click)="confirmReceive()"
+                class="min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                {{ receiving() ? 'Receiving...' : 'Receive Items' }}
+              </button>
+            </div>
+          </footer>
         </section>
       </div>
     }

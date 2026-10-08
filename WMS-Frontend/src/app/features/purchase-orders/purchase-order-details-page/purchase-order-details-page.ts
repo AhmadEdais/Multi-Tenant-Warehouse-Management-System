@@ -11,7 +11,8 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormArray, FormControl, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   catchError,
@@ -24,14 +25,14 @@ import {
   switchMap,
 } from 'rxjs';
 import { AuthService } from '../../auth/auth.services';
-import { PurchaseOrderDetails } from '../models/purchase-order';
-import { MANAGE_INBOUND_ROLES } from '../permissions';
+import { PurchaseOrderDetails, PurchaseOrderLineDetails } from '../models/purchase-order';
+import { MANAGE_INBOUND_ROLES, RECEIVE_INBOUND_ROLES } from '../permissions';
 import { PurchaseOrderStatusBadge } from '../purchase-order-status-badge/purchase-order-status-badge';
 import { PurchaseOrdersService } from '../purchase-orders.service';
 
 @Component({
   selector: 'app-purchase-order-details-page',
-  imports: [DatePipe, DecimalPipe, RouterLink, PurchaseOrderStatusBadge],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, PurchaseOrderStatusBadge],
   templateUrl: './purchase-order-details-page.html',
 })
 export class PurchaseOrderDetailsPage implements OnInit {
@@ -42,6 +43,7 @@ export class PurchaseOrderDetailsPage implements OnInit {
   private readonly reload$ = new Subject<void>();
   private cancelTrigger: HTMLElement | null = null;
   private approveTrigger: HTMLElement | null = null;
+  private receiveTrigger: HTMLElement | null = null;
 
   @ViewChild('keepDraftButton')
   set keepDraftButton(button: ElementRef<HTMLButtonElement> | undefined) {
@@ -51,6 +53,11 @@ export class PurchaseOrderDetailsPage implements OnInit {
   @ViewChild('keepApproveDraftButton')
   set keepApproveDraftButton(button: ElementRef<HTMLButtonElement> | undefined) {
     button?.nativeElement.focus();
+  }
+
+  @ViewChild('receiveDialog')
+  set receiveDialog(dialog: ElementRef<HTMLElement> | undefined) {
+    dialog?.nativeElement.focus();
   }
 
   readonly order = signal<PurchaseOrderDetails | null>(null);
@@ -65,7 +72,25 @@ export class PurchaseOrderDetailsPage implements OnInit {
   readonly approving = signal(false);
   readonly approveError = signal<string | null>(null);
   readonly approveActionError = signal<string | null>(null);
-  readonly actionBusy = computed(() => this.canceling() || this.approving());
+  readonly pendingReceive = signal(false);
+  readonly receiving = signal(false);
+  readonly receiveError = signal<string | null>(null);
+  readonly receiveActionError = signal<string | null>(null);
+  readonly receiveLines = signal<PurchaseOrderLineDetails[]>([]);
+  readonly receiveForm = new FormArray<FormControl<number | null>>([]);
+  private readonly receiveFormValue = toSignal(
+    this.receiveForm.valueChanges.pipe(startWith(this.receiveForm.value)),
+    { requireSync: true },
+  );
+  readonly actionBusy = computed(() => this.canceling() || this.approving() || this.receiving());
+  readonly canSubmitReceive = computed(() => {
+    this.receiveFormValue();
+    return (
+      !this.receiving() &&
+      this.receiveForm.valid &&
+      this.receiveForm.controls.some((control) => (control.value ?? 0) > 0)
+    );
+  });
   readonly totalExpected = computed(
     () => this.order()?.lines.reduce((sum, line) => sum + line.expectedQuantity, 0) ?? 0,
   );
@@ -77,6 +102,12 @@ export class PurchaseOrderDetailsPage implements OnInit {
       this.order()?.status === 'Draft' &&
       !this.auth.hasRole('SystemAdmin') &&
       this.auth.hasAnyRole(MANAGE_INBOUND_ROLES),
+  );
+  readonly canReceive = computed(
+    () =>
+      (this.order()?.status === 'Pending' || this.order()?.status === 'Receiving') &&
+      !this.auth.hasRole('SystemAdmin') &&
+      this.auth.hasAnyRole(RECEIVE_INBOUND_ROLES),
   );
 
   ngOnInit(): void {
@@ -99,6 +130,12 @@ export class PurchaseOrderDetailsPage implements OnInit {
           this.pendingApprove.set(false);
           this.approveError.set(null);
           this.approveActionError.set(null);
+          this.pendingReceive.set(false);
+          this.receiveLines.set([]);
+          this.receiveForm.clear();
+          this.receiveForm.enable({ emitEvent: false });
+          this.receiveError.set(null);
+          this.receiveActionError.set(null);
           if (!Number.isSafeInteger(id) || id <= 0) {
             this.notFound.set(true);
             return of(null);
@@ -225,9 +262,114 @@ export class PurchaseOrderDetailsPage implements OnInit {
       });
   }
 
+  requestReceive(event: Event): void {
+    const order = this.order();
+    if (!order || !this.canReceive() || this.actionBusy()) return;
+    this.receiveTrigger = event.currentTarget as HTMLElement;
+    this.receiveLines.set(order.lines);
+    this.receiveForm.clear();
+    for (const line of order.lines) {
+      this.receiveForm.push(
+        new FormControl<number | null>(null, this.receiveQuantityValidator(line.remainingQuantity)),
+      );
+    }
+    this.receiveError.set(null);
+    this.receiveActionError.set(null);
+    this.pendingReceive.set(true);
+  }
+
+  closeReceive(): void {
+    if (this.receiving()) return;
+    this.pendingReceive.set(false);
+    this.receiveError.set(null);
+    this.receiveForm.clear();
+    this.receiveForm.enable({ emitEvent: false });
+    this.receiveLines.set([]);
+    queueMicrotask(() => this.receiveTrigger?.focus());
+  }
+
+  fillAllRemaining(): void {
+    if (this.receiving()) return;
+    this.receiveLines().forEach((line, index) => {
+      if (line.remainingQuantity > 0) this.receiveForm.at(index).setValue(line.remainingQuantity);
+    });
+  }
+
+  receiveQuantityError(index: number): string | null {
+    this.receiveFormValue();
+    const control = this.receiveForm.at(index);
+    if (control.value === null || control.valid) return null;
+    if (control.hasError('overRemaining')) {
+      return `Cannot receive more than the remaining quantity (${this.receiveLines()[index].remainingQuantity}).`;
+    }
+    if (control.hasError('precision')) return 'Use at most 16 whole digits and two decimal places.';
+    return 'Enter a quantity greater than zero.';
+  }
+
+  confirmReceive(): void {
+    const order = this.order();
+    if (!order || !this.pendingReceive() || !this.canReceive() || !this.canSubmitReceive()) return;
+    const lines = this.receiveLines().flatMap((line, index) => {
+      const quantity = this.receiveForm.at(index).value;
+      return quantity !== null && quantity > 0
+        ? [{ purchaseOrderLineId: line.id, quantity }]
+        : [];
+    });
+    this.receiving.set(true);
+    this.receiveError.set(null);
+    this.receiveForm.disable({ emitEvent: false });
+    this.ordersService
+      .receivePurchaseOrder(order.id, { lines })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.receiving.set(false);
+          this.closeReceive();
+          this.reload$.next();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.receiving.set(false);
+          this.receiveForm.enable({ emitEvent: false });
+          if (error.status === 409) {
+            this.closeReceive();
+            this.reload$.next();
+            this.receiveActionError.set(
+              'This Purchase Order changed or the receipt could not be applied. Its details have been refreshed; review them before trying again.',
+            );
+          } else if (error.status === 404) {
+            this.closeReceive();
+            this.reload$.next();
+          } else {
+            this.receiveError.set(
+              error.status === 401 || error.status === 403
+                ? 'You are not authorized to receive this Purchase Order.'
+                : error.status === 400
+                  ? 'Please check the receipt quantities.'
+                  : 'Could not receive these items. Please try again.',
+            );
+          }
+        },
+      });
+  }
+
+  private receiveQuantityValidator(remainingQuantity: number): ValidatorFn {
+    return (control) => {
+      const quantity = control.value as number | null;
+      if (quantity === null) return null;
+      if (typeof quantity !== 'number' || !Number.isFinite(quantity) || quantity <= 0) {
+        return { positive: true };
+      }
+      if (!/^\d{1,16}(?:\.\d{1,2})?$/.test(String(quantity))) {
+        return { precision: true };
+      }
+      return quantity > remainingQuantity ? { overRemaining: true } : null;
+    };
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.pendingCancel()) this.closeCancel();
     if (this.pendingApprove()) this.closeApprove();
+    if (this.pendingReceive()) this.closeReceive();
   }
 }

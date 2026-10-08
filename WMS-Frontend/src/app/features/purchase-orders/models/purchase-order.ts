@@ -74,3 +74,10 @@ export interface CreatePurchaseOrderRequest {
 }
 
 export type UpdatePurchaseOrderRequest = CreatePurchaseOrderRequest;
+
+export interface ReceivePurchaseOrderRequest {
+  lines: {
+    purchaseOrderLineId: number;
+    quantity: number;
+  }[];
+}

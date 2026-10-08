@@ -8,6 +8,7 @@ import {
   ListPurchaseOrdersParams,
   PurchaseOrderDetails,
   PurchaseOrderListItem,
+  ReceivePurchaseOrderRequest,
   UpdatePurchaseOrderRequest,
 } from './models/purchase-order';
 
@@ -43,6 +44,10 @@ export class PurchaseOrdersService {
 
   approvePurchaseOrder(id: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${id}/approve`, null);
+  }
+
+  receivePurchaseOrder(id: number, request: ReceivePurchaseOrderRequest): Observable<void> {
+    return this.http.post<void>(`${this.url}/${id}/receive`, request);
   }
 
   cancelPurchaseOrder(id: number): Observable<void> {
