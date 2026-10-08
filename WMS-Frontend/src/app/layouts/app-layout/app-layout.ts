@@ -8,7 +8,7 @@ interface NavigationItem {
   label: string;
   route: string;
   allowedRoles: readonly string[];
-  icon: 'dashboard' | 'tenants' | 'users' | 'warehouses' | 'locations' | 'categories' | 'products' | 'inventory' | 'suppliers' | 'customers';
+  icon: 'dashboard' | 'tenants' | 'users' | 'warehouses' | 'locations' | 'categories' | 'products' | 'inventory' | 'purchase-orders' | 'suppliers' | 'customers';
 }
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
@@ -59,6 +59,12 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     route: '/inventory',
     allowedRoles: ['TenantAdmin', 'WarehouseManager', 'Analyst'],
     icon: 'inventory',
+  },
+  {
+    label: 'Purchase Orders',
+    route: '/purchase-orders',
+    allowedRoles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'],
+    icon: 'purchase-orders',
   },
   {
     label: 'Suppliers',
@@ -129,7 +135,8 @@ export class AppLayout {
   readonly pageTitle = computed(() => {
     const path = this.routeUrl().split(/[?#]/, 1)[0];
     return (
-      this.navigationItems().find((item) => item.route === path)?.label ?? this.workspaceLabel()
+      this.navigationItems().find((item) => item.route === path ||
+        (item.route === '/purchase-orders' && path.startsWith('/purchase-orders/')))?.label ?? this.workspaceLabel()
     );
   });
 

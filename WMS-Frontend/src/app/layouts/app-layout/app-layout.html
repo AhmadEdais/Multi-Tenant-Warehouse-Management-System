@@ -63,7 +63,7 @@
                 <a
                   [routerLink]="item.route"
                   routerLinkActive="bg-[#2459b6] text-white shadow-[0_4px_12px_rgba(7,32,79,0.24)]"
-                  [routerLinkActiveOptions]="{ exact: true }"
+                  [routerLinkActiveOptions]="{ exact: item.route !== '/purchase-orders' }"
                   ariaCurrentWhenActive="page"
                   class="flex min-h-10 items-center gap-3 rounded-md px-3 text-[13px] font-semibold transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   (click)="closeSidebar()"
@@ -173,6 +173,13 @@
                       <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3M7 4h10" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    }
+                    @case ('purchase-orders') {
+                      <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M6 3h9l4 4v14H6V3Z" stroke-linejoin="round" />
+                        <path d="M15 3v5h4M9 12h7M9 16h7" stroke-linecap="round" />
                       </svg>
                     }
                     @case ('suppliers') {

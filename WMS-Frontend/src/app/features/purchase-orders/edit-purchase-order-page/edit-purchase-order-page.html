@@ -1,0 +1,82 @@
+<div class="space-y-5">
+  @if (order(); as purchaseOrder) {
+    <a
+      [routerLink]="['/purchase-orders', purchaseOrder.id]"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+    >
+      <span aria-hidden="true">←</span> Purchase Order {{ purchaseOrder.orderNumber }}
+    </a>
+  } @else {
+    <a
+      routerLink="/purchase-orders"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+    >
+      <span aria-hidden="true">←</span> Purchase Orders
+    </a>
+  }
+
+  @if (loading()) {
+    <section
+      role="status"
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      Loading Purchase Order...
+    </section>
+  } @else if (notFound()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <h2 class="text-xl font-bold text-[#14243b]">Purchase Order not found</h2>
+      <p class="mt-2 text-sm text-[#647590]">
+        This Purchase Order is not available in your workspace.
+      </p>
+    </section>
+  } @else if (error()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <p role="alert" class="text-sm text-[#b4232d]">{{ error() }}</p>
+      <button
+        type="button"
+        (click)="retry()"
+        class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (order(); as purchaseOrder) {
+    @if (purchaseOrder.status !== 'Draft') {
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <h2 class="text-xl font-bold text-[#14243b]">This Purchase Order cannot be edited</h2>
+        <p class="mt-2 text-sm text-[#647590]">Only Draft Purchase Orders can be edited.</p>
+      </section>
+    } @else {
+      <header>
+        <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+          Edit {{ purchaseOrder.orderNumber }}
+        </h2>
+        <p class="mt-1 text-sm text-[#647590]">Update this draft supplier order.</p>
+      </header>
+
+      <app-purchase-order-form
+        mode="edit"
+        [orderNumber]="purchaseOrder.orderNumber"
+        [initialValue]="initialValue()"
+        [supplierOptions]="supplierOptions()"
+        [warehouseOptions]="warehouseOptions()"
+        [suppliersLoading]="suppliersLoading()"
+        [warehousesLoading]="warehousesLoading()"
+        [suppliersError]="suppliersError()"
+        [warehousesError]="warehousesError()"
+        [submitting]="submitting()"
+        [submitError]="submitError()"
+        (retrySuppliers)="loadSuppliers()"
+        (retryWarehouses)="loadWarehouses()"
+        (save)="submit($event)"
+        (cancel)="cancel()"
+      />
+    }
+  }
+</div>

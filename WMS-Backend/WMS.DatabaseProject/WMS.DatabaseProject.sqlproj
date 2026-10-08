@@ -74,6 +74,7 @@
     <Build Include="Tables\StockMovements.sql" />
     <Build Include="Tables\PurchaseOrders.sql" />
     <Build Include="Tables\PurchaseOrderLines.sql" />
+    <Build Include="Tables\PurchaseOrderSequences.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

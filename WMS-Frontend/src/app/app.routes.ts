@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
 import { guestGuard } from './features/auth/guest-guard';
 import { roleGuard } from './features/auth/role.guard';
+import { MANAGE_INBOUND_ROLES } from './features/purchase-orders/permissions';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -90,7 +91,9 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
         loadComponent: () =>
-          import('./features/categories/categories-page/categories-page').then((m) => m.CategoriesPage),
+          import('./features/categories/categories-page/categories-page').then(
+            (m) => m.CategoriesPage,
+          ),
       },
       {
         path: 'products',
@@ -105,6 +108,42 @@ export const routes: Routes = [
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'Analyst'] },
         loadComponent: () =>
           import('./features/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
+      },
+      {
+        path: 'purchase-orders',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/purchase-orders/purchase-orders-page/purchase-orders-page').then(
+            (m) => m.PurchaseOrdersPage,
+          ),
+      },
+      {
+        path: 'purchase-orders/new',
+        canActivate: [roleGuard],
+        data: { roles: MANAGE_INBOUND_ROLES },
+        loadComponent: () =>
+          import('./features/purchase-orders/create-purchase-order-page/create-purchase-order-page').then(
+            (m) => m.CreatePurchaseOrderPage,
+          ),
+      },
+      {
+        path: 'purchase-orders/:id/edit',
+        canActivate: [roleGuard],
+        data: { roles: MANAGE_INBOUND_ROLES },
+        loadComponent: () =>
+          import('./features/purchase-orders/edit-purchase-order-page/edit-purchase-order-page').then(
+            (m) => m.EditPurchaseOrderPage,
+          ),
+      },
+      {
+        path: 'purchase-orders/:id',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/purchase-orders/purchase-order-details-page/purchase-order-details-page').then(
+            (m) => m.PurchaseOrderDetailsPage,
+          ),
       },
       {
         path: 'suppliers',

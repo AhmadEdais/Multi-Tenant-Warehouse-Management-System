@@ -1,0 +1,30 @@
+<div class="space-y-5">
+  <button
+    type="button"
+    [disabled]="submitting()"
+    (click)="cancel()"
+    class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+  >
+    <span aria-hidden="true">←</span> Purchase Orders
+  </button>
+
+  <header>
+    <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Create Purchase Order</h2>
+    <p class="mt-1 text-sm text-[#647590]">Create a draft supplier order for inbound inventory.</p>
+  </header>
+
+  <app-purchase-order-form
+    [supplierOptions]="supplierOptions()"
+    [warehouseOptions]="warehouseOptions()"
+    [suppliersLoading]="suppliersLoading()"
+    [warehousesLoading]="warehousesLoading()"
+    [suppliersError]="suppliersError()"
+    [warehousesError]="warehousesError()"
+    [submitting]="submitting()"
+    [submitError]="submitError()"
+    (retrySuppliers)="loadSuppliers()"
+    (retryWarehouses)="loadWarehouses()"
+    (save)="submit($event)"
+    (cancel)="cancel()"
+  />
+</div>

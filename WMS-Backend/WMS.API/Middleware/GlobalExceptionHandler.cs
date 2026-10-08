@@ -21,6 +21,15 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         switch (exception)
         {
+            case DbUpdateConcurrencyException:
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "The record was modified by another operation. Refresh and try again."
+                };
+                break;
+
             case ValidationException validationException:
                 var validationErrors = validationException.Errors
                     .Select(err => new { Field = err.PropertyName, Error = err.ErrorMessage })
@@ -77,6 +86,31 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Status = StatusCodes.Status409Conflict,
                     Title = "Resource Conflict",
                     Detail = "A customer with the same code already exists."
+                };
+                break;
+
+            case DbUpdateException stockUpdateException
+                when stockUpdateException.InnerException is SqlException stockSqlException
+                    && stockSqlException.Number is 2601 or 2627
+                    && stockSqlException.Message.Contains("UQ_StockLevels_Tenant_Product_Location", StringComparison.Ordinal):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "Stock at this location was created by another operation. Refresh and try again."
+                };
+                break;
+
+            case DbUpdateException purchaseOrderUpdateException
+                when purchaseOrderUpdateException.InnerException is SqlException purchaseOrderSqlException
+                    && purchaseOrderSqlException.Number is 2601 or 2627
+                    && (purchaseOrderSqlException.Message.Contains("UQ_PurchaseOrders_Tenant_OrderNumber", StringComparison.Ordinal)
+                        || purchaseOrderSqlException.Message.Contains("PK_PurchaseOrderSequences", StringComparison.Ordinal)):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A Purchase Order number could not be reserved. Please try again."
                 };
                 break;
 

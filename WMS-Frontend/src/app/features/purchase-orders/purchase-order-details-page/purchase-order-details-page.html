@@ -1,0 +1,492 @@
+<div class="space-y-5">
+  <a
+    routerLink="/purchase-orders"
+    class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+  >
+    <span aria-hidden="true">←</span> Purchase Orders
+  </a>
+
+  @if (loading()) {
+    <section
+      role="status"
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      Loading Purchase Order...
+    </section>
+  } @else if (notFound()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <h2 class="text-xl font-bold text-[#14243b]">Purchase Order not found</h2>
+      <p class="mt-2 text-sm text-[#647590]">
+        This Purchase Order is not available in your workspace.
+      </p>
+    </section>
+  } @else if (error()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <p role="alert" class="text-sm text-[#b4232d]">{{ error() }}</p>
+      <button
+        type="button"
+        (click)="retry()"
+        class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (order(); as purchaseOrder) {
+    <header class="flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Purchase Order {{ purchaseOrder.orderNumber }}
+      </h2>
+      <app-purchase-order-status-badge [status]="purchaseOrder.status" />
+      @if (canEdit()) {
+        <div class="ml-auto flex flex-wrap gap-2">
+          <a
+            [routerLink]="['/purchase-orders', purchaseOrder.id, 'edit']"
+            [attr.aria-disabled]="actionBusy()"
+            [attr.tabindex]="actionBusy() ? -1 : null"
+            [style.pointer-events]="actionBusy() ? 'none' : null"
+            class="inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >
+            Edit Purchase Order
+          </a>
+          <button
+            type="button"
+            [disabled]="actionBusy()"
+            (click)="requestApprove($event)"
+            class="min-h-10 rounded-md border border-[#2458c5] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+          >
+            {{ approving() ? 'Approving...' : 'Approve Purchase Order' }}
+          </button>
+          <button
+            type="button"
+            [disabled]="actionBusy()"
+            (click)="requestCancel($event)"
+            class="min-h-10 rounded-md border border-[#e4b9bc] px-4 text-sm font-semibold text-[#b4232d] hover:bg-[#fff5f5] focus-visible:outline-2 focus-visible:outline-[#b4232d] disabled:opacity-50"
+          >
+            {{ canceling() ? 'Canceling...' : 'Cancel Purchase Order' }}
+          </button>
+        </div>
+      }
+      @if (canReceive()) {
+        <button
+          type="button"
+          [disabled]="actionBusy()"
+          (click)="requestReceive($event)"
+          class="ml-auto min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+        >
+          {{ receiving() ? 'Receiving...' : 'Receive Items' }}
+        </button>
+      }
+    </header>
+    @if (cancelActionError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+      >
+        {{ cancelActionError() }}
+      </p>
+    }
+    @if (approveActionError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+      >
+        {{ approveActionError() }}
+      </p>
+    }
+    @if (receiveActionError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+      >
+        {{ receiveActionError() }}
+      </p>
+    }
+
+    <div class="grid gap-4 lg:grid-cols-3">
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="po-order-info"
+      >
+        <h3 id="po-order-info" class="text-sm font-bold text-[#14243b]">Order Information</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Order Number</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ purchaseOrder.orderNumber }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Status</dt>
+            <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.status }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Expected Delivery</dt>
+            <dd class="mt-1 text-[#30435f]">
+              {{
+                purchaseOrder.expectedDeliveryDate
+                  ? (purchaseOrder.expectedDeliveryDate | date: 'mediumDate')
+                  : '—'
+              }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="po-supplier-info"
+      >
+        <h3 id="po-supplier-info" class="text-sm font-bold text-[#14243b]">Supplier</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Supplier Name</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ purchaseOrder.supplierName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Supplier Code</dt>
+            <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.supplierCode }}</dd>
+          </div>
+        </dl>
+      </section>
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="po-warehouse-info"
+      >
+        <h3 id="po-warehouse-info" class="text-sm font-bold text-[#14243b]">Warehouse</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Warehouse Name</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ purchaseOrder.warehouseName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Warehouse Code</dt>
+            <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.warehouseCode }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <section class="grid gap-3 sm:grid-cols-3" aria-label="Purchase Order totals">
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Total Amount</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ purchaseOrder.totalAmount | number: '1.2-2' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Expected Quantity</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ totalExpected() | number: '1.0-2' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Received Quantity</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ totalReceived() | number: '1.0-2' }}
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="po-lines-heading"
+    >
+      <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+        <h3 id="po-lines-heading" class="text-base font-bold text-[#14243b]">Order Lines</h3>
+      </header>
+      <div class="max-w-full overflow-x-auto p-5 sm:p-6">
+        <table class="w-full min-w-[800px] border-collapse text-left text-sm">
+          <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+            <tr class="border-y border-[#dfe7f1]">
+              <th scope="col" class="px-4 py-4">SKU</th>
+              <th scope="col" class="px-4 py-4">Product</th>
+              <th scope="col" class="px-4 py-4 text-right">Expected</th>
+              <th scope="col" class="px-4 py-4 text-right">Received</th>
+              <th scope="col" class="px-4 py-4 text-right">Remaining</th>
+              <th scope="col" class="px-4 py-4 text-right">Unit Cost</th>
+              <th scope="col" class="px-4 py-4 text-right">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of purchaseOrder.lines; track line.id) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ line.productSku }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ line.productName }}</td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.expectedQuantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.receivedQuantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.remainingQuantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.unitCost | number: '1.2-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums font-semibold text-[#20324d]">
+                  {{ line.lineTotal | number: '1.2-2' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="px-4 py-10 text-center text-[#52647e]">
+                  No lines on this Purchase Order.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
+      aria-labelledby="po-audit-heading"
+    >
+      <h3 id="po-audit-heading" class="text-sm font-bold text-[#14243b]">Audit Information</h3>
+      <dl class="mt-4 grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+        <div>
+          <dt class="text-xs text-[#647590]">Created On</dt>
+          <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.createdOnUtc | date: 'medium' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Created By</dt>
+          <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.createdByFullName }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Last Modified On</dt>
+          <dd class="mt-1 text-[#30435f]">
+            {{
+              purchaseOrder.lastModifiedOnUtc
+                ? (purchaseOrder.lastModifiedOnUtc | date: 'medium')
+                : '—'
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Last Modified By</dt>
+          <dd class="mt-1 text-[#30435f]">{{ purchaseOrder.lastModifiedByFullName || '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+
+  @if (pendingCancel()) {
+    @if (order(); as purchaseOrder) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+        (click)="closeCancel()"
+      >
+        <section
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="po-cancel-title"
+          aria-describedby="po-cancel-description"
+          class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+          (click)="$event.stopPropagation()"
+        >
+          <h3 id="po-cancel-title" class="text-lg font-bold text-[#14243b]">
+            Cancel Purchase Order {{ purchaseOrder.orderNumber }}?
+          </h3>
+          <p id="po-cancel-description" class="mt-2 text-sm leading-6 text-[#52647e]">
+            This will cancel the draft Purchase Order.
+          </p>
+          @if (cancelError()) {
+            <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ cancelError() }}</p>
+          }
+          <div class="mt-6 flex flex-wrap justify-end gap-3">
+            <button
+              #keepDraftButton
+              type="button"
+              [disabled]="canceling()"
+              (click)="closeCancel()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Keep Draft
+            </button>
+            <button
+              type="button"
+              [disabled]="canceling()"
+              (click)="confirmCancel()"
+              class="min-h-10 rounded-md bg-[#b4232d] px-4 text-sm font-semibold text-white hover:bg-[#951e26] focus-visible:outline-2 focus-visible:outline-[#b4232d] disabled:opacity-50"
+            >
+              {{ canceling() ? 'Canceling...' : 'Cancel Purchase Order' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+  }
+
+  @if (pendingApprove()) {
+    @if (order(); as purchaseOrder) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+        (click)="closeApprove()"
+      >
+        <section
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="po-approve-title"
+          aria-describedby="po-approve-description"
+          class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+          (click)="$event.stopPropagation()"
+        >
+          <h3 id="po-approve-title" class="text-lg font-bold text-[#14243b]">
+            Approve Purchase Order {{ purchaseOrder.orderNumber }}?
+          </h3>
+          <p id="po-approve-description" class="mt-2 text-sm leading-6 text-[#52647e]">
+            This will move the Purchase Order from Draft to Pending and prevent further editing.
+          </p>
+          @if (approveError()) {
+            <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ approveError() }}</p>
+          }
+          <div class="mt-6 flex flex-wrap justify-end gap-3">
+            <button
+              #keepApproveDraftButton
+              type="button"
+              [disabled]="approving()"
+              (click)="closeApprove()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Keep Draft
+            </button>
+            <button
+              type="button"
+              [disabled]="approving()"
+              (click)="confirmApprove()"
+              class="min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              {{ approving() ? 'Approving...' : 'Approve Purchase Order' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+  }
+
+  @if (pendingReceive()) {
+    @if (order(); as purchaseOrder) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-3 sm:p-4"
+        (click)="closeReceive()"
+      >
+        <section
+          #receiveDialog
+          tabindex="-1"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="po-receive-title"
+          aria-describedby="po-receive-description"
+          class="flex max-h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-xl focus:outline-none"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="shrink-0 border-b border-[#e3eaf3] px-5 py-4 sm:px-6">
+            <h3 id="po-receive-title" class="text-lg font-bold text-[#14243b]">
+              Receive Items — {{ purchaseOrder.orderNumber }}
+            </h3>
+            <p id="po-receive-description" class="mt-1 text-sm text-[#52647e]">
+              Received stock will be placed in {{ purchaseOrder.warehouseName }}'s Receiving Dock.
+            </p>
+          </header>
+
+          <div class="min-h-0 overflow-y-auto px-5 py-4 sm:px-6">
+            <div class="mb-3 flex justify-end">
+              <button
+                type="button"
+                [disabled]="receiving()"
+                (click)="fillAllRemaining()"
+                class="text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                Fill All Remaining
+              </button>
+            </div>
+            <div class="max-w-full overflow-x-auto">
+              <table class="w-full min-w-[720px] border-collapse text-left text-sm">
+                <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+                  <tr class="border-y border-[#dfe7f1]">
+                    <th scope="col" class="px-3 py-3">Product</th>
+                    <th scope="col" class="px-3 py-3 text-right">Expected</th>
+                    <th scope="col" class="px-3 py-3 text-right">Received</th>
+                    <th scope="col" class="px-3 py-3 text-right">Remaining</th>
+                    <th scope="col" class="px-3 py-3">Receive Now</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (line of receiveLines(); track line.id; let index = $index) {
+                    <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                      <td class="px-3 py-3">
+                        <span class="block font-semibold text-[#182a43]">{{ line.productSku }}</span>
+                        <span class="block text-[#52647e]">{{ line.productName }}</span>
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums text-[#30435f]">
+                        {{ line.expectedQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums text-[#30435f]">
+                        {{ line.receivedQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="px-3 py-3 text-right tabular-nums font-semibold text-[#20324d]">
+                        {{ line.remainingQuantity | number: '1.0-2' }}
+                      </td>
+                      <td class="w-48 px-3 py-3">
+                        @if (line.remainingQuantity > 0) {
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            [attr.max]="line.remainingQuantity"
+                            [attr.aria-label]="'Receive now for ' + line.productName"
+                            [attr.aria-invalid]="receiveForm.at(index).invalid"
+                            [formControl]="receiveForm.at(index)"
+                            class="min-h-10 w-full rounded-md border border-[#d8e2ef] bg-white px-3 text-sm text-[#20324d] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                          />
+                          @if (receiveQuantityError(index); as message) {
+                            <p role="alert" class="mt-1 text-xs text-[#b4232d]">{{ message }}</p>
+                          }
+                        } @else {
+                          <span class="text-xs font-semibold text-[#647590]">Complete</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <footer class="shrink-0 border-t border-[#e3eaf3] px-5 py-4 sm:px-6">
+            @if (receiveError()) {
+              <p role="alert" class="mb-3 text-sm text-[#b4232d]">{{ receiveError() }}</p>
+            }
+            <div class="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                [disabled]="receiving()"
+                (click)="closeReceive()"
+                class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                [disabled]="!canSubmitReceive()"
+                (click)="confirmReceive()"
+                class="min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+              >
+                {{ receiving() ? 'Receiving...' : 'Receive Items' }}
+              </button>
+            </div>
+          </footer>
+        </section>
+      </div>
+    }
+  }
+</div>

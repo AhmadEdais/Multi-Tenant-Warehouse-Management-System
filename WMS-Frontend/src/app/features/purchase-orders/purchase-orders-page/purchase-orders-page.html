@@ -1,0 +1,284 @@
+<section
+  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="purchase-orders-heading"
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
+  >
+    <div>
+      <h2
+        id="purchase-orders-heading"
+        class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]"
+      >
+        Purchase Orders
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">
+        Track supplier orders and inbound receiving progress.
+      </p>
+    </div>
+    @if (canCreate()) {
+      <a
+        routerLink="/purchase-orders/new"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Create Purchase Order
+      </a>
+    }
+  </header>
+
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-start gap-3">
+      <label class="relative min-w-0 flex-[1_1_240px] sm:max-w-[460px]" for="purchase-order-search">
+        <span class="sr-only">Search purchase orders</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="purchase-order-search"
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Search purchase orders..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+
+      <label class="relative min-w-0 flex-[1_1_150px] sm:max-w-[180px]" for="purchase-order-status">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+          >Status</span
+        >
+        <select
+          id="purchase-order-status"
+          [value]="status() ?? ''"
+          (change)="onStatusChange($event)"
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="">All statuses</option>
+          <option value="Draft">Draft</option>
+          <option value="Pending">Pending</option>
+          <option value="Receiving">Receiving</option>
+          <option value="Received">Received</option>
+          <option value="Canceled">Canceled</option>
+        </select>
+      </label>
+
+      <div class="min-w-0 flex-[1_1_175px] sm:max-w-[230px]">
+        <label class="relative block" for="purchase-order-supplier">
+          <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+            >Supplier</span
+          >
+          <select
+            id="purchase-order-supplier"
+            [value]="supplierId() ?? ''"
+            (change)="onSupplierChange($event)"
+            [disabled]="suppliersLoading() || suppliersError()"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+          >
+            <option value="">
+              {{ suppliersLoading() ? 'Loading suppliers...' : 'All suppliers' }}
+            </option>
+            @for (supplier of suppliers(); track supplier.id) {
+              <option [value]="supplier.id">{{ supplier.name }} ({{ supplier.code }})</option>
+            }
+          </select>
+        </label>
+        @if (suppliersError()) {
+          <button
+            type="button"
+            (click)="loadSuppliers()"
+            class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >
+            Could not load suppliers. Retry
+          </button>
+        }
+      </div>
+
+      <div class="min-w-0 flex-[1_1_175px] sm:max-w-[230px]">
+        @if (canListWarehouses) {
+          <label class="relative block" for="purchase-order-warehouse">
+            <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+              >Warehouse</span
+            >
+            <select
+              id="purchase-order-warehouse"
+              [value]="warehouseId() ?? ''"
+              (change)="onWarehouseChange($event)"
+              [disabled]="warehousesLoading() || warehousesError()"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+            >
+              <option value="">
+                {{ warehousesLoading() ? 'Loading warehouses...' : 'All warehouses' }}
+              </option>
+              @for (warehouse of warehouses(); track warehouse.id) {
+                <option [value]="warehouse.id">{{ warehouse.name }} ({{ warehouse.code }})</option>
+              }
+            </select>
+          </label>
+          @if (warehousesError()) {
+            <button
+              type="button"
+              (click)="loadWarehouses()"
+              class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            >
+              Could not load warehouses. Retry
+            </button>
+          }
+        } @else {
+          <label class="relative block" for="purchase-order-warehouse-id">
+            <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]"
+              >Warehouse ID</span
+            >
+            <input
+              id="purchase-order-warehouse-id"
+              type="number"
+              min="1"
+              step="1"
+              [value]="warehouseId() ?? ''"
+              (change)="onWarehouseIdChange($event)"
+              placeholder="All warehouses"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            />
+          </label>
+          @if (warehouseInputError()) {
+            <p role="alert" class="mt-1 text-xs text-[#b4232d]">{{ warehouseInputError() }}</p>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[1120px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="px-4 py-4">Order Number</th>
+            <th scope="col" class="px-4 py-4">Supplier</th>
+            <th scope="col" class="px-4 py-4">Warehouse</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="px-4 py-4">Expected Delivery</th>
+            <th scope="col" class="px-4 py-4 text-right">Received</th>
+            <th scope="col" class="px-4 py-4 text-right">Total</th>
+            <th scope="col" class="px-4 py-4">Created</th>
+            <th scope="col" class="px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr>
+              <td colspan="9" role="status" class="px-4 py-12 text-center text-[#52647e]">
+                Loading Purchase Orders...
+              </td>
+            </tr>
+          } @else if (error()) {
+            <tr>
+              <td colspan="9" class="px-4 py-12 text-center">
+                <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+                <button
+                  type="button"
+                  (click)="retry()"
+                  class="mt-3 font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          } @else if (orders().length === 0) {
+            <tr>
+              <td colspan="9" class="px-4 py-12 text-center text-[#52647e]">
+                {{
+                  hasFilters()
+                    ? 'No Purchase Orders match your filters.'
+                    : 'No Purchase Orders found.'
+                }}
+              </td>
+            </tr>
+          } @else {
+            @for (order of orders(); track order.id) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ order.orderNumber }}</td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  <span class="font-medium">{{ order.supplierName }}</span
+                  ><span class="block text-xs text-[#697b96]">{{ order.supplierCode }}</span>
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  <span class="font-medium">{{ order.warehouseName }}</span
+                  ><span class="block text-xs text-[#697b96]">{{ order.warehouseCode }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <app-purchase-order-status-badge [status]="order.status" />
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  {{
+                    order.expectedDeliveryDate
+                      ? (order.expectedDeliveryDate | date: 'mediumDate')
+                      : '—'
+                  }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ order.totalReceivedQuantity | number: '1.0-2' }} /
+                  {{ order.totalExpectedQuantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums font-semibold text-[#20324d]">
+                  {{ order.totalAmount | number: '1.2-2' }}
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  {{ order.createdOnUtc | date: 'mediumDate' }}
+                </td>
+                <td class="px-4 py-4">
+                  <a
+                    [routerLink]="['/purchase-orders', order.id]"
+                    [attr.aria-label]="'View Purchase Order ' + order.orderNumber"
+                    class="inline-flex rounded-md border border-[#d8e2ef] px-3 py-1.5 text-xs font-semibold text-[#2458c5] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                    >View</a
+                  >
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span
+        >Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} Purchase Orders</span
+      >
+      <div class="flex items-center gap-2" aria-label="Purchase Order pages">
+        <button
+          type="button"
+          [disabled]="loading() || page() <= 1"
+          (click)="goToPage(page() - 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span class="px-2 font-semibold text-[#30435f]">{{ page() }} / {{ pageCount() }}</span>
+        <button
+          type="button"
+          [disabled]="loading() || page() >= pageCount()"
+          (click)="goToPage(page() + 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>
