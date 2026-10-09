@@ -66,7 +66,7 @@ builder.Services.AddAuthorizationBuilder()
     })
     .AddPolicy(SecurityPolicies.CanViewWarehouses, policy =>
     {
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager);
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator);
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanViewInventory, policy =>
@@ -85,6 +85,11 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanReceiveInbound, policy =>
+    {
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator);
+        policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
+    })
+    .AddPolicy(SecurityPolicies.CanPutaway, policy =>
     {
         policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator);
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));

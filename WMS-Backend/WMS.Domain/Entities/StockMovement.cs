@@ -35,6 +35,10 @@ public sealed class StockMovement : IMustBelongToTenant
             throw new ArgumentException("Movement quantity cannot be zero.", nameof(quantity));
         if (movementType == MovementType.Receipt && quantity < 0)
             throw new ArgumentException("Receipt movement quantity must be positive.", nameof(quantity));
+        if (movementType == MovementType.TransferOut && quantity > 0)
+            throw new ArgumentException("Transfer-out movement quantity must be negative.", nameof(quantity));
+        if (movementType == MovementType.TransferIn && quantity < 0)
+            throw new ArgumentException("Transfer-in movement quantity must be positive.", nameof(quantity));
         if (string.IsNullOrWhiteSpace(createdBy) || createdBy.Length > 128)
             throw new ArgumentException("Creator is required and cannot exceed 128 characters.", nameof(createdBy));
 

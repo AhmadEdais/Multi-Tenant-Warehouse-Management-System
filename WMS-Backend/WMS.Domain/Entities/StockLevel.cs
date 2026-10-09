@@ -54,6 +54,32 @@ public sealed class StockLevel : IMustBelongToTenant
         LastModifiedOnUtc = modifiedOnUtc;
     }
 
+    public void TransferOut(decimal quantity, string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Transfer quantity must be positive.", nameof(quantity));
+        if (quantity > AvailableQuantity)
+            throw new InvalidOperationException("Cannot transfer more than the unallocated stock at this location.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        QuantityOnHand -= quantity;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
+    }
+
+    public void TransferIn(decimal quantity, string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Transfer quantity must be positive.", nameof(quantity));
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        QuantityOnHand += quantity;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
+    }
+
     
     public void Reserve(decimal quantity)
     {
