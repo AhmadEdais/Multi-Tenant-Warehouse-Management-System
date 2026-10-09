@@ -3,12 +3,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../features/auth/auth.services';
+import { PUTAWAY_ROLES } from '../../features/putaway/permissions';
 
 interface NavigationItem {
   label: string;
   route: string;
   allowedRoles: readonly string[];
-  icon: 'dashboard' | 'tenants' | 'users' | 'warehouses' | 'locations' | 'categories' | 'products' | 'inventory' | 'purchase-orders' | 'suppliers' | 'customers';
+  icon: 'dashboard' | 'tenants' | 'users' | 'warehouses' | 'locations' | 'categories' | 'products' | 'inventory' | 'putaway' | 'purchase-orders' | 'suppliers' | 'customers';
 }
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
@@ -59,6 +60,12 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     route: '/inventory',
     allowedRoles: ['TenantAdmin', 'WarehouseManager', 'Analyst'],
     icon: 'inventory',
+  },
+  {
+    label: 'Putaway',
+    route: '/putaway',
+    allowedRoles: PUTAWAY_ROLES,
+    icon: 'putaway',
   },
   {
     label: 'Purchase Orders',

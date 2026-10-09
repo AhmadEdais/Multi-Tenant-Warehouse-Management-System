@@ -66,7 +66,7 @@ builder.Services.AddAuthorizationBuilder()
     })
     .AddPolicy(SecurityPolicies.CanViewWarehouses, policy =>
     {
-        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager);
+        policy.RequireRole(Roles.TenantAdmin, Roles.WarehouseManager, Roles.WarehouseOperator);
         policy.RequireAssertion(context => !context.User.IsInRole(Roles.SystemAdmin));
     })
     .AddPolicy(SecurityPolicies.CanViewInventory, policy =>

@@ -3,6 +3,7 @@ import { authGuard } from './features/auth/auth.guard';
 import { guestGuard } from './features/auth/guest-guard';
 import { roleGuard } from './features/auth/role.guard';
 import { MANAGE_INBOUND_ROLES } from './features/purchase-orders/permissions';
+import { PUTAWAY_ROLES } from './features/putaway/permissions';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -108,6 +109,13 @@ export const routes: Routes = [
         data: { roles: ['TenantAdmin', 'WarehouseManager', 'Analyst'] },
         loadComponent: () =>
           import('./features/inventory/inventory-page/inventory-page').then((m) => m.InventoryPage),
+      },
+      {
+        path: 'putaway',
+        canActivate: [roleGuard],
+        data: { roles: PUTAWAY_ROLES },
+        loadComponent: () =>
+          import('./features/putaway/putaway-page/putaway-page').then((m) => m.PutawayPage),
       },
       {
         path: 'purchase-orders',
