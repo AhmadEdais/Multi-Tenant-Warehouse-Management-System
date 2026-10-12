@@ -33,4 +33,5 @@ public static class SecurityPolicies
     public const string CanReceiveInbound = "CanReceiveInbound";
     public const string CanPutaway = "CanPutaway";
     public const string CanManageOutbound = "CanManageOutbound";
+    public const string CanViewSalesOrders = "CanViewSalesOrders";
 }
