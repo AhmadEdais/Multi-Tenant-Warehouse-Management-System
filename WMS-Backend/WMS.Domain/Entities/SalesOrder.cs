@@ -54,6 +54,60 @@ public sealed class SalesOrder : IMustBelongToTenant
         _lines.Add(SalesOrderLine.Create(TenantId, productId, quantity, unitPrice));
     }
 
+    public void ReplaceDraftLines(IEnumerable<(int ProductId, decimal Quantity, decimal UnitPrice)> lines)
+    {
+        if (Status != SalesOrderStatus.Draft)
+            throw new InvalidOperationException("Lines can only be changed on a draft Sales Order.");
+
+        ArgumentNullException.ThrowIfNull(lines);
+        if (_lines.Any(line => line.QuantityAllocated != 0 || line.Allocations.Count != 0))
+            throw new InvalidOperationException("A Sales Order with reservations cannot be edited as a draft.");
+
+        var replacements = lines
+            .Select(line => SalesOrderLine.Create(TenantId, line.ProductId, line.Quantity, line.UnitPrice))
+            .ToList();
+        if (replacements.Count == 0)
+            throw new InvalidOperationException("A Sales Order must contain at least one line.");
+
+        var productIds = replacements.Select(line => line.ProductId).ToHashSet();
+        if (productIds.Count != replacements.Count)
+            throw new InvalidOperationException("A product can only appear once on a Sales Order.");
+
+        var existingLines = _lines.ToDictionary(line => line.ProductId);
+        _lines.RemoveAll(line => !productIds.Contains(line.ProductId));
+
+        foreach (var replacement in replacements)
+        {
+            if (existingLines.TryGetValue(replacement.ProductId, out var existingLine))
+                existingLine.UpdateDraftValues(replacement.Quantity, replacement.UnitPrice);
+            else
+                _lines.Add(replacement);
+        }
+    }
+
+    public void UpdateDraftDetails(int customerId, int warehouseId,
+        DateTime? requestedShipmentDate, string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (Status != SalesOrderStatus.Draft)
+            throw new InvalidOperationException("Only a draft Sales Order can be edited.");
+        if (_lines.Count == 0)
+            throw new InvalidOperationException("A Sales Order must contain at least one line.");
+        if (_lines.Any(line => line.QuantityAllocated != 0 || line.Allocations.Count != 0))
+            throw new InvalidOperationException("A Sales Order with reservations cannot be edited as a draft.");
+        if (customerId <= 0 || warehouseId <= 0)
+            throw new ArgumentException("Customer and warehouse IDs must be positive.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        CustomerId = customerId;
+        WarehouseId = warehouseId;
+        RequestedShipmentDate = requestedShipmentDate;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = LastModifiedOnUtc.HasValue && modifiedOnUtc <= LastModifiedOnUtc.Value
+            ? LastModifiedOnUtc.Value.AddTicks(1)
+            : modifiedOnUtc;
+    }
+
     public void MarkAllocated(string modifiedBy, DateTime modifiedOnUtc)
     {
         if (Status != SalesOrderStatus.Draft)

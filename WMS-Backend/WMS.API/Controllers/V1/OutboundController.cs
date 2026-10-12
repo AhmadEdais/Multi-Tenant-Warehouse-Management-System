@@ -47,6 +47,21 @@ public class OutboundController(ISender sender) : ControllerBase
         return Ok(await sender.Send(command));
     }
 
+    [HttpPut("sales-orders/{id:int}")]
+    [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateSalesOrder(int id, [FromBody] UpdateSalesOrderCommand command)
+    {
+        await sender.Send(command with { Id = id });
+        return NoContent();
+    }
+
     [HttpPost("sales-orders/{id:int}/approve")]
     [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
