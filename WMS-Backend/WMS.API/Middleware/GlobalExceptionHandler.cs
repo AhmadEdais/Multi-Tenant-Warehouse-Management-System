@@ -30,6 +30,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
 
+            case DbUpdateException databaseConflict
+                when databaseConflict.InnerException is SqlException conflictSqlException
+                    && conflictSqlException.Number is 1205 or 1222:
+            case SqlException directConflict when directConflict.Number is 1205 or 1222:
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "The record was modified by another operation. Refresh and try again."
+                };
+                break;
+
             case ValidationException validationException:
                 var validationErrors = validationException.Errors
                     .Select(err => new { Field = err.PropertyName, Error = err.ErrorMessage })
@@ -111,6 +123,19 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Status = StatusCodes.Status409Conflict,
                     Title = "Resource Conflict",
                     Detail = "A Purchase Order number could not be reserved. Please try again."
+                };
+                break;
+
+            case DbUpdateException salesOrderUpdateException
+                when salesOrderUpdateException.InnerException is SqlException salesOrderSqlException
+                    && salesOrderSqlException.Number is 2601 or 2627
+                    && (salesOrderSqlException.Message.Contains("UQ_SalesOrders_Tenant_OrderNumber", StringComparison.Ordinal)
+                        || salesOrderSqlException.Message.Contains("PK_SalesOrderSequences", StringComparison.Ordinal)):
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Resource Conflict",
+                    Detail = "A Sales Order number could not be reserved. Please try again."
                 };
                 break;
 
