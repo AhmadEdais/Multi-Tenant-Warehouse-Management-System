@@ -81,15 +81,19 @@ public sealed class StockLevel : IMustBelongToTenant
     }
 
     
-    public void Reserve(decimal quantity)
+    public void Reserve(decimal quantity, string modifiedBy, DateTime modifiedOnUtc)
     {
         if (quantity <= 0)
             throw new ArgumentException("Reserve quantity must be positive.", nameof(quantity));
 
         if (AvailableQuantity < quantity)
             throw new InvalidOperationException($"Cannot reserve {quantity}. Only {AvailableQuantity} available.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
 
         QuantityAllocated += quantity;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
     }
 
     public void Ship(decimal quantity)
