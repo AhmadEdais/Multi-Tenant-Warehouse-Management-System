@@ -27,6 +27,19 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
         builder.Property(m => m.ReferenceId)
             .IsRequired(false);
 
+        builder.Property(m => m.SalesOrderPickupLineId)
+            .IsRequired(false);
+
+        builder.HasOne<SalesOrderPickupLine>().WithMany()
+            .HasForeignKey(m => m.SalesOrderPickupLineId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_StockMovements_SalesOrderPickupLines");
+
+        builder.HasIndex(m => m.SalesOrderPickupLineId)
+            .IsUnique()
+            .HasFilter("[SalesOrderPickupLineId] IS NOT NULL")
+            .HasDatabaseName("UX_StockMovements_SalesOrderPickupLineId");
+
         builder.Property(m => m.CreatedOnUtc).HasColumnType("datetime2").IsRequired();
         builder.Property(m => m.CreatedBy).HasMaxLength(128).IsRequired();
 

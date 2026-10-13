@@ -7,7 +7,7 @@ internal sealed class SalesOrderConfiguration : IEntityTypeConfiguration<SalesOr
     public void Configure(EntityTypeBuilder<SalesOrder> builder)
     {
         builder.ToTable("SalesOrders", table =>
-            table.HasCheckConstraint("CK_SalesOrders_Status", "[Status] IN (1, 2, 3, 4)"));
+            table.HasCheckConstraint("CK_SalesOrders_Status", "[Status] IN (1, 2, 3, 4, 5)"));
         builder.HasKey(order => order.Id).HasName("PK_SalesOrders");
         builder.Property(order => order.Id).ValueGeneratedOnAdd();
         builder.Property(order => order.TenantId).IsRequired();

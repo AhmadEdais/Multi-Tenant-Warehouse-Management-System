@@ -5,7 +5,7 @@ CREATE TABLE [dbo].[SalesOrders]
     [CustomerId] INT NOT NULL,
     [WarehouseId] INT NOT NULL,
     [OrderNumber] NVARCHAR(50) NOT NULL,
-    [Status] TINYINT NOT NULL CONSTRAINT [DF_SalesOrders_Status] DEFAULT (1), -- 1=Draft, 2=Allocated, 3=Shipped, 4=Canceled
+    [Status] TINYINT NOT NULL CONSTRAINT [DF_SalesOrders_Status] DEFAULT (1), -- 1=Draft, 2=Allocated, 3=Shipped, 4=Canceled, 5=Picked
     [RequestedShipmentDate] DATE NULL,
     [RowVersion] ROWVERSION NOT NULL,
     [CreatedOnUtc] DATETIME2 NOT NULL CONSTRAINT [DF_SalesOrders_CreatedOnUtc] DEFAULT GETUTCDATE(),
@@ -18,7 +18,7 @@ CREATE TABLE [dbo].[SalesOrders]
     CONSTRAINT [FK_SalesOrders_Customers] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[Customers]([Id]),
     CONSTRAINT [FK_SalesOrders_Warehouses] FOREIGN KEY ([WarehouseId]) REFERENCES [dbo].[Warehouses]([Id]),
     CONSTRAINT [UQ_SalesOrders_Tenant_OrderNumber] UNIQUE ([TenantId], [OrderNumber]),
-    CONSTRAINT [CK_SalesOrders_Status] CHECK ([Status] IN (1, 2, 3, 4))
+    CONSTRAINT [CK_SalesOrders_Status] CHECK ([Status] IN (1, 2, 3, 4, 5))
 )
 GO
 

@@ -14,6 +14,7 @@
     -- Polymorphic relationship (Links to POs, Sales Orders, etc.)
     [ReferenceTable] NVARCHAR(50) NULL,
     [ReferenceId] INT NULL,
+    [SalesOrderPickupLineId] BIGINT NULL,
 
     -- Immutable Audit Columns (Who did it and exactly when)
     [CreatedOnUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
@@ -22,10 +23,16 @@
     CONSTRAINT [PK_StockMovements] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_StockMovements_Tenants] FOREIGN KEY ([TenantId]) REFERENCES [dbo].[Tenants]([Id]),
     CONSTRAINT [FK_StockMovements_Products] FOREIGN KEY ([ProductId]) REFERENCES [dbo].[Products]([Id]),
-    CONSTRAINT [FK_StockMovements_Locations] FOREIGN KEY ([LocationId]) REFERENCES [dbo].[Locations]([Id])
+    CONSTRAINT [FK_StockMovements_Locations] FOREIGN KEY ([LocationId]) REFERENCES [dbo].[Locations]([Id]),
+    CONSTRAINT [FK_StockMovements_SalesOrderPickupLines] FOREIGN KEY ([SalesOrderPickupLineId]) REFERENCES [dbo].[SalesOrderPickupLines]([Id])
 )
 GO
 
 -- Index to quickly pull the history of a specific product for auditors
 CREATE NONCLUSTERED INDEX [IX_StockMovements_ProductId_CreatedOn] ON [dbo].[StockMovements] ([ProductId], [CreatedOnUtc] DESC)
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [UX_StockMovements_SalesOrderPickupLineId]
+ON [dbo].[StockMovements] ([SalesOrderPickupLineId])
+WHERE [SalesOrderPickupLineId] IS NOT NULL
 GO

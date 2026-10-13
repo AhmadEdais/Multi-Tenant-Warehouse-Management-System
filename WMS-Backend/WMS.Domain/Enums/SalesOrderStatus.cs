@@ -5,5 +5,6 @@ public enum SalesOrderStatus : byte
     Draft = 1,
     Allocated = 2,
     Shipped = 3,
-    Canceled = 4
+    Canceled = 4,
+    Picked = 5
 }

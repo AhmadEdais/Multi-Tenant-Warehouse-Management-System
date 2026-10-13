@@ -13,6 +13,7 @@ public sealed class StockMovement : IMustBelongToTenant
     public MovementType MovementType { get; private set; }
     public string? ReferenceTable { get; private set; }
     public int? ReferenceId { get; private set; }
+    public long? SalesOrderPickupLineId { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public string CreatedBy { get; private set; } = string.Empty;
 

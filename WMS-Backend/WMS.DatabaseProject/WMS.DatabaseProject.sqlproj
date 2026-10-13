@@ -79,6 +79,8 @@
     <Build Include="Tables\SalesOrderLines.sql" />
     <Build Include="Tables\SalesOrderAllocations.sql" />
     <Build Include="Tables\SalesOrderSequences.sql" />
+    <Build Include="Tables\SalesOrderPickupLines.sql" />
+    <Build Include="Tables\SalesOrderPickups.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
