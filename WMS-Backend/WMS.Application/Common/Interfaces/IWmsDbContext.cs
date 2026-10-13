@@ -23,6 +23,8 @@ public interface IWmsDbContext
     DbSet<SalesOrder> SalesOrders { get; }
     DbSet<SalesOrderLine> SalesOrderLines { get; }
     DbSet<SalesOrderAllocation> SalesOrderAllocations { get; }
+    DbSet<SalesOrderPickup> SalesOrderPickups { get; }
+    DbSet<SalesOrderPickupLine> SalesOrderPickupLines { get; }
     DbSet<SalesOrderSequence> SalesOrderSequences { get; }
     DatabaseFacade Database { get; }
 

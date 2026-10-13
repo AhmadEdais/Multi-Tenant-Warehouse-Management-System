@@ -25,6 +25,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
     public DbSet<SalesOrderLine> SalesOrderLines => Set<SalesOrderLine>();
     public DbSet<SalesOrderAllocation> SalesOrderAllocations => Set<SalesOrderAllocation>();
+    public DbSet<SalesOrderPickup> SalesOrderPickups => Set<SalesOrderPickup>();
+    public DbSet<SalesOrderPickupLine> SalesOrderPickupLines => Set<SalesOrderPickupLine>();
     public DbSet<SalesOrderSequence> SalesOrderSequences => Set<SalesOrderSequence>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
