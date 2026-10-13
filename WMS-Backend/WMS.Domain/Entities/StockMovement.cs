@@ -14,6 +14,7 @@ public sealed class StockMovement : IMustBelongToTenant
     public string? ReferenceTable { get; private set; }
     public int? ReferenceId { get; private set; }
     public long? SalesOrderPickupLineId { get; private set; }
+    public SalesOrderPickupLine? SalesOrderPickupLine { get; private set; }
     public DateTime CreatedOnUtc { get; private set; }
     public string CreatedBy { get; private set; } = string.Empty;
 
@@ -55,5 +56,20 @@ public sealed class StockMovement : IMustBelongToTenant
             CreatedBy = createdBy,
             CreatedOnUtc = createdOnUtc
         };
+    }
+
+    public static StockMovement CreatePickupShipment(int tenantId, int productId, int locationId,
+        decimal quantity, int salesOrderId, SalesOrderPickupLine pickupLine,
+        string createdBy, DateTime createdOnUtc)
+    {
+        ArgumentNullException.ThrowIfNull(pickupLine);
+        if (quantity <= 0 || pickupLine.TenantId != tenantId || pickupLine.Quantity != quantity)
+            throw new ArgumentException("Shipment must match a positive pickup line quantity.", nameof(quantity));
+        if (salesOrderId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(salesOrderId));
+        var movement = Create(tenantId, productId, locationId, -quantity,
+            MovementType.Shipment, createdBy, createdOnUtc, "SalesOrders", salesOrderId);
+        movement.SalesOrderPickupLine = pickupLine;
+        return movement;
     }
 }

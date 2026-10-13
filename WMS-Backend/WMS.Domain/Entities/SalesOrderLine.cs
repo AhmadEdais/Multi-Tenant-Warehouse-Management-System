@@ -79,4 +79,17 @@ public sealed class SalesOrderLine : IMustBelongToTenant
         allocation.Release(actor, releasedOnUtc, reason);
         QuantityAllocated -= allocation.Quantity;
     }
+
+    public void RecordPickup(SalesOrderAllocation allocation, decimal quantity)
+    {
+        ArgumentNullException.ThrowIfNull(allocation);
+        if (!_allocations.Contains(allocation) || allocation.SalesOrderLineId != Id || allocation.TenantId != TenantId)
+            throw new InvalidOperationException("The allocation does not belong to this Sales Order line.");
+        if (allocation.Status != SalesOrderAllocationStatus.Active)
+            throw new InvalidOperationException("Only an active allocation can be picked.");
+        if (quantity <= 0 || quantity > allocation.Quantity || quantity > QuantityAllocated
+            || decimal.Round(quantity, 2) != quantity)
+            throw new InvalidOperationException("Pickup exceeds the line's remaining reservation.");
+        QuantityAllocated -= quantity;
+    }
 }

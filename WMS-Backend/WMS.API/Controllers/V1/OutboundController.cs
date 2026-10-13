@@ -33,6 +33,33 @@ public class OutboundController(ISender sender) : ControllerBase
         return Ok(await sender.Send(new GetSalesOrderByIdQuery(id)));
     }
 
+    [HttpGet("sales-orders/{id:int}/pickups")]
+    [Authorize(Policy = SecurityPolicies.CanViewSalesOrders)]
+    [ProducesResponseType(typeof(List<SalesOrderPickupDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSalesOrderPickups(int id)
+    {
+        return Ok(await sender.Send(new GetSalesOrderPickupsQuery(id)));
+    }
+
+    [HttpPost("sales-orders/{id:int}/pickups")]
+    [Authorize(Policy = SecurityPolicies.CanConfirmOutboundPickup)]
+    [ProducesResponseType(typeof(SalesOrderPickupResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateSalesOrderPickup(int id, [FromBody] CreateSalesOrderPickupCommand command)
+    {
+        return Ok(await sender.Send(command with { Id = id }));
+    }
+
     [HttpPost("sales-orders")]
     [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]

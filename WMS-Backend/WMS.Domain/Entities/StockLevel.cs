@@ -110,16 +110,22 @@ public sealed class StockLevel : IMustBelongToTenant
         LastModifiedOnUtc = modifiedOnUtc;
     }
 
-    public void Ship(decimal quantity)
+    public void Ship(decimal quantity, string modifiedBy, DateTime modifiedOnUtc)
     {
         if (quantity <= 0)
             throw new ArgumentException("Shipment quantity must be positive.", nameof(quantity));
 
         if (QuantityAllocated < quantity)
             throw new InvalidOperationException("Cannot ship more than is currently allocated.");
+        if (QuantityOnHand < quantity)
+            throw new InvalidOperationException("Cannot ship more than is physically on hand.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
 
         QuantityOnHand -= quantity;
         QuantityAllocated -= quantity;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
     }
 
     public void Adjust(decimal deltaQuantity)

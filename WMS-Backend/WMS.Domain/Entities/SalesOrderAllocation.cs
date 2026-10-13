@@ -54,4 +54,11 @@ public sealed class SalesOrderAllocation : IMustBelongToTenant
         ReleasedBy = releasedBy;
         ReleaseReason = reason;
     }
+
+    public void MarkShipped()
+    {
+        if (Status != SalesOrderAllocationStatus.Active)
+            throw new InvalidOperationException("Only an active allocation can be shipped.");
+        Status = SalesOrderAllocationStatus.Shipped;
+    }
 }

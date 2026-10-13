@@ -140,4 +140,20 @@ public sealed class SalesOrder : IMustBelongToTenant
         LastModifiedBy = modifiedBy;
         LastModifiedOnUtc = modifiedOnUtc;
     }
+
+    public void UpdateFulfillmentStatus(string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (Status is not (SalesOrderStatus.Allocated or SalesOrderStatus.Picked))
+            throw new InvalidOperationException("Only allocated or partially picked Sales Orders can be fulfilled.");
+        if (_lines.Count == 0 || _lines.Any(line => line.QuantityAllocated < 0 || line.QuantityAllocated > line.Quantity))
+            throw new InvalidOperationException("Sales Order reservations are inconsistent.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        Status = _lines.All(line => line.QuantityAllocated == 0)
+            ? SalesOrderStatus.Shipped : SalesOrderStatus.Picked;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = LastModifiedOnUtc.HasValue && modifiedOnUtc <= LastModifiedOnUtc.Value
+            ? LastModifiedOnUtc.Value.AddTicks(1) : modifiedOnUtc;
+    }
 }

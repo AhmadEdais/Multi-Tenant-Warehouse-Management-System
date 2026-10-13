@@ -16,7 +16,9 @@ public sealed record SalesOrderListDto(
     DateTime CreatedOnUtc,
     decimal TotalAmount,
     decimal TotalOrderedQuantity,
-    decimal TotalAllocatedQuantity);
+    decimal TotalAllocatedQuantity,
+    decimal TotalPickedQuantity,
+    decimal TotalRemainingQuantity);
 
 public sealed record ListSalesOrdersQuery(
     string? Search = null,
@@ -103,7 +105,15 @@ internal sealed class ListSalesOrdersQueryHandler(IWmsDbContext context, ITenant
                     .Sum(line => (decimal?)line.Quantity) ?? 0m,
                 TotalAllocatedQuantity = context.SalesOrderLines.AsNoTracking()
                     .Where(line => line.SalesOrderId == x.Order.Id)
-                    .Sum(line => (decimal?)line.QuantityAllocated) ?? 0m
+                    .Sum(line => (decimal?)line.QuantityAllocated) ?? 0m,
+                TotalPickedQuantity = (
+                    from pickupLine in context.SalesOrderPickupLines.AsNoTracking()
+                    join allocation in context.SalesOrderAllocations.AsNoTracking()
+                        on pickupLine.SalesOrderAllocationId equals allocation.Id
+                    join orderLine in context.SalesOrderLines.AsNoTracking()
+                        on allocation.SalesOrderLineId equals orderLine.Id
+                    where orderLine.SalesOrderId == x.Order.Id
+                    select (decimal?)pickupLine.Quantity).Sum() ?? 0m
             })
             .ToListAsync(cancellationToken);
 
@@ -111,7 +121,8 @@ internal sealed class ListSalesOrdersQueryHandler(IWmsDbContext context, ITenant
             x.Id, x.OrderNumber, x.Status.ToString(), x.CustomerId,
             x.CustomerCode, x.CustomerName, x.WarehouseId, x.WarehouseCode,
             x.WarehouseName, x.RequestedShipmentDate, x.CreatedOnUtc,
-            x.TotalAmount, x.TotalOrderedQuantity, x.TotalAllocatedQuantity)).ToList();
+            x.TotalAmount, x.TotalOrderedQuantity, x.TotalAllocatedQuantity,
+            x.TotalPickedQuantity, x.TotalOrderedQuantity - x.TotalPickedQuantity)).ToList();
 
         return new PagedResult<SalesOrderListDto>(items, totalCount, request.PageNumber, request.PageSize);
     }

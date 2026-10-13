@@ -9,6 +9,8 @@ public sealed record SalesOrderAllocationDetailsDto(
     string LocationName,
     string? LocationBarcode,
     decimal Quantity,
+    decimal QuantityPicked,
+    decimal RemainingQuantity,
     string Status,
     string CreatedBy,
     DateTime CreatedOnUtc,
@@ -23,6 +25,7 @@ public sealed record SalesOrderLineDetailsDto(
     string ProductName,
     decimal Quantity,
     decimal QuantityAllocated,
+    decimal QuantityPicked,
     decimal RemainingQuantity,
     decimal UnitPrice,
     decimal LineTotal,
@@ -47,6 +50,10 @@ public sealed record SalesOrderDetailsDto(
     string? LastModifiedByFullName,
     string RowVersion,
     decimal TotalAmount,
+    decimal TotalOrderedQuantity,
+    decimal TotalPickedQuantity,
+    decimal TotalRemainingQuantity,
+    decimal TotalAllocatedQuantity,
     List<SalesOrderLineDetailsDto> Lines);
 
 public sealed record GetSalesOrderByIdQuery(int Id) : IRequest<SalesOrderDetailsDto>;
@@ -109,7 +116,6 @@ internal sealed class GetSalesOrderByIdQueryHandler(IWmsDbContext context, ITena
                 ProductName = product.Name,
                 line.Quantity,
                 line.QuantityAllocated,
-                RemainingQuantity = line.Quantity - line.QuantityAllocated,
                 line.UnitPrice,
                 LineTotal = line.Quantity * line.UnitPrice
             }).ToListAsync(cancellationToken);
@@ -143,22 +149,46 @@ internal sealed class GetSalesOrderByIdQueryHandler(IWmsDbContext context, ITena
                     allocation.ReleaseReason
                 }).ToListAsync(cancellationToken);
 
+        var pickedRows = await (
+            from pickupLine in context.SalesOrderPickupLines.AsNoTracking()
+            join allocation in context.SalesOrderAllocations.AsNoTracking()
+                on pickupLine.SalesOrderAllocationId equals allocation.Id
+            join orderLine in context.SalesOrderLines.AsNoTracking()
+                on allocation.SalesOrderLineId equals orderLine.Id
+            where orderLine.SalesOrderId == header.Id
+            group pickupLine by allocation.Id into grouped
+            select new { AllocationId = grouped.Key, Quantity = grouped.Sum(item => item.Quantity) }
+        ).ToListAsync(cancellationToken);
+        var pickedByAllocation = pickedRows.ToDictionary(row => row.AllocationId, row => row.Quantity);
+        var pickedByLine = allocationRows.GroupBy(row => row.SalesOrderLineId)
+            .ToDictionary(group => group.Key,
+                group => group.Sum(allocation => pickedByAllocation.GetValueOrDefault(allocation.Id)));
+
         var allocationsByLine = allocationRows
             .GroupBy(allocation => allocation.SalesOrderLineId)
             .ToDictionary(group => group.Key, group => group.Select(allocation =>
                 new SalesOrderAllocationDetailsDto(
                     allocation.Id, allocation.StockLevelId, allocation.LocationId,
                     allocation.LocationName, allocation.LocationBarcode,
-                    allocation.Quantity, allocation.Status.ToString(),
+                    allocation.Quantity,
+                    pickedByAllocation.GetValueOrDefault(allocation.Id),
+                    allocation.Quantity - pickedByAllocation.GetValueOrDefault(allocation.Id),
+                    allocation.Status.ToString(),
                     allocation.CreatedBy, allocation.CreatedOnUtc,
                     allocation.ReleasedBy, allocation.ReleasedOnUtc,
                     allocation.ReleaseReason)).ToList());
 
         var lines = lineRows.Select(line => new SalesOrderLineDetailsDto(
             line.Id, line.ProductId, line.ProductSku, line.ProductName,
-            line.Quantity, line.QuantityAllocated, line.RemainingQuantity,
+            line.Quantity, line.QuantityAllocated,
+            pickedByLine.GetValueOrDefault(line.Id),
+            line.Quantity - pickedByLine.GetValueOrDefault(line.Id),
             line.UnitPrice, line.LineTotal,
             allocationsByLine.GetValueOrDefault(line.Id) ?? [])).ToList();
+
+        var totalOrdered = lines.Sum(line => line.Quantity);
+        var totalPicked = lines.Sum(line => line.QuantityPicked);
+        var totalAllocated = lines.Sum(line => line.QuantityAllocated);
 
         var actorIds = new[] { header.CreatedBy, header.LastModifiedBy }
             .Select(value => int.TryParse(value, System.Globalization.NumberStyles.None,
@@ -193,6 +223,7 @@ internal sealed class GetSalesOrderByIdQueryHandler(IWmsDbContext context, ITena
             header.CreatedBy, ResolveActorName(header.CreatedBy) ?? header.CreatedBy,
             header.LastModifiedOnUtc, header.LastModifiedBy,
             ResolveActorName(header.LastModifiedBy),
-            Convert.ToBase64String(header.RowVersion), header.TotalAmount, lines);
+            Convert.ToBase64String(header.RowVersion), header.TotalAmount,
+            totalOrdered, totalPicked, totalOrdered - totalPicked, totalAllocated, lines);
     }
 }

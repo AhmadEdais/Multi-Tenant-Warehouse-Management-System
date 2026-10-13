@@ -30,7 +30,7 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
         builder.Property(m => m.SalesOrderPickupLineId)
             .IsRequired(false);
 
-        builder.HasOne<SalesOrderPickupLine>().WithMany()
+        builder.HasOne(m => m.SalesOrderPickupLine).WithMany()
             .HasForeignKey(m => m.SalesOrderPickupLineId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("FK_StockMovements_SalesOrderPickupLines");
