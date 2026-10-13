@@ -121,4 +121,23 @@ public sealed class SalesOrder : IMustBelongToTenant
         LastModifiedBy = modifiedBy;
         LastModifiedOnUtc = modifiedOnUtc;
     }
+
+    public void Cancel(string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (Status is not (SalesOrderStatus.Draft or SalesOrderStatus.Allocated))
+            throw new InvalidOperationException("Only a draft or allocated Sales Order can be canceled.");
+        if (Status == SalesOrderStatus.Draft && _lines.Any(line =>
+                line.QuantityAllocated != 0 || line.Allocations.Count != 0))
+            throw new InvalidOperationException("A draft Sales Order with reservations cannot be canceled.");
+        if (Status == SalesOrderStatus.Allocated && (_lines.Count == 0 || _lines.Any(line =>
+                line.QuantityAllocated != 0 || line.Allocations.Any(allocation =>
+                    allocation.Status == SalesOrderAllocationStatus.Active))))
+            throw new InvalidOperationException("All Sales Order reservations must be released before cancellation.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        Status = SalesOrderStatus.Canceled;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
+    }
 }

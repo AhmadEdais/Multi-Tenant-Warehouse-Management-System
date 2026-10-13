@@ -76,4 +76,19 @@ public class OutboundController(ISender sender) : ControllerBase
         await sender.Send(new ApproveSalesOrderCommand(id));
         return NoContent();
     }
+
+    [HttpPost("sales-orders/{id:int}/cancel")]
+    [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CancelSalesOrder(int id)
+    {
+        await sender.Send(new CancelSalesOrderCommand(id));
+        return NoContent();
+    }
 }

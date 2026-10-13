@@ -96,6 +96,20 @@ public sealed class StockLevel : IMustBelongToTenant
         LastModifiedOnUtc = modifiedOnUtc;
     }
 
+    public void Release(decimal quantity, string modifiedBy, DateTime modifiedOnUtc)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Release quantity must be positive.", nameof(quantity));
+        if (quantity > QuantityAllocated)
+            throw new InvalidOperationException("Cannot release more than is currently allocated.");
+        if (string.IsNullOrWhiteSpace(modifiedBy) || modifiedBy.Length > 128)
+            throw new ArgumentException("Modifier is required and cannot exceed 128 characters.", nameof(modifiedBy));
+
+        QuantityAllocated -= quantity;
+        LastModifiedBy = modifiedBy;
+        LastModifiedOnUtc = modifiedOnUtc;
+    }
+
     public void Ship(decimal quantity)
     {
         if (quantity <= 0)

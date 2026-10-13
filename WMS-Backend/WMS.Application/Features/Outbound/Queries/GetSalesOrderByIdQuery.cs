@@ -9,7 +9,12 @@ public sealed record SalesOrderAllocationDetailsDto(
     string LocationName,
     string? LocationBarcode,
     decimal Quantity,
-    DateTime CreatedOnUtc);
+    string Status,
+    string CreatedBy,
+    DateTime CreatedOnUtc,
+    string? ReleasedBy,
+    DateTime? ReleasedOnUtc,
+    string? ReleaseReason);
 
 public sealed record SalesOrderLineDetailsDto(
     long Id,
@@ -130,7 +135,12 @@ internal sealed class GetSalesOrderByIdQueryHandler(IWmsDbContext context, ITena
                     LocationName = location.Name,
                     LocationBarcode = location.Barcode,
                     allocation.Quantity,
-                    allocation.CreatedOnUtc
+                    allocation.Status,
+                    allocation.CreatedBy,
+                    allocation.CreatedOnUtc,
+                    allocation.ReleasedBy,
+                    allocation.ReleasedOnUtc,
+                    allocation.ReleaseReason
                 }).ToListAsync(cancellationToken);
 
         var allocationsByLine = allocationRows
@@ -139,7 +149,10 @@ internal sealed class GetSalesOrderByIdQueryHandler(IWmsDbContext context, ITena
                 new SalesOrderAllocationDetailsDto(
                     allocation.Id, allocation.StockLevelId, allocation.LocationId,
                     allocation.LocationName, allocation.LocationBarcode,
-                    allocation.Quantity, allocation.CreatedOnUtc)).ToList());
+                    allocation.Quantity, allocation.Status.ToString(),
+                    allocation.CreatedBy, allocation.CreatedOnUtc,
+                    allocation.ReleasedBy, allocation.ReleasedOnUtc,
+                    allocation.ReleaseReason)).ToList());
 
         var lines = lineRows.Select(line => new SalesOrderLineDetailsDto(
             line.Id, line.ProductId, line.ProductSku, line.ProductName,

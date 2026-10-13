@@ -1,3 +1,4 @@
+using WMS.Domain.Enums;
 using WMS.Domain.Interfaces;
 
 namespace WMS.Domain.Entities;
@@ -62,5 +63,20 @@ public sealed class SalesOrderLine : IMustBelongToTenant
         stock.Reserve(quantity, actor, allocatedOnUtc);
         QuantityAllocated += quantity;
         _allocations.Add(SalesOrderAllocation.Create(TenantId, stock.Id, quantity, actor, allocatedOnUtc));
+    }
+
+    public void ReleaseAllocation(SalesOrderAllocation allocation, string actor,
+        DateTime releasedOnUtc, string reason)
+    {
+        ArgumentNullException.ThrowIfNull(allocation);
+        if (!_allocations.Contains(allocation) || allocation.SalesOrderLineId != Id || allocation.TenantId != TenantId)
+            throw new InvalidOperationException("The allocation does not belong to this Sales Order line.");
+        if (allocation.Status != SalesOrderAllocationStatus.Active)
+            throw new InvalidOperationException("Only an active Sales Order allocation can be released.");
+        if (allocation.Quantity > QuantityAllocated)
+            throw new InvalidOperationException("Allocation release exceeds the line's reserved quantity.");
+
+        allocation.Release(actor, releasedOnUtc, reason);
+        QuantityAllocated -= allocation.Quantity;
     }
 }
