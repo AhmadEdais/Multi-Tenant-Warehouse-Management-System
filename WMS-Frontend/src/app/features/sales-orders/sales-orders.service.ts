@@ -40,4 +40,8 @@ export class SalesOrdersService {
   approveSalesOrder(id: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${id}/approve`, null);
   }
+
+  cancelSalesOrder(id: number): Observable<void> {
+    return this.http.post<void>(`${this.url}/${id}/cancel`, null);
+  }
 }

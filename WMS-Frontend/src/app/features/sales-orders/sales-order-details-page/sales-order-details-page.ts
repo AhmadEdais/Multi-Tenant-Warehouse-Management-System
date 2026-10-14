@@ -5,6 +5,7 @@ import {
   computed,
   DestroyRef,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   signal,
@@ -54,10 +55,17 @@ export class SalesOrderDetailsPage implements OnInit {
   private readonly reload$ = new Subject<void>();
   private readonly availabilityCheck$ = new Subject<SalesOrderDetails | null>();
   private approvalTrigger: HTMLElement | null = null;
+  private cancelTrigger: HTMLElement | null = null;
   private activeRouteId: string | null = null;
   private refreshApprovalAfterReload = false;
 
   @ViewChild('salesOrdersBack') private backLink?: ElementRef<HTMLAnchorElement>;
+  @ViewChild('cancelDialog') private cancelDialog?: ElementRef<HTMLElement>;
+
+  @ViewChild('keepOrderButton')
+  set keepOrderButton(button: ElementRef<HTMLButtonElement> | undefined) {
+    button?.nativeElement.focus();
+  }
 
   readonly order = signal<SalesOrderDetails | null>(null);
   readonly loading = signal(true);
@@ -65,6 +73,11 @@ export class SalesOrderDetailsPage implements OnInit {
   readonly error = signal<string | null>(null);
   readonly created = signal(false);
   readonly approved = signal(false);
+  readonly canceled = signal(false);
+  readonly pendingCancel = signal(false);
+  readonly canceling = signal(false);
+  readonly cancelError = signal<string | null>(null);
+  readonly cancelActionError = signal<string | null>(null);
   readonly approvalOrder = signal<SalesOrderDetails | null>(null);
   readonly approvalAvailability = signal<SalesOrderAvailabilityResult | null>(null);
   readonly checkingApprovalAvailability = signal(false);
@@ -82,13 +95,21 @@ export class SalesOrderDetailsPage implements OnInit {
       !this.auth.hasRole('SystemAdmin') &&
       this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
   );
+  readonly canCancel = computed(
+    () =>
+      (this.order()?.status === 'Draft' || this.order()?.status === 'Allocated') &&
+      !this.auth.hasRole('SystemAdmin') &&
+      this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
+  );
+  readonly actionBusy = computed(() => this.approving() || this.canceling());
   readonly canConfirmApproval = computed(() => {
     const order = this.order();
     const result = this.approvalAvailability();
     return (
       this.canEdit() &&
       !this.loading() &&
-      !this.approving() &&
+      !this.actionBusy() &&
+      !this.pendingCancel() &&
       !this.checkingApprovalAvailability() &&
       !this.approvalAvailabilityError() &&
       !this.approvalError() &&
@@ -172,7 +193,11 @@ export class SalesOrderDetailsPage implements OnInit {
             this.resetApproval();
             this.approved.set(false);
             this.approvalActionError.set(null);
+            this.canceled.set(false);
+            this.cancelActionError.set(null);
           }
+          this.pendingCancel.set(false);
+          this.cancelError.set(null);
           this.loading.set(true);
           this.order.set(null);
           this.notFound.set(false);
@@ -224,7 +249,14 @@ export class SalesOrderDetailsPage implements OnInit {
 
   openApproval(event: Event): void {
     const order = this.order();
-    if (!order || !this.canEdit() || this.approving() || this.approvalOrder()) return;
+    if (
+      !order ||
+      !this.canEdit() ||
+      this.actionBusy() ||
+      this.approvalOrder() ||
+      this.pendingCancel()
+    )
+      return;
     this.approvalTrigger = event.currentTarget as HTMLElement;
     this.approvalError.set(null);
     this.approvalNotice.set(null);
@@ -259,7 +291,13 @@ export class SalesOrderDetailsPage implements OnInit {
 
   confirmApproval(): void {
     const order = this.order();
-    if (!order || order.id !== this.approvalOrder()?.id || !this.canConfirmApproval()) return;
+    if (
+      !order ||
+      order.id !== this.approvalOrder()?.id ||
+      !this.canConfirmApproval() ||
+      this.pendingCancel()
+    )
+      return;
     this.approving.set(true);
     this.approvalError.set(null);
     this.ordersService
@@ -300,6 +338,106 @@ export class SalesOrderDetailsPage implements OnInit {
           }
         },
       });
+  }
+
+  requestCancel(event: Event): void {
+    if (!this.canCancel() || this.actionBusy() || this.pendingCancel() || this.approvalOrder())
+      return;
+    this.cancelTrigger = event.currentTarget as HTMLElement;
+    this.cancelError.set(null);
+    this.cancelActionError.set(null);
+    this.pendingCancel.set(true);
+  }
+
+  closeCancel(): void {
+    if (this.canceling()) return;
+    this.pendingCancel.set(false);
+    this.cancelError.set(null);
+    queueMicrotask(() => {
+      if (this.cancelTrigger?.isConnected) this.cancelTrigger.focus();
+      else this.backLink?.nativeElement.focus();
+    });
+  }
+
+  trapCancelTab(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    const buttons = Array.from(
+      this.cancelDialog?.nativeElement.querySelectorAll<HTMLButtonElement>(
+        'button:not([disabled])',
+      ) ?? [],
+    );
+    if (!buttons.length) {
+      keyboardEvent.preventDefault();
+      this.cancelDialog?.nativeElement.focus();
+      return;
+    }
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (
+      keyboardEvent.shiftKey &&
+      (document.activeElement === first ||
+        document.activeElement === this.cancelDialog?.nativeElement)
+    ) {
+      keyboardEvent.preventDefault();
+      last.focus();
+    } else if (!keyboardEvent.shiftKey && document.activeElement === last) {
+      keyboardEvent.preventDefault();
+      first.focus();
+    }
+  }
+
+  confirmCancel(): void {
+    const order = this.order();
+    if (
+      !order ||
+      !this.pendingCancel() ||
+      !this.canCancel() ||
+      this.actionBusy() ||
+      this.approvalOrder()
+    )
+      return;
+    this.canceling.set(true);
+    this.cancelError.set(null);
+    queueMicrotask(() => this.cancelDialog?.nativeElement.focus());
+    this.ordersService
+      .cancelSalesOrder(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.canceling.set(false);
+          if (Number(this.activeRouteId) !== order.id) return;
+          this.closeCancel();
+          this.canceled.set(true);
+          this.reload$.next();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.canceling.set(false);
+          if (Number(this.activeRouteId) !== order.id) return;
+          if (error.status === 409) {
+            this.closeCancel();
+            this.reload$.next();
+            this.cancelActionError.set(
+              'This Sales Order or its reservations changed. Review the latest details before confirming cancellation again.',
+            );
+          } else if (error.status === 404) {
+            this.closeCancel();
+            this.reload$.next();
+          } else {
+            this.cancelError.set(
+              error.status === 400
+                ? 'This Sales Order cannot be canceled. Review its details and try again.'
+                : error.status === 401 || error.status === 403
+                  ? 'You are not authorized to cancel this Sales Order.'
+                  : 'Could not cancel this Sales Order. Please try again.',
+            );
+          }
+        },
+      });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.pendingCancel()) this.closeCancel();
   }
 
   private checkApprovalAvailability(order: SalesOrderDetails): void {
