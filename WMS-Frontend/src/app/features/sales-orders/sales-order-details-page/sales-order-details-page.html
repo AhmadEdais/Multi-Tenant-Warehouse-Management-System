@@ -413,6 +413,10 @@
       }
     </section>
 
+    @if (salesOrder.status === 'Picked' || salesOrder.status === 'Shipped') {
+      <app-sales-order-pickup-history [orderId]="salesOrder.id" />
+    }
+
     <section
       class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
       aria-labelledby="so-audit-heading"
