@@ -34,6 +34,7 @@ import {
 import { CONFIRM_OUTBOUND_PICKUP_ROLES, MANAGE_OUTBOUND_ROLES } from '../permissions';
 import { SalesOrderApprovalDialogComponent } from '../sales-order-approval-dialog/sales-order-approval-dialog';
 import { SalesOrderPickupDialogComponent } from '../sales-order-pickup-dialog/sales-order-pickup-dialog';
+import { SalesOrderPickupHistoryComponent } from '../sales-order-pickup-history/sales-order-pickup-history';
 import { SalesOrderStatusBadge } from '../sales-order-status-badge/sales-order-status-badge';
 import { SalesOrdersService } from '../sales-orders.service';
 
@@ -45,6 +46,7 @@ import { SalesOrdersService } from '../sales-orders.service';
     RouterLink,
     SalesOrderApprovalDialogComponent,
     SalesOrderPickupDialogComponent,
+    SalesOrderPickupHistoryComponent,
     SalesOrderStatusBadge,
   ],
   templateUrl: './sales-order-details-page.html',

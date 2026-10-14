@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../../shared/models/paged-result';
 import { CreateSalesOrderPickupRequest, CreateSalesOrderRequest, ListSalesOrdersParams, SalesOrderAvailabilityRequest, SalesOrderAvailabilityResult, SalesOrderDetails, SalesOrderListItem, SalesOrderPickupResult, UpdateSalesOrderRequest } from './models/sales-order';
+import { SalesOrderPickup } from './models/sales-order-pickup';
 
 @Injectable({ providedIn: 'root' })
 export class SalesOrdersService {
@@ -47,5 +48,9 @@ export class SalesOrdersService {
 
   createSalesOrderPickup(id: number, request: CreateSalesOrderPickupRequest): Observable<SalesOrderPickupResult> {
     return this.http.post<SalesOrderPickupResult>(`${this.url}/${id}/pickups`, request);
+  }
+
+  getSalesOrderPickups(id: number): Observable<SalesOrderPickup[]> {
+    return this.http.get<SalesOrderPickup[]>(`${this.url}/${id}/pickups`);
   }
 }
