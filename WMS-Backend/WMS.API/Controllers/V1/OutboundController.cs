@@ -74,6 +74,20 @@ public class OutboundController(ISender sender) : ControllerBase
         return Ok(await sender.Send(command));
     }
 
+    [HttpPost("sales-orders/availability-check")]
+    [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
+    [ProducesResponseType(typeof(SalesOrderAvailabilityResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CheckSalesOrderAvailability(
+        [FromBody] CheckSalesOrderAvailabilityQuery query)
+    {
+        return Ok(await sender.Send(query));
+    }
+
     [HttpPut("sales-orders/{id:int}")]
     [Authorize(Policy = SecurityPolicies.CanManageOutbound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
