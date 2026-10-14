@@ -1,6 +1,17 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, effect, input, OnInit, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormArray,
@@ -10,9 +21,26 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { startWith } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  map,
+  merge,
+  of,
+  startWith,
+  Subject,
+  switchMap,
+  tap,
+  timer,
+} from 'rxjs';
 import { ProductListItem } from '../../products/models/product';
 import { ProductPickerComponent } from '../../purchase-orders/product-picker/product-picker';
+import {
+  SalesOrderAvailabilityRequest,
+  SalesOrderAvailabilityResult,
+  SalesOrderLineAvailability,
+} from '../models/sales-order';
+import { SalesOrdersService } from '../sales-orders.service';
 
 export interface SalesOrderFormOption {
   id: number;
@@ -107,6 +135,9 @@ const newLine = (value?: SalesOrderFormLineValue): LineForm =>
   templateUrl: './sales-order-form.html',
 })
 export class SalesOrderFormComponent implements OnInit {
+  private readonly ordersService = inject(SalesOrdersService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly availabilityRetry$ = new Subject<void>();
   readonly mode = input<'create' | 'edit'>('create');
   readonly orderNumber = input<string | null>(null);
   readonly initialValue = input<SalesOrderFormInitialValue | null>(null);
@@ -126,6 +157,12 @@ export class SalesOrderFormComponent implements OnInit {
 
   readonly selectedProducts = signal(new Map<LineForm, SelectedProduct>());
   readonly selectedLine = signal<LineForm | null>(null);
+  readonly availability = signal<SalesOrderAvailabilityResult | null>(null);
+  readonly checkingAvailability = signal(false);
+  readonly availabilityError = signal<string | null>(null);
+  readonly hasShortages = computed(
+    () => this.availability()?.lines.some((line) => !line.hasSufficientStock) ?? false,
+  );
   private pickerTrigger: HTMLElement | null = null;
 
   readonly form = new FormGroup({
@@ -173,21 +210,74 @@ export class SalesOrderFormComponent implements OnInit {
 
   ngOnInit(): void {
     const initial = this.initialValue();
-    if (!initial) return;
-
-    this.form.patchValue({
-      customerId: initial.customerId,
-      warehouseId: initial.warehouseId,
-      requestedShipmentDate: initial.requestedShipmentDate?.slice(0, 10) ?? '',
-    });
-    this.lines.clear();
-    const selected = new Map<LineForm, SelectedProduct>();
-    for (const item of initial.lines) {
-      const line = newLine(item);
-      this.lines.push(line);
-      selected.set(line, { id: item.productId, sku: item.productSku, name: item.productName });
+    if (initial) {
+      this.form.patchValue({
+        customerId: initial.customerId,
+        warehouseId: initial.warehouseId,
+        requestedShipmentDate: initial.requestedShipmentDate?.slice(0, 10) ?? '',
+      });
+      this.lines.clear();
+      const selected = new Map<LineForm, SelectedProduct>();
+      for (const item of initial.lines) {
+        const line = newLine(item);
+        this.lines.push(line);
+        selected.set(line, { id: item.productId, sku: item.productSku, name: item.productName });
+      }
+      this.selectedProducts.set(selected);
     }
-    this.selectedProducts.set(selected);
+
+    merge(
+      this.form.controls.warehouseId.valueChanges.pipe(map(() => false)),
+      this.lines.valueChanges.pipe(map(() => false)),
+      this.availabilityRetry$.pipe(map(() => true)),
+    )
+      .pipe(
+        startWith(false),
+        map((retry) => ({
+          key: this.availabilityKey(),
+          request: this.availabilityRequest(),
+          retry,
+        })),
+        distinctUntilChanged((previous, current) => previous.key === current.key && !current.retry),
+        tap(({ request }) => {
+          this.availability.set(null);
+          this.availabilityError.set(null);
+          this.checkingAvailability.set(request !== null);
+        }),
+        switchMap(({ request }) =>
+          request
+            ? timer(400).pipe(
+                switchMap(() => this.ordersService.checkAvailability(request)),
+                catchError((error: HttpErrorResponse) => {
+                  this.availabilityError.set(
+                    error.status === 401 || error.status === 403
+                      ? 'You are not authorized to check stock availability.'
+                      : 'Could not check stock availability. You can still save this draft.',
+                  );
+                  return of(null);
+                }),
+              )
+            : of(null),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => {
+        this.availability.set(result);
+        this.checkingAvailability.set(false);
+      });
+  }
+
+  retryAvailability(): void {
+    this.availabilityRetry$.next();
+  }
+
+  lineAvailability(line: LineForm): SalesOrderLineAvailability | undefined {
+    if (this.availability()?.warehouseId !== this.form.controls.warehouseId.value) return undefined;
+    const productId = line.controls.productId.value;
+    const quantity = line.controls.quantity.value;
+    return this.availability()?.lines.find(
+      (item) => item.productId === productId && item.requestedQuantity === quantity,
+    );
   }
 
   addLine(): void {
@@ -218,9 +308,12 @@ export class SalesOrderFormComponent implements OnInit {
   selectProduct(product: ProductListItem): void {
     const line = this.selectedLine();
     if (!line || !this.lines.controls.includes(line) || !product.isActive) return;
-    if (this.lines.controls.some(
-      (other) => other !== line && other.controls.productId.value === product.id,
-    )) return;
+    if (
+      this.lines.controls.some(
+        (other) => other !== line && other.controls.productId.value === product.id,
+      )
+    )
+      return;
 
     if (line.controls.productId.value !== product.id) {
       line.controls.productId.setValue(product.id);
@@ -277,8 +370,41 @@ export class SalesOrderFormComponent implements OnInit {
 
   private calculateLineTotal(line: LineForm): number {
     const { quantity, unitPrice } = line.getRawValue();
-    return quantity !== null && unitPrice !== null &&
-      Number.isFinite(quantity) && Number.isFinite(unitPrice)
-      ? quantity * unitPrice : 0;
+    return quantity !== null &&
+      unitPrice !== null &&
+      Number.isFinite(quantity) &&
+      Number.isFinite(unitPrice)
+      ? quantity * unitPrice
+      : 0;
+  }
+
+  private availabilityKey(): string {
+    return JSON.stringify({
+      warehouseId: this.form.controls.warehouseId.value,
+      lines: this.lines.getRawValue().map(({ productId, quantity }) => ({ productId, quantity })),
+    });
+  }
+
+  private availabilityRequest(): SalesOrderAvailabilityRequest | null {
+    const warehouse = this.form.controls.warehouseId;
+    if (!warehouse.valid || warehouse.value === null) return null;
+
+    const counts = new Map<number, number>();
+    for (const line of this.lines.controls) {
+      const id = line.controls.productId.value;
+      if (id !== null) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    const lines = this.lines.controls.flatMap((line) => {
+      const productId = line.controls.productId.value;
+      const quantity = line.controls.quantity.value;
+      return line.controls.productId.valid &&
+        line.controls.quantity.valid &&
+        productId !== null &&
+        quantity !== null &&
+        counts.get(productId) === 1
+        ? [{ productId, quantity }]
+        : [];
+    });
+    return lines.length ? { warehouseId: warehouse.value, lines } : null;
   }
 }

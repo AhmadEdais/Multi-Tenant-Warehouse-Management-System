@@ -43,6 +43,25 @@ export interface CreateSalesOrderRequest {
 
 export type UpdateSalesOrderRequest = CreateSalesOrderRequest;
 
+export interface SalesOrderAvailabilityRequest {
+  warehouseId: number;
+  lines: { productId: number; quantity: number }[];
+}
+
+export interface SalesOrderLineAvailability {
+  productId: number;
+  requestedQuantity: number;
+  availableQuantity: number;
+  shortageQuantity: number;
+  hasSufficientStock: boolean;
+}
+
+export interface SalesOrderAvailabilityResult {
+  warehouseId: number;
+  allLinesSufficient: boolean;
+  lines: SalesOrderLineAvailability[];
+}
+
 export type SalesOrderAllocationStatus = 'Active' | 'Released' | 'Shipped';
 
 export interface SalesOrderAllocationDetails {
