@@ -127,6 +127,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'sales-orders',
+        canActivate: [roleGuard],
+        data: { roles: ['TenantAdmin', 'WarehouseManager', 'WarehouseOperator', 'Analyst'] },
+        loadComponent: () =>
+          import('./features/sales-orders/sales-orders-page/sales-orders-page').then(
+            (m) => m.SalesOrdersPage,
+          ),
+      },
+      {
         path: 'purchase-orders/new',
         canActivate: [roleGuard],
         data: { roles: MANAGE_INBOUND_ROLES },
