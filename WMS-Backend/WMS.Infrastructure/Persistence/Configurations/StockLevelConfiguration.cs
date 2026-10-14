@@ -8,6 +8,7 @@ internal sealed class StockLevelConfiguration : IEntityTypeConfiguration<StockLe
         {
             t.HasCheckConstraint("CHK_StockLevels_QuantityOnHand", "[QuantityOnHand] >= 0");
             t.HasCheckConstraint("CHK_StockLevels_QuantityAllocated", "[QuantityAllocated] >= 0");
+            t.HasCheckConstraint("CHK_StockLevels_AllocatedWithinOnHand", "[QuantityAllocated] <= [QuantityOnHand]");
         });
 
         builder.HasKey(s => s.Id);

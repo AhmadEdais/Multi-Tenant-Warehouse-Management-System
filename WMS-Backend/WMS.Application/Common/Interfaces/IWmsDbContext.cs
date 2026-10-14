@@ -20,6 +20,12 @@ public interface IWmsDbContext
     DbSet<PurchaseOrder> PurchaseOrders { get; }
     DbSet<PurchaseOrderSequence> PurchaseOrderSequences { get; }
     DbSet<PurchaseOrderLine> PurchaseOrderLines { get; }
+    DbSet<SalesOrder> SalesOrders { get; }
+    DbSet<SalesOrderLine> SalesOrderLines { get; }
+    DbSet<SalesOrderAllocation> SalesOrderAllocations { get; }
+    DbSet<SalesOrderPickup> SalesOrderPickups { get; }
+    DbSet<SalesOrderPickupLine> SalesOrderPickupLines { get; }
+    DbSet<SalesOrderSequence> SalesOrderSequences { get; }
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

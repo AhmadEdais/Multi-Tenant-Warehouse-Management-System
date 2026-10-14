@@ -1,0 +1,512 @@
+<div class="space-y-5">
+  <a
+    #salesOrdersBack
+    routerLink="/sales-orders"
+    class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+  >
+    <span aria-hidden="true">←</span> Sales Orders
+  </a>
+
+  @if (loading()) {
+    <section
+      role="status"
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      Loading Sales Order...
+    </section>
+  } @else if (notFound()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <h2 class="text-xl font-bold text-[#14243b]">Sales Order not found</h2>
+      <p class="mt-2 text-sm text-[#647590]">
+        This Sales Order is not available in your workspace.
+      </p>
+    </section>
+  } @else if (error()) {
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    >
+      <p role="alert" class="text-sm text-[#b4232d]">{{ error() }}</p>
+      <button
+        type="button"
+        (click)="retry()"
+        class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (order(); as salesOrder) {
+    <header class="flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Sales Order {{ salesOrder.orderNumber }}
+      </h2>
+      <app-sales-order-status-badge [status]="salesOrder.status" />
+      @if (canEdit() || canCancel() || canPickup()) {
+        <div class="ml-auto flex flex-wrap gap-2">
+          @if (canEdit()) {
+            <a
+              [routerLink]="['/sales-orders', salesOrder.id, 'edit']"
+              [attr.aria-disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              [attr.tabindex]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen() ? -1 : null"
+              [style.pointer-events]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen() ? 'none' : null"
+              class="inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            >
+              Edit Draft
+            </a>
+            <button
+              type="button"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              (click)="openApproval($event)"
+              class="inline-flex min-h-10 items-center rounded-md border border-[#2458c5] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Approve Draft
+            </button>
+          }
+          @if (canPickup()) {
+            <button
+              type="button"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              (click)="openPickup($event)"
+              class="inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Confirm Pickup
+            </button>
+          }
+          @if (canCancel()) {
+            <button
+              type="button"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              (click)="requestCancel($event)"
+              class="inline-flex min-h-10 items-center rounded-md border border-[#e4b9bc] px-4 text-sm font-semibold text-[#b4232d] hover:bg-[#fff5f5] focus-visible:outline-2 focus-visible:outline-[#b4232d] disabled:opacity-50"
+            >
+              {{ canceling() ? 'Canceling...' : 'Cancel Order' }}
+            </button>
+          }
+        </div>
+      }
+    </header>
+
+    @if (created()) {
+      <div
+        role="status"
+        class="flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]"
+      >
+        <span>Sales Order draft created successfully.</span>
+        <button
+          type="button"
+          aria-label="Dismiss success message"
+          (click)="created.set(false)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
+          Dismiss
+        </button>
+      </div>
+    }
+    @if (approved()) {
+      <div
+        role="status"
+        class="flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]"
+      >
+        <span>Sales Order approved and stock allocated successfully.</span>
+        <button
+          type="button"
+          aria-label="Dismiss approval message"
+          (click)="approved.set(false)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
+          Dismiss
+        </button>
+      </div>
+    }
+    @if (canceled()) {
+      <div role="status"
+        class="flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]">
+        <span>Sales Order canceled successfully.</span>
+        <button type="button" aria-label="Dismiss cancellation message" (click)="canceled.set(false)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]">Dismiss</button>
+      </div>
+    }
+    @if (pickupSuccess()) {
+      <div role="status" class="flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]">
+        <span>{{ pickupSuccess() }}</span>
+        <button type="button" aria-label="Dismiss pickup message" (click)="pickupSuccess.set(null)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]">Dismiss</button>
+      </div>
+    }
+    @if (pickupActionError()) {
+      <p role="alert" class="rounded-md border border-[#f1dfb3] bg-[#fffaf0] px-4 py-3 text-sm text-[#8b5b12]">{{ pickupActionError() }}</p>
+    }
+    @if (cancelActionError()) {
+      <p role="alert" class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]">
+        {{ cancelActionError() }}
+      </p>
+    }
+    @if (approvalActionError()) {
+      <p
+        role="alert"
+        class="rounded-md border border-[#f1dfb3] bg-[#fffaf0] px-4 py-3 text-sm text-[#8b5b12]"
+      >
+        {{ approvalActionError() }}
+      </p>
+    }
+
+    <div class="grid gap-4 lg:grid-cols-3">
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="so-order-info"
+      >
+        <h3 id="so-order-info" class="text-sm font-bold text-[#14243b]">Order Information</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Order Number</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ salesOrder.orderNumber }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Status</dt>
+            <dd class="mt-1 text-[#30435f]">{{ salesOrder.status }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Created</dt>
+            <dd class="mt-1 text-[#30435f]">{{ salesOrder.createdOnUtc | date: 'mediumDate' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Requested Shipment</dt>
+            <dd class="mt-1 text-[#30435f]">
+              {{
+                salesOrder.requestedShipmentDate
+                  ? (salesOrder.requestedShipmentDate | date: 'mediumDate')
+                  : '—'
+              }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="so-customer-info"
+      >
+        <h3 id="so-customer-info" class="text-sm font-bold text-[#14243b]">Customer</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Customer Name</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ salesOrder.customerName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Customer Code</dt>
+            <dd class="mt-1 text-[#30435f]">{{ salesOrder.customerCode }}</dd>
+          </div>
+        </dl>
+      </section>
+      <section
+        class="rounded-md border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="so-warehouse-info"
+      >
+        <h3 id="so-warehouse-info" class="text-sm font-bold text-[#14243b]">Warehouse</h3>
+        <dl class="mt-4 space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#647590]">Warehouse Name</dt>
+            <dd class="mt-1 font-semibold text-[#20324d]">{{ salesOrder.warehouseName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[#647590]">Warehouse Code</dt>
+            <dd class="mt-1 text-[#30435f]">{{ salesOrder.warehouseCode }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <section
+      aria-label="Sales Order totals"
+      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+    >
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Total Amount</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ salesOrder.totalAmount | number: '1.2-4' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Ordered Quantity</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ salesOrder.totalOrderedQuantity | number: '1.0-2' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Currently Allocated</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ salesOrder.totalAllocatedQuantity | number: '1.0-2' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Picked Quantity</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ salesOrder.totalPickedQuantity | number: '1.0-2' }}
+        </p>
+      </div>
+      <div
+        class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      >
+        <p class="text-xs font-semibold text-[#647590]">Unfulfilled Quantity</p>
+        <p class="mt-2 text-xl font-bold tabular-nums text-[#14243b]">
+          {{ salesOrder.totalRemainingQuantity | number: '1.0-2' }}
+        </p>
+      </div>
+    </section>
+    @if (salesOrder.status === 'Canceled') {
+      <p class="text-sm text-[#647590]">
+        Unfulfilled quantities on a canceled order are no longer reserved for pickup.
+      </p>
+    }
+
+    <section
+      class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="so-lines-heading"
+    >
+      <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+        <h3 id="so-lines-heading" class="text-base font-bold text-[#14243b]">Order Lines</h3>
+      </header>
+      <div class="max-w-full overflow-x-auto p-5 sm:p-6">
+        <table class="w-full min-w-[1040px] border-collapse text-left text-sm">
+          <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+            <tr class="border-y border-[#dfe7f1]">
+              <th scope="col" class="px-4 py-4">SKU</th>
+              <th scope="col" class="px-4 py-4">Product</th>
+              <th scope="col" class="px-4 py-4 text-right">Ordered</th>
+              <th scope="col" class="px-4 py-4 text-right">Allocated</th>
+              <th scope="col" class="px-4 py-4 text-right">Picked</th>
+              <th scope="col" class="px-4 py-4 text-right">Unfulfilled</th>
+              <th scope="col" class="px-4 py-4 text-right">Unit Price</th>
+              <th scope="col" class="px-4 py-4 text-right">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of salesOrder.lines; track line.id) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ line.productSku }}</td>
+                <td class="px-4 py-4 text-[#30435f]">{{ line.productName }}</td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.quantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.quantityAllocated | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.quantityPicked | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.remainingQuantity | number: '1.0-2' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                  {{ line.unitPrice | number: '1.2-4' }}
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums font-semibold text-[#20324d]">
+                  {{ line.lineTotal | number: '1.2-4' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="px-4 py-10 text-center text-[#52647e]">
+                  No lines on this Sales Order.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      aria-labelledby="so-allocations-heading"
+    >
+      <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+        <h3 id="so-allocations-heading" class="text-base font-bold text-[#14243b]">Allocations</h3>
+        @if (allocationCount() > 0) {
+          <p class="mt-1 text-xs text-[#647590]">
+            Original allocation quantities and pickup progress by Bin. Released quantities are no
+            longer reserved.
+          </p>
+        }
+      </header>
+      @if (allocationCount() === 0) {
+        <p class="px-5 py-10 text-center text-sm text-[#52647e] sm:px-6">
+          {{
+            salesOrder.status === 'Draft'
+              ? 'No stock has been allocated to this draft.'
+              : 'No allocations recorded for this Sales Order.'
+          }}
+        </p>
+      } @else {
+        <div class="max-w-full overflow-x-auto p-5 sm:p-6">
+          <table class="w-full min-w-[900px] border-collapse text-left text-sm">
+            <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+              <tr class="border-y border-[#dfe7f1]">
+                <th scope="col" class="px-4 py-4">Product</th>
+                <th scope="col" class="px-4 py-4">Bin / Location</th>
+                <th scope="col" class="px-4 py-4 text-right">Original</th>
+                <th scope="col" class="px-4 py-4 text-right">Picked</th>
+                <th scope="col" class="px-4 py-4 text-right">Unpicked</th>
+                <th scope="col" class="px-4 py-4">Status</th>
+                <th scope="col" class="px-4 py-4">Release</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of salesOrder.lines; track line.id) {
+                @for (allocation of line.allocations; track allocation.id) {
+                  <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                    <td class="px-4 py-4">
+                      <span class="block font-semibold text-[#182a43]">{{ line.productSku }}</span>
+                      <span class="block text-xs text-[#647590]">{{ line.productName }}</span>
+                    </td>
+                    <td class="px-4 py-4 text-[#30435f]">
+                      <span class="block font-medium">{{ allocation.locationName }}</span>
+                      @if (allocation.locationBarcode) {
+                        <span class="block text-xs text-[#647590]">{{
+                          allocation.locationBarcode
+                        }}</span>
+                      }
+                    </td>
+                    <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                      {{ allocation.quantity | number: '1.0-2' }}
+                    </td>
+                    <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                      {{ allocation.quantityPicked | number: '1.0-2' }}
+                    </td>
+                    <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
+                      {{ allocation.remainingQuantity | number: '1.0-2' }}
+                    </td>
+                    <td class="px-4 py-4">
+                      <span
+                        class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold"
+                        [class]="allocationStatusClasses[allocation.status]"
+                      >
+                        {{ allocation.status }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-xs text-[#647590]">
+                      @if (allocation.releasedOnUtc) {
+                        <span class="block">{{
+                          allocation.releasedOnUtc | date: 'mediumDate'
+                        }}</span>
+                        @if (allocation.releaseReason) {
+                          <span class="block">{{ allocation.releaseReason }}</span>
+                        }
+                      } @else {
+                        —
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section
+      class="rounded-md border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
+      aria-labelledby="so-audit-heading"
+    >
+      <h3 id="so-audit-heading" class="text-sm font-bold text-[#14243b]">Audit Information</h3>
+      <dl class="mt-4 grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+        <div>
+          <dt class="text-xs text-[#647590]">Created On</dt>
+          <dd class="mt-1 text-[#30435f]">{{ salesOrder.createdOnUtc | date: 'medium' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Created By</dt>
+          <dd class="mt-1 text-[#30435f]">{{ salesOrder.createdByFullName }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Last Modified On</dt>
+          <dd class="mt-1 text-[#30435f]">
+            {{
+              salesOrder.lastModifiedOnUtc ? (salesOrder.lastModifiedOnUtc | date: 'medium') : '—'
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-xs text-[#647590]">Last Modified By</dt>
+          <dd class="mt-1 text-[#30435f]">{{ salesOrder.lastModifiedByFullName || '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+  @if (approvalOrder(); as approvalDraft) {
+    <app-sales-order-approval-dialog
+      [order]="approvalDraft"
+      [availability]="approvalAvailability()"
+      [checking]="checkingApprovalAvailability()"
+      [approving]="approving()"
+      [canApprove]="canConfirmApproval()"
+      [error]="approvalError() || approvalAvailabilityError()"
+      [notice]="approvalNotice()"
+      (close)="closeApproval()"
+      (retry)="retryApprovalAvailability()"
+      (edit)="editFromApproval()"
+      (confirm)="confirmApproval()"
+    />
+  }
+  @if (pickupOpen()) {
+    @if (order(); as pickupOrder) {
+      <app-sales-order-pickup-dialog
+        [order]="pickupOrder"
+        (close)="closePickup()"
+        (completed)="onPickupCompleted($event)"
+        (conflict)="onPickupConflict()"
+        (unavailable)="onPickupUnavailable()"
+        (busyChange)="pickupBusy.set($event)"
+      />
+    }
+  }
+  @if (pendingCancel()) {
+    @if (order(); as cancellationOrder) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+        (click)="closeCancel()">
+        <section #cancelDialog role="alertdialog" aria-modal="true" aria-labelledby="so-cancel-title"
+          aria-describedby="so-cancel-description" [attr.aria-busy]="canceling()"
+          tabindex="-1" class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl outline-none"
+          (click)="$event.stopPropagation()" (keydown.tab)="trapCancelTab($event)">
+          <h3 id="so-cancel-title" class="text-lg font-bold text-[#14243b]">Cancel Sales Order?</h3>
+          <p class="mt-1 text-sm font-semibold text-[#30435f]">{{ cancellationOrder.orderNumber }}</p>
+          @if (cancellationOrder.status === 'Draft') {
+            <p id="so-cancel-description" class="mt-3 text-sm leading-6 text-[#52647e]">
+              Are you sure you want to cancel this draft Sales Order? No inventory has been reserved.
+            </p>
+          } @else {
+            <p id="so-cancel-description" class="mt-3 text-sm leading-6 text-[#52647e]">
+              This Sales Order has reserved inventory. Canceling it will release all reserved stock back to warehouse availability.
+            </p>
+            <p class="mt-3 text-sm font-semibold text-[#30435f]">
+              Currently allocated: {{ cancellationOrder.totalAllocatedQuantity | number: '1.0-2' }}
+            </p>
+          }
+          <p class="mt-3 text-sm font-semibold text-[#b4232d]">Cancellation cannot be undone.</p>
+          @if (cancelError()) {
+            <p role="alert" class="mt-3 text-sm text-[#b4232d]">{{ cancelError() }}</p>
+          }
+          <div class="mt-6 flex flex-wrap justify-end gap-3">
+            <button #keepOrderButton type="button" [disabled]="canceling()" (click)="closeCancel()"
+              class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
+              Keep Order
+            </button>
+            <button type="button" [disabled]="canceling()" (click)="confirmCancel()"
+              class="min-h-10 rounded-md bg-[#b4232d] px-4 text-sm font-semibold text-white hover:bg-[#951e26] focus-visible:outline-2 focus-visible:outline-[#b4232d] disabled:opacity-50">
+              {{ canceling() ? 'Canceling...' : cancellationOrder.status === 'Allocated' ? 'Cancel & Release Stock' : 'Cancel Order' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+  }
+</div>

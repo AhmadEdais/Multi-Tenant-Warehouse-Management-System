@@ -1,0 +1,190 @@
+<section
+  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  aria-labelledby="sales-orders-heading"
+>
+  <header class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+    <div>
+      <h2 id="sales-orders-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Sales Orders
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">
+        Monitor customer orders and outbound fulfillment progress.
+      </p>
+    </div>
+    @if (canCreate()) {
+      <a routerLink="/sales-orders/new"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Create Draft
+      </a>
+    }
+  </header>
+
+  <div class="px-5 pb-6 pt-5 sm:px-6">
+    <div class="mb-5 flex flex-wrap items-start gap-3">
+      <label class="relative min-w-0 flex-[1_1_240px] sm:max-w-[460px]" for="sales-order-search">
+        <span class="sr-only">Search sales orders</span>
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" stroke-linecap="round" />
+        </svg>
+        <input
+          id="sales-order-search" type="search" [value]="search()" (input)="onSearchInput($event)"
+          placeholder="Search sales orders..."
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        />
+      </label>
+
+      <label class="relative min-w-0 flex-[1_1_150px] sm:max-w-[180px]" for="sales-order-status">
+        <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]">Status</span>
+        <select
+          id="sales-order-status" [value]="status() ?? ''" (change)="onStatusChange($event)"
+          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+        >
+          <option value="">All statuses</option>
+          <option value="Draft">Draft</option>
+          <option value="Allocated">Allocated</option>
+          <option value="Picked">Picked</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Canceled">Canceled</option>
+        </select>
+      </label>
+
+      <div class="min-w-0 flex-[1_1_175px] sm:max-w-[230px]">
+        <label class="relative block" for="sales-order-customer">
+          <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]">Customer</span>
+          <select
+            id="sales-order-customer" [value]="customerId() ?? ''" (change)="onCustomerChange($event)"
+            [disabled]="customersLoading() || customersError()"
+            class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+          >
+            <option value="">{{ customersLoading() ? 'Loading customers...' : 'All customers' }}</option>
+            @for (customer of customers(); track customer.id) {
+              <option [value]="customer.id">{{ customer.name }} ({{ customer.code }})</option>
+            }
+          </select>
+        </label>
+        @if (customersError()) {
+          <button type="button" (click)="loadCustomers()"
+            class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+            Could not load customers. Retry
+          </button>
+        }
+      </div>
+
+      @if (canListWarehouses) {
+        <div class="min-w-0 flex-[1_1_175px] sm:max-w-[230px]">
+          <label class="relative block" for="sales-order-warehouse">
+            <span class="pointer-events-none absolute left-3 top-1 text-[11px] text-[#52647e]">Warehouse</span>
+            <select
+              id="sales-order-warehouse" [value]="warehouseId() ?? ''" (change)="onWarehouseChange($event)"
+              [disabled]="warehousesLoading() || warehousesError()"
+              class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+            >
+              <option value="">{{ warehousesLoading() ? 'Loading warehouses...' : 'All warehouses' }}</option>
+              @for (warehouse of warehouses(); track warehouse.id) {
+                <option [value]="warehouse.id">{{ warehouse.name }} ({{ warehouse.code }})</option>
+              }
+            </select>
+          </label>
+          @if (warehousesError()) {
+            <button type="button" (click)="loadWarehouses()"
+              class="mt-1 text-xs font-semibold text-[#b4232d] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+              Could not load warehouses. Retry
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <table class="w-full min-w-[1040px] border-collapse text-left text-sm">
+        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+          <tr class="border-b border-[#dfe7f1]">
+            <th scope="col" class="px-4 py-4">Order Number</th>
+            <th scope="col" class="px-4 py-4">Customer</th>
+            <th scope="col" class="px-4 py-4">Warehouse</th>
+            <th scope="col" class="px-4 py-4">Status</th>
+            <th scope="col" class="px-4 py-4">Fulfillment quantities</th>
+            <th scope="col" class="px-4 py-4 text-right">Total</th>
+            <th scope="col" class="px-4 py-4">Created</th>
+            <th scope="col" class="px-4 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="8" role="status" class="px-4 py-12 text-center text-[#52647e]">
+              Loading Sales Orders...
+            </td></tr>
+          } @else if (error()) {
+            <tr><td colspan="8" class="px-4 py-12 text-center">
+              <p role="alert" class="text-[#b4232d]">{{ error() }}</p>
+              <button type="button" (click)="retry()"
+                class="mt-3 font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+                Try again
+              </button>
+            </td></tr>
+          } @else if (orders().length === 0) {
+            <tr><td colspan="8" class="px-4 py-12 text-center text-[#52647e]">
+              {{ hasFilters() ? 'No Sales Orders match your filters.' : 'No Sales Orders found.' }}
+            </td></tr>
+          } @else {
+            @for (order of orders(); track order.id) {
+              <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
+                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ order.orderNumber }}</td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  <span class="font-medium">{{ order.customerName }}</span>
+                  <span class="block text-xs text-[#697b96]">{{ order.customerCode }}</span>
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  <span class="font-medium">{{ order.warehouseName }}</span>
+                  <span class="block text-xs text-[#697b96]">{{ order.warehouseCode }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <app-sales-order-status-badge [status]="order.status" />
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-1 tabular-nums">
+                    <span><span class="text-xs text-[#697b96]">Ordered</span> {{ order.totalOrderedQuantity | number: '1.0-2' }}</span>
+                    <span><span class="text-xs text-[#697b96]">Allocated</span> {{ order.totalAllocatedQuantity | number: '1.0-2' }}</span>
+                    <span><span class="text-xs text-[#697b96]">Picked</span> {{ order.totalPickedQuantity | number: '1.0-2' }}</span>
+                    <span><span class="text-xs text-[#697b96]">Remaining</span> {{ order.totalRemainingQuantity | number: '1.0-2' }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4 text-right tabular-nums font-semibold text-[#20324d]">
+                  {{ order.totalAmount | number: '1.2-2' }}
+                </td>
+                <td class="px-4 py-4 text-[#30435f]">{{ order.createdOnUtc | date: 'mediumDate' }}</td>
+                <td class="px-4 py-4">
+                  <a [routerLink]="['/sales-orders', order.id]"
+                    [attr.aria-label]="'View Sales Order ' + order.orderNumber"
+                    class="inline-flex rounded-md border border-[#d8e2ef] px-3 py-1.5 text-xs font-semibold text-[#2458c5] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]">View</a>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
+      <span>Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} Sales Orders</span>
+      <div class="flex items-center gap-2" aria-label="Sales Order pages">
+        <button type="button" [disabled]="loading() || page() <= 1" (click)="goToPage(page() - 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
+          Previous
+        </button>
+        <span class="px-2 font-semibold text-[#30435f]">{{ page() }} / {{ pageCount() }}</span>
+        <button type="button" [disabled]="loading() || page() >= pageCount()" (click)="goToPage(page() + 1)"
+          class="min-h-9 rounded-md border border-[#d8e2ef] px-3 text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
+          Next
+        </button>
+      </div>
+    </footer>
+  </div>
+</section>

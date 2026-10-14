@@ -68,7 +68,9 @@
               <tr class="border-b border-[#dfe7f1]">
                 <th scope="col" class="px-4 py-3">SKU</th>
                 <th scope="col" class="px-4 py-3">Product</th>
-                <th scope="col" class="px-4 py-3 text-right">Current Unit Cost</th>
+                <th scope="col" class="px-4 py-3 text-right">
+                  {{ priceField() === 'unitPrice' ? 'Current Unit Price' : 'Current Unit Cost' }}
+                </th>
                 <th scope="col" class="px-4 py-3 text-right">Action</th>
               </tr>
             </thead>
@@ -78,7 +80,7 @@
                   <td class="px-4 py-3 font-semibold text-[#20324d]">{{ product.sku }}</td>
                   <td class="px-4 py-3 text-[#30435f]">{{ product.name }}</td>
                   <td class="px-4 py-3 text-right tabular-nums text-[#30435f]">
-                    {{ product.unitCost | number: '1.2-4' }}
+                    {{ (priceField() === 'unitPrice' ? product.unitPrice : product.unitCost) | number: '1.2-4' }}
                   </td>
                   <td class="px-4 py-3 text-right">
                     <button

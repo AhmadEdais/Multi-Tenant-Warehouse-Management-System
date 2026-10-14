@@ -25,6 +25,7 @@
     -- Critical Data Integrity Constraints
     CONSTRAINT [CHK_StockLevels_QuantityOnHand] CHECK ([QuantityOnHand] >= 0),
     CONSTRAINT [CHK_StockLevels_QuantityAllocated] CHECK ([QuantityAllocated] >= 0),
+    CONSTRAINT [CHK_StockLevels_AllocatedWithinOnHand] CHECK ([QuantityAllocated] <= [QuantityOnHand]),
     
     -- A product can only have ONE level record per physical bin
     CONSTRAINT [UQ_StockLevels_Tenant_Product_Location] UNIQUE ([TenantId], [ProductId], [LocationId])

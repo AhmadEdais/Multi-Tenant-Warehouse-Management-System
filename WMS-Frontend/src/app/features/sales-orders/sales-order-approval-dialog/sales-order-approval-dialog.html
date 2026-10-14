@@ -1,0 +1,144 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-[#081728]/55 p-4"
+  (click)="requestClose()"
+>
+  <section
+    #dialog
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="so-approve-title"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+    (keydown.tab)="trapTab($event)"
+    class="flex max-h-[calc(100vh-2rem)] w-full max-w-3xl flex-col rounded-lg bg-white shadow-xl outline-none"
+  >
+    <div class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+      <h3 id="so-approve-title" class="text-lg font-bold text-[#14243b]">Approve Sales Order?</h3>
+      <p class="mt-1 text-sm text-[#52647e]">
+        {{ order().orderNumber }} · {{ order().customerName }} · {{ order().warehouseName }}
+      </p>
+    </div>
+
+    <div class="min-h-0 overflow-y-auto px-5 py-5 sm:px-6">
+      @if (checking()) {
+        <p role="status" class="py-8 text-center text-sm text-[#52647e]">
+          Checking available stock...
+        </p>
+      } @else if (availability(); as result) {
+        <div class="max-w-full overflow-x-auto">
+          <table class="w-full min-w-[620px] border-collapse text-left text-sm">
+            <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
+              <tr class="border-y border-[#dfe7f1]">
+                <th scope="col" class="px-3 py-3">Product</th>
+                <th scope="col" class="px-3 py-3 text-right">Requested</th>
+                <th scope="col" class="px-3 py-3 text-right">Available</th>
+                <th scope="col" class="px-3 py-3 text-right">Shortage</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of order().lines; track line.id) {
+                <tr class="border-b border-[#e2e9f2]">
+                  <td class="px-3 py-3">
+                    <span class="block font-semibold text-[#182a43]">{{ line.productSku }}</span>
+                    <span class="block text-xs text-[#647590]">{{ line.productName }}</span>
+                  </td>
+                  <td class="px-3 py-3 text-right tabular-nums">
+                    {{ line.quantity | number: '1.0-2' }}
+                  </td>
+                  @if (availabilityFor(line.productId); as stock) {
+                    <td class="px-3 py-3 text-right tabular-nums">
+                      {{ stock.availableQuantity | number: '1.0-2' }}
+                    </td>
+                    <td
+                      class="px-3 py-3 text-right tabular-nums"
+                      [class.text-[#b4232d]]="stock.shortageQuantity > 0"
+                    >
+                      {{ stock.shortageQuantity | number: '1.0-2' }}
+                    </td>
+                  } @else {
+                    <td colspan="2" class="px-3 py-3 text-right text-[#b4232d]">
+                      Availability unavailable
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (result.allLinesSufficient) {
+          <p
+            role="status"
+            class="mt-4 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]"
+          >
+            All lines have sufficient available stock. Approval will reserve inventory from eligible
+            Bins.
+          </p>
+        } @else {
+          <p
+            role="alert"
+            class="mt-4 rounded-md border border-[#f1dfb3] bg-[#fffaf0] px-4 py-3 text-sm text-[#8b5b12]"
+          >
+            This order cannot be fully allocated with the current stock. Edit the draft or check
+            again after stock changes.
+          </p>
+        }
+      }
+      @if (error()) {
+        <div
+          role="alert"
+          class="mt-4 rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]"
+        >
+          {{ error() }}
+        </div>
+      }
+      @if (notice()) {
+        <p
+          role="status"
+          class="mt-4 rounded-md border border-[#f1dfb3] bg-[#fffaf0] px-4 py-3 text-sm text-[#8b5b12]"
+        >
+          {{ notice() }}
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 border-t border-[#e3eaf3] px-5 py-4 sm:px-6">
+      @if (!checking() && !approving()) {
+        <button
+          type="button"
+          (click)="retry.emit()"
+          class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
+          {{ error() ? 'Retry check' : 'Refresh stock' }}
+        </button>
+      }
+      @if (availability(); as result) {
+        @if (!result.allLinesSufficient && !checking()) {
+          <button
+            type="button"
+            [disabled]="approving()"
+            (click)="edit.emit()"
+            class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+          >
+            Edit Draft
+          </button>
+        }
+      }
+      <button
+        type="button"
+        [disabled]="approving()"
+        (click)="requestClose()"
+        class="min-h-10 rounded-md border border-[#d8e2ef] px-4 text-sm font-semibold text-[#30435f] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        [disabled]="!canApprove() || checking() || approving()"
+        (click)="confirm.emit()"
+        class="min-h-10 rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+      >
+        {{ approving() ? 'Approving...' : 'Approve & Allocate' }}
+      </button>
+    </div>
+  </section>
+</div>

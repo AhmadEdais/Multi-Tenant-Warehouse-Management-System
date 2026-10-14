@@ -1,0 +1,42 @@
+<div class="space-y-5">
+  <button type="button" [disabled]="submitting()" (click)="cancel()"
+    class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
+    <span aria-hidden="true">←</span> Sales Orders
+  </button>
+
+  <header>
+    <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Create Sales Order</h2>
+    <p class="mt-1 text-sm text-[#647590]">Create a new customer order draft before allocation and fulfillment.</p>
+  </header>
+
+  @if (savedOrderId(); as id) {
+    <section role="status" class="rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-5 py-5 text-sm text-[#116b48]">
+      <p class="font-semibold">Sales Order draft saved.</p>
+      <p class="mt-1">{{ navigationFailed() ? 'Its details could not be opened automatically.' : 'Opening its details...' }}</p>
+      <a [routerLink]="['/sales-orders', id]" class="mt-3 inline-block font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+        Open Sales Order
+      </a>
+    </section>
+  } @else if (savedWithoutId()) {
+    <section role="status" class="rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-5 py-5 text-sm text-[#116b48]">
+      <p class="font-semibold">Sales Order draft saved.</p>
+      <p class="mt-1">The response did not include a valid order ID. Find the new draft in the Sales Orders list.</p>
+      <a routerLink="/sales-orders" class="mt-3 inline-block font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">Open Sales Orders</a>
+    </section>
+  } @else {
+    <app-sales-order-form
+      [customerOptions]="customerOptions()"
+      [warehouseOptions]="warehouseOptions()"
+      [customersLoading]="customersLoading()"
+      [warehousesLoading]="warehousesLoading()"
+      [customersError]="customersError()"
+      [warehousesError]="warehousesError()"
+      [submitting]="submitting()"
+      [submitError]="submitError()"
+      (retryCustomers)="loadCustomers()"
+      (retryWarehouses)="loadWarehouses()"
+      (save)="submit($event)"
+      (cancel)="cancel()"
+    />
+  }
+</div>
