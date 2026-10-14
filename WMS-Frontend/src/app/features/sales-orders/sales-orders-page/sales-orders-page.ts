@@ -24,11 +24,12 @@ import { Warehouse } from '../../warehouses/models/warehouse';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { SalesOrderListItem, SalesOrderStatus } from '../models/sales-order';
 import { MANAGE_OUTBOUND_ROLES } from '../permissions';
+import { SalesOrderStatusBadge } from '../sales-order-status-badge/sales-order-status-badge';
 import { SalesOrdersService } from '../sales-orders.service';
 
 @Component({
   selector: 'app-sales-orders-page',
-  imports: [DatePipe, DecimalPipe, RouterLink],
+  imports: [DatePipe, DecimalPipe, RouterLink, SalesOrderStatusBadge],
   templateUrl: './sales-orders-page.html',
 })
 export class SalesOrdersPage implements OnInit {
@@ -43,7 +44,6 @@ export class SalesOrdersPage implements OnInit {
   readonly canCreate = computed(
     () => !this.auth.hasRole('SystemAdmin') && this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
   );
-  readonly draftCreated = signal(history.state?.['salesOrderCreated'] === true);
   readonly canListWarehouses = this.auth.hasAnyRole([
     'TenantAdmin',
     'WarehouseManager',
@@ -67,14 +67,6 @@ export class SalesOrdersPage implements OnInit {
   readonly warehouses = signal<Warehouse[]>([]);
   readonly warehousesLoading = signal(false);
   readonly warehousesError = signal(false);
-
-  readonly statusClasses: Record<SalesOrderStatus, string> = {
-    Draft: 'bg-[#eef2f7] text-[#52647e]',
-    Allocated: 'bg-[#e7efff] text-[#2458c5]',
-    Picked: 'bg-[#fff2db] text-[#9a5a08]',
-    Shipped: 'bg-[#e1f7eb] text-[#116b48]',
-    Canceled: 'bg-[#ffe9e9] text-[#bd2d31]',
-  };
 
   readonly pageCount = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
   readonly firstItem = computed(() =>

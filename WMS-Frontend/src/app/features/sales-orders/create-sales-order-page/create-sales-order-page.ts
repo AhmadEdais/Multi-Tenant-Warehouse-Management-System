@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EMPTY, expand, map, reduce } from 'rxjs';
 import { Customer } from '../../customers/models/customer';
 import { CustomersService } from '../../customers/customers.service';
@@ -13,7 +13,7 @@ import { SalesOrdersService } from '../sales-orders.service';
 
 @Component({
   selector: 'app-create-sales-order-page',
-  imports: [SalesOrderFormComponent],
+  imports: [RouterLink, SalesOrderFormComponent],
   templateUrl: './create-sales-order-page.html',
 })
 export class CreateSalesOrderPage implements OnInit {
@@ -31,6 +31,9 @@ export class CreateSalesOrderPage implements OnInit {
   readonly warehousesError = signal(false);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
+  readonly savedOrderId = signal<number | null>(null);
+  readonly savedWithoutId = signal(false);
+  readonly navigationFailed = signal(false);
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -78,7 +81,7 @@ export class CreateSalesOrderPage implements OnInit {
   }
 
   submit(value: SalesOrderFormValue): void {
-    if (this.submitting()) return;
+    if (this.submitting() || this.savedOrderId() !== null || this.savedWithoutId()) return;
     const request: CreateSalesOrderRequest = value;
     this.submitError.set(null);
     this.submitting.set(true);
@@ -87,13 +90,17 @@ export class CreateSalesOrderPage implements OnInit {
       .subscribe({
         next: (id) => {
           if (!Number.isSafeInteger(id) || id <= 0) {
-            this.failSubmission('Draft was saved, but the response did not contain a valid Sales Order ID.');
+            this.savedWithoutId.set(true);
+            this.submitting.set(false);
             return;
           }
-          void this.router.navigateByUrl('/sales-orders', { state: { salesOrderCreated: true } })
+          this.savedOrderId.set(id);
+          this.submitting.set(false);
+          void this.router.navigate(['/sales-orders', id], { state: { salesOrderCreated: true } })
             .then((navigated) => {
-              if (!navigated) this.failSubmission('Draft was saved, but the Sales Orders list could not be opened.');
-            });
+              if (!navigated) this.navigationFailed.set(true);
+            })
+            .catch(() => this.navigationFailed.set(true));
         },
         error: (error: HttpErrorResponse) => {
           const message = error.status === 400
