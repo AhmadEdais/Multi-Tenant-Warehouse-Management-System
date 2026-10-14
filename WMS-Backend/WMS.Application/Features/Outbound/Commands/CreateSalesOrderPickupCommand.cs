@@ -62,8 +62,22 @@ internal sealed class CreateSalesOrderPickupCommandHandler(
         if (allocations.Count == 0 || allocations.Any(allocation => allocation.TenantId != tenantId))
             throw new ConflictException("Sales Order allocations are inconsistent.");
         var allocationById = allocations.ToDictionary(allocation => allocation.Id);
-        var allocationIds = allocationById.Keys.ToArray();
+        var pickedByAllocation = await LoadPickupHistoryAsync(
+            order.Id, tenantId, allocationById.Keys.ToArray(), cancellationToken);
+        var reservations = ValidateReservations(order, request.Lines, allocationById, pickedByAllocation);
+        var stockById = await LoadAndValidateStockAsync(
+            order, tenantId, request.Lines, reservations, cancellationToken);
+        var pickup = ExecutePickup(order, tenantId, actor, request, reservations, stockById);
 
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new SalesOrderPickupResultDto(pickup.Id, order.Id, order.Status.ToString(),
+            request.Lines.Sum(item => item.Quantity), order.Lines.Sum(line => line.QuantityAllocated));
+    }
+
+    private async Task<Dictionary<long, decimal>> LoadPickupHistoryAsync(
+        int orderId, int tenantId, long[] allocationIds, CancellationToken cancellationToken)
+    {
         // Read all historic quantities once, including any records whose pickup header is inconsistent.
         var history = await (
             from pickupLine in context.SalesOrderPickupLines.AsNoTracking()
@@ -81,10 +95,16 @@ internal sealed class CreateSalesOrderPickupCommandHandler(
                 groupRows.Key.TenantId,
                 Quantity = groupRows.Sum(row => row.pickupLine.Quantity)
             }).ToListAsync(cancellationToken);
-        if (history.Any(row => row.SalesOrderId != order.Id || row.TenantId != tenantId))
+        if (history.Any(row => row.SalesOrderId != orderId || row.TenantId != tenantId))
             throw new ConflictException("Sales Order pickup history is inconsistent.");
-        var pickedByAllocation = history.ToDictionary(row => row.SalesOrderAllocationId, row => row.Quantity);
+        return history.ToDictionary(row => row.SalesOrderAllocationId, row => row.Quantity);
+    }
 
+    private static ReservationData ValidateReservations(
+        SalesOrder order, List<CreateSalesOrderPickupLineDto> requestLines,
+        Dictionary<long, SalesOrderAllocation> allocationById,
+        Dictionary<long, decimal> pickedByAllocation)
+    {
         decimal totalPreviouslyPicked = 0;
         decimal totalRemaining = 0;
         foreach (var line in order.Lines)
@@ -123,21 +143,30 @@ internal sealed class CreateSalesOrderPickupCommandHandler(
         var lineByAllocation = order.Lines
             .SelectMany(line => line.Allocations.Select(allocation => new { allocation.Id, Line = line }))
             .ToDictionary(row => row.Id, row => row.Line);
-        foreach (var item in request.Lines)
+        foreach (var item in requestLines)
         {
             if (!allocationById.TryGetValue(item.SalesOrderAllocationId, out var allocation)
                 || allocation.Status != SalesOrderAllocationStatus.Active
                 || item.Quantity > allocation.Quantity - pickedByAllocation.GetValueOrDefault(allocation.Id))
                 throw new ConflictException("A pickup allocation is unavailable or its remaining quantity is insufficient.");
         }
-        foreach (var group in request.Lines.GroupBy(item => lineByAllocation[item.SalesOrderAllocationId].Id))
+        foreach (var group in requestLines.GroupBy(item => lineByAllocation[item.SalesOrderAllocationId].Id))
         {
             var line = order.Lines.Single(candidate => candidate.Id == group.Key);
             if (group.Sum(item => item.Quantity) > line.QuantityAllocated)
                 throw new ConflictException("Pickup exceeds the line's remaining reservation.");
         }
 
-        var stockIds = request.Lines.Select(item => allocationById[item.SalesOrderAllocationId].StockLevelId)
+        return new ReservationData(allocationById, lineByAllocation, pickedByAllocation);
+    }
+
+    private async Task<Dictionary<int, StockLevel>> LoadAndValidateStockAsync(
+        SalesOrder order, int tenantId, List<CreateSalesOrderPickupLineDto> requestLines,
+        ReservationData reservations, CancellationToken cancellationToken)
+    {
+        var allocationById = reservations.AllocationsById;
+        var lineByAllocation = reservations.LinesByAllocation;
+        var stockIds = requestLines.Select(item => allocationById[item.SalesOrderAllocationId].StockLevelId)
             .Distinct().ToArray();
         var stockRows = await (
             from stock in context.StockLevels
@@ -148,7 +177,7 @@ internal sealed class CreateSalesOrderPickupCommandHandler(
         if (stockRows.Count != stockIds.Length)
             throw new ConflictException("One or more reserved stock records are unavailable.");
         var stockById = stockRows.ToDictionary(row => row.Stock.Id);
-        foreach (var item in request.Lines)
+        foreach (var item in requestLines)
         {
             var allocation = allocationById[item.SalesOrderAllocationId];
             var row = stockById[allocation.StockLevelId];
@@ -158,35 +187,43 @@ internal sealed class CreateSalesOrderPickupCommandHandler(
                 || row.Location.LocationType != LocationTypes.Bin)
                 throw new ConflictException("Reserved stock does not belong to this product and warehouse Bin.");
         }
-        foreach (var group in request.Lines.GroupBy(item => allocationById[item.SalesOrderAllocationId].StockLevelId))
+        foreach (var group in requestLines.GroupBy(item => allocationById[item.SalesOrderAllocationId].StockLevelId))
         {
             var stock = stockById[group.Key].Stock;
             var quantity = group.Sum(item => item.Quantity);
             if (stock.QuantityAllocated < quantity || stock.QuantityOnHand < quantity)
                 throw new ConflictException("Reserved physical stock is insufficient for this pickup.");
         }
+        return stockById.ToDictionary(row => row.Key, row => row.Value.Stock);
+    }
 
+    private SalesOrderPickup ExecutePickup(
+        SalesOrder order, int tenantId, string actor, CreateSalesOrderPickupCommand request,
+        ReservationData reservations, Dictionary<int, StockLevel> stockById)
+    {
         var now = DateTime.UtcNow;
         var pickup = SalesOrderPickup.Create(tenantId, order.Id, actor, now, request.ReceivedBy, request.Notes);
         context.SalesOrderPickups.Add(pickup);
         foreach (var item in request.Lines)
         {
-            var allocation = allocationById[item.SalesOrderAllocationId];
-            var line = lineByAllocation[allocation.Id];
-            var stock = stockById[allocation.StockLevelId].Stock;
+            var allocation = reservations.AllocationsById[item.SalesOrderAllocationId];
+            var line = reservations.LinesByAllocation[allocation.Id];
+            var stock = stockById[allocation.StockLevelId];
             var pickupLine = pickup.AddLine(allocation.Id, item.Quantity);
             stock.Ship(item.Quantity, actor, now);
             line.RecordPickup(allocation, item.Quantity);
-            if (pickedByAllocation.GetValueOrDefault(allocation.Id) + item.Quantity == allocation.Quantity)
+            if (reservations.PickedByAllocation.GetValueOrDefault(allocation.Id) + item.Quantity == allocation.Quantity)
                 allocation.MarkShipped();
             context.StockMovements.Add(StockMovement.CreatePickupShipment(
                 tenantId, line.ProductId, stock.LocationId, item.Quantity,
                 order.Id, pickupLine, actor, now));
         }
         order.UpdateFulfillmentStatus(actor, now);
-        await context.SaveChangesAsync(cancellationToken);
-
-        return new SalesOrderPickupResultDto(pickup.Id, order.Id, order.Status.ToString(),
-            request.Lines.Sum(item => item.Quantity), order.Lines.Sum(line => line.QuantityAllocated));
+        return pickup;
     }
+
+    private sealed record ReservationData(
+        Dictionary<long, SalesOrderAllocation> AllocationsById,
+        Dictionary<long, SalesOrderLine> LinesByAllocation,
+        Dictionary<long, decimal> PickedByAllocation);
 }
