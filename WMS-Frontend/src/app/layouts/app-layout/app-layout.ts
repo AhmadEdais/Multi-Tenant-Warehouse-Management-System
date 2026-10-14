@@ -160,11 +160,13 @@ export class AppLayout {
 
   readonly pageTitle = computed(() => {
     const path = this.routeUrl().split(/[?#]/, 1)[0];
+    if (path === '/sales-orders/new') return 'Create Sales Order';
     return (
       this.navigationItems().find(
         (item) =>
           item.route === path ||
-          (item.route === '/purchase-orders' && path.startsWith('/purchase-orders/')),
+          (item.route === '/purchase-orders' && path.startsWith('/purchase-orders/')) ||
+          (item.route === '/sales-orders' && path.startsWith('/sales-orders/')),
       )?.label ?? this.workspaceLabel()
     );
   });

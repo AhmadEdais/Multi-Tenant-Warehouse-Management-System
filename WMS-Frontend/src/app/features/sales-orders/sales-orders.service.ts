@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../../shared/models/paged-result';
-import { ListSalesOrdersParams, SalesOrderListItem } from './models/sales-order';
+import { CreateSalesOrderRequest, ListSalesOrdersParams, SalesOrderListItem } from './models/sales-order';
 
 @Injectable({ providedIn: 'root' })
 export class SalesOrdersService {
@@ -19,5 +19,9 @@ export class SalesOrdersService {
     if (params.customerId !== null) query = query.set('CustomerId', params.customerId);
     if (params.warehouseId !== null) query = query.set('WarehouseId', params.warehouseId);
     return this.http.get<PagedResult<SalesOrderListItem>>(this.url, { params: query });
+  }
+
+  createSalesOrder(request: CreateSalesOrderRequest): Observable<number> {
+    return this.http.post<number>(this.url, request);
   }
 }

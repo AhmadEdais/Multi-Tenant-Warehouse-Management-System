@@ -1,6 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import {
   catchError,
   debounceTime,
@@ -22,11 +23,12 @@ import { CustomersService } from '../../customers/customers.service';
 import { Warehouse } from '../../warehouses/models/warehouse';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { SalesOrderListItem, SalesOrderStatus } from '../models/sales-order';
+import { MANAGE_OUTBOUND_ROLES } from '../permissions';
 import { SalesOrdersService } from '../sales-orders.service';
 
 @Component({
   selector: 'app-sales-orders-page',
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, RouterLink],
   templateUrl: './sales-orders-page.html',
 })
 export class SalesOrdersPage implements OnInit {
@@ -38,6 +40,10 @@ export class SalesOrdersPage implements OnInit {
   private readonly searchInput$ = new Subject<string>();
   private readonly reload$ = new Subject<void>();
 
+  readonly canCreate = computed(
+    () => !this.auth.hasRole('SystemAdmin') && this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
+  );
+  readonly draftCreated = signal(history.state?.['salesOrderCreated'] === true);
   readonly canListWarehouses = this.auth.hasAnyRole([
     'TenantAdmin',
     'WarehouseManager',

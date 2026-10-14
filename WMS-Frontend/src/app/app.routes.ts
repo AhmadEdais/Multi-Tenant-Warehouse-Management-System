@@ -4,6 +4,7 @@ import { guestGuard } from './features/auth/guest-guard';
 import { roleGuard } from './features/auth/role.guard';
 import { MANAGE_INBOUND_ROLES } from './features/purchase-orders/permissions';
 import { PUTAWAY_ROLES } from './features/putaway/permissions';
+import { MANAGE_OUTBOUND_ROLES } from './features/sales-orders/permissions';
 export const routes: Routes = [
   // -----------------------
   // PUBLIC WEBSITE
@@ -124,6 +125,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/purchase-orders/purchase-orders-page/purchase-orders-page').then(
             (m) => m.PurchaseOrdersPage,
+          ),
+      },
+      {
+        path: 'sales-orders/new',
+        canActivate: [roleGuard],
+        data: { roles: MANAGE_OUTBOUND_ROLES },
+        loadComponent: () =>
+          import('./features/sales-orders/create-sales-order-page/create-sales-order-page').then(
+            (m) => m.CreateSalesOrderPage,
           ),
       },
       {

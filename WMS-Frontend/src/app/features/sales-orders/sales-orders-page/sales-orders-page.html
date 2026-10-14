@@ -2,16 +2,34 @@
   class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
   aria-labelledby="sales-orders-heading"
 >
-  <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
-    <h2 id="sales-orders-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-      Sales Orders
-    </h2>
-    <p class="mt-1 text-sm text-[#647590]">
-      Monitor customer orders and outbound fulfillment progress.
-    </p>
+  <header class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
+    <div>
+      <h2 id="sales-orders-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
+        Sales Orders
+      </h2>
+      <p class="mt-1 text-sm text-[#647590]">
+        Monitor customer orders and outbound fulfillment progress.
+      </p>
+    </div>
+    @if (canCreate()) {
+      <a routerLink="/sales-orders/new"
+        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+        </svg>
+        Create Draft
+      </a>
+    }
   </header>
 
   <div class="px-5 pb-6 pt-5 sm:px-6">
+    @if (draftCreated()) {
+      <div role="status" class="mb-5 flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]">
+        <span>Sales Order draft created successfully.</span>
+        <button type="button" aria-label="Dismiss success message" (click)="draftCreated.set(false)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]">Dismiss</button>
+      </div>
+    }
     <div class="mb-5 flex flex-wrap items-start gap-3">
       <label class="relative min-w-0 flex-[1_1_240px] sm:max-w-[460px]" for="sales-order-search">
         <span class="sr-only">Search sales orders</span>

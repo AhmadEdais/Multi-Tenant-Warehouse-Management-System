@@ -42,6 +42,7 @@ export class ProductPickerComponent implements OnInit, AfterViewInit {
 
   readonly currentProductId = input<number | null>(null);
   readonly unavailableProductIds = input<readonly number[]>([]);
+  readonly priceField = input<'unitCost' | 'unitPrice'>('unitCost');
   readonly selected = output<ProductListItem>();
   readonly close = output<void>();
 

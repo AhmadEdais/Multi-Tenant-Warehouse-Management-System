@@ -63,7 +63,7 @@
                 <a
                   [routerLink]="item.route"
                   routerLinkActive="bg-[#2459b6] text-white shadow-[0_4px_12px_rgba(7,32,79,0.24)]"
-                  [routerLinkActiveOptions]="{ exact: item.route !== '/purchase-orders' }"
+                  [routerLinkActiveOptions]="{ exact: item.route !== '/purchase-orders' && item.route !== '/sales-orders' }"
                   ariaCurrentWhenActive="page"
                   class="flex min-h-10 items-center gap-3 rounded-md px-3 text-[13px] font-semibold transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   (click)="closeSidebar()"

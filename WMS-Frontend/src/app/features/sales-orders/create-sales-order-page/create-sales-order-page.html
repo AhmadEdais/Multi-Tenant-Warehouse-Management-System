@@ -1,0 +1,26 @@
+<div class="space-y-5">
+  <button type="button" [disabled]="submitting()" (click)="cancel()"
+    class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
+    <span aria-hidden="true">←</span> Sales Orders
+  </button>
+
+  <header>
+    <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Create Sales Order</h2>
+    <p class="mt-1 text-sm text-[#647590]">Create a new customer order draft before allocation and fulfillment.</p>
+  </header>
+
+  <app-sales-order-form
+    [customerOptions]="customerOptions()"
+    [warehouseOptions]="warehouseOptions()"
+    [customersLoading]="customersLoading()"
+    [warehousesLoading]="warehousesLoading()"
+    [customersError]="customersError()"
+    [warehousesError]="warehousesError()"
+    [submitting]="submitting()"
+    [submitError]="submitError()"
+    (retryCustomers)="loadCustomers()"
+    (retryWarehouses)="loadWarehouses()"
+    (save)="submit($event)"
+    (cancel)="cancel()"
+  />
+</div>

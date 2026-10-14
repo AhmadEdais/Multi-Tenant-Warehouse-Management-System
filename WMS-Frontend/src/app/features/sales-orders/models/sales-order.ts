@@ -27,3 +27,16 @@ export interface ListSalesOrdersParams {
   pageNumber: number;
   pageSize: number;
 }
+
+export interface CreateSalesOrderLineRequest {
+  productId: number;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface CreateSalesOrderRequest {
+  customerId: number;
+  warehouseId: number;
+  requestedShipmentDate: string | null;
+  lines: CreateSalesOrderLineRequest[];
+}
