@@ -2,12 +2,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { EMPTY, expand, map, reduce } from 'rxjs';
-import { Customer } from '../../customers/models/customer';
 import { CustomersService } from '../../customers/customers.service';
 import { loadActiveWarehouseOptions } from '../../purchase-orders/purchase-order-form/form-options';
 import { WarehousesService } from '../../warehouses/warehouses.service';
 import { CreateSalesOrderRequest } from '../models/sales-order';
+import { loadActiveCustomerOptions } from '../sales-order-form/form-options';
 import { SalesOrderFormComponent, SalesOrderFormOption, SalesOrderFormValue } from '../sales-order-form/sales-order-form';
 import { SalesOrdersService } from '../sales-orders.service';
 
@@ -43,24 +42,18 @@ export class CreateSalesOrderPage implements OnInit {
   loadCustomers(): void {
     this.customersLoading.set(true);
     this.customersError.set(false);
-    this.customersService.list({ searchTerm: '', isActive: true, pageNumber: 1, pageSize: 100 }).pipe(
-      expand((page) => page.pageNumber * page.pageSize < page.totalCount
-        ? this.customersService.list({ searchTerm: '', isActive: true, pageNumber: page.pageNumber + 1, pageSize: 100 })
-        : EMPTY),
-      reduce((items, page) => items.concat(page.data), [] as Customer[]),
-      map((items) => items.filter((item) => item.isActive)
-        .map((item) => ({ id: item.id, label: `${item.code} — ${item.name}` }))),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (items) => {
-        this.customerOptions.set(items);
-        this.customersLoading.set(false);
-      },
-      error: () => {
-        this.customersLoading.set(false);
-        this.customersError.set(true);
-      },
-    });
+    loadActiveCustomerOptions(this.customersService)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (items) => {
+          this.customerOptions.set(items);
+          this.customersLoading.set(false);
+        },
+        error: () => {
+          this.customersLoading.set(false);
+          this.customersError.set(true);
+        },
+      });
   }
 
   loadWarehouses(): void {

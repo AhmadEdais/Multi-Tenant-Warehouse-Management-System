@@ -3,8 +3,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, combineLatest, distinctUntilChanged, map, of, startWith, Subject, switchMap } from 'rxjs';
+import { AuthService } from '../../auth/auth.services';
+import {
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { SalesOrderAllocationStatus, SalesOrderDetails } from '../models/sales-order';
+import { MANAGE_OUTBOUND_ROLES } from '../permissions';
 import { SalesOrderStatusBadge } from '../sales-order-status-badge/sales-order-status-badge';
 import { SalesOrdersService } from '../sales-orders.service';
 
@@ -16,6 +27,7 @@ import { SalesOrdersService } from '../sales-orders.service';
 export class SalesOrderDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly ordersService = inject(SalesOrdersService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload$ = new Subject<void>();
 
@@ -24,8 +36,14 @@ export class SalesOrderDetailsPage implements OnInit {
   readonly notFound = signal(false);
   readonly error = signal<string | null>(null);
   readonly created = signal(false);
-  readonly allocationCount = computed(() =>
-    this.order()?.lines.reduce((count, line) => count + line.allocations.length, 0) ?? 0,
+  readonly allocationCount = computed(
+    () => this.order()?.lines.reduce((count, line) => count + line.allocations.length, 0) ?? 0,
+  );
+  readonly canEdit = computed(
+    () =>
+      this.order()?.status === 'Draft' &&
+      !this.auth.hasRole('SystemAdmin') &&
+      this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
   );
   readonly allocationStatusClasses: Record<SalesOrderAllocationStatus, string> = {
     Active: 'bg-[#e7efff] text-[#2458c5]',
@@ -55,7 +73,12 @@ export class SalesOrderDetailsPage implements OnInit {
           this.notFound.set(false);
           this.error.set(null);
 
-          if (!rawId || !/^\d+$/.test(rawId) || !Number.isSafeInteger(Number(rawId)) || Number(rawId) <= 0) {
+          if (
+            !rawId ||
+            !/^\d+$/.test(rawId) ||
+            !Number.isSafeInteger(Number(rawId)) ||
+            Number(rawId) <= 0
+          ) {
             this.notFound.set(true);
             return of(null);
           }

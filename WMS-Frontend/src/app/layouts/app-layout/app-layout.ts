@@ -161,6 +161,7 @@ export class AppLayout {
   readonly pageTitle = computed(() => {
     const path = this.routeUrl().split(/[?#]/, 1)[0];
     if (path === '/sales-orders/new') return 'Create Sales Order';
+    if (/^\/sales-orders\/[^/]+\/edit$/.test(path)) return 'Edit Sales Order';
     return (
       this.navigationItems().find(
         (item) =>

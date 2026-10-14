@@ -28,6 +28,12 @@
         Sales Order {{ salesOrder.orderNumber }}
       </h2>
       <app-sales-order-status-badge [status]="salesOrder.status" />
+      @if (canEdit()) {
+        <a [routerLink]="['/sales-orders', salesOrder.id, 'edit']"
+          class="ml-auto inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+          Edit Draft
+        </a>
+      }
     </header>
 
     @if (created()) {

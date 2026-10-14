@@ -194,7 +194,7 @@
       <button type="submit"
         [disabled]="submitting() || customersLoading() || warehousesLoading() || customersError() || warehousesError()"
         class="min-h-11 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50">
-        {{ submitting() ? 'Saving Draft...' : mode() === 'edit' ? 'Save Changes' : 'Save Draft' }}
+        {{ submitting() ? (mode() === 'edit' ? 'Saving Changes...' : 'Saving Draft...') : mode() === 'edit' ? 'Save Changes' : 'Save Draft' }}
       </button>
     </div>
   </form>

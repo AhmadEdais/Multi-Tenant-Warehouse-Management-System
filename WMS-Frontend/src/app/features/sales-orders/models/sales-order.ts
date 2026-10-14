@@ -41,6 +41,8 @@ export interface CreateSalesOrderRequest {
   lines: CreateSalesOrderLineRequest[];
 }
 
+export type UpdateSalesOrderRequest = CreateSalesOrderRequest;
+
 export type SalesOrderAllocationStatus = 'Active' | 'Released' | 'Shipped';
 
 export interface SalesOrderAllocationDetails {
