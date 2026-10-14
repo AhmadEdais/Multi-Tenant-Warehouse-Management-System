@@ -120,3 +120,17 @@ export interface SalesOrderDetails {
   totalAllocatedQuantity: number;
   lines: SalesOrderLineDetails[];
 }
+
+export interface CreateSalesOrderPickupRequest {
+  receivedBy: string | null;
+  notes: string | null;
+  lines: { salesOrderAllocationId: number; quantity: number }[];
+}
+
+export interface SalesOrderPickupResult {
+  pickupId: number;
+  salesOrderId: number;
+  salesOrderStatus: SalesOrderStatus;
+  totalPickedQuantity: number;
+  remainingQuantity: number;
+}

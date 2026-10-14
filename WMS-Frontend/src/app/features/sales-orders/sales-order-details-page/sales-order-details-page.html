@@ -42,31 +42,41 @@
         Sales Order {{ salesOrder.orderNumber }}
       </h2>
       <app-sales-order-status-badge [status]="salesOrder.status" />
-      @if (canEdit() || canCancel()) {
+      @if (canEdit() || canCancel() || canPickup()) {
         <div class="ml-auto flex flex-wrap gap-2">
           @if (canEdit()) {
             <a
               [routerLink]="['/sales-orders', salesOrder.id, 'edit']"
-              [attr.aria-disabled]="actionBusy() || pendingCancel() || !!approvalOrder()"
-              [attr.tabindex]="actionBusy() || pendingCancel() || !!approvalOrder() ? -1 : null"
-              [style.pointer-events]="actionBusy() || pendingCancel() || !!approvalOrder() ? 'none' : null"
+              [attr.aria-disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              [attr.tabindex]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen() ? -1 : null"
+              [style.pointer-events]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen() ? 'none' : null"
               class="inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
             >
               Edit Draft
             </a>
             <button
               type="button"
-              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder()"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
               (click)="openApproval($event)"
               class="inline-flex min-h-10 items-center rounded-md border border-[#2458c5] px-4 text-sm font-semibold text-[#2458c5] hover:bg-[#eef4ff] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
             >
               Approve Draft
             </button>
           }
+          @if (canPickup()) {
+            <button
+              type="button"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
+              (click)="openPickup($event)"
+              class="inline-flex min-h-10 items-center rounded-md bg-[#2458c5] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-[#2458c5] disabled:opacity-50"
+            >
+              Confirm Pickup
+            </button>
+          }
           @if (canCancel()) {
             <button
               type="button"
-              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder()"
+              [disabled]="actionBusy() || pendingCancel() || !!approvalOrder() || pickupOpen()"
               (click)="requestCancel($event)"
               class="inline-flex min-h-10 items-center rounded-md border border-[#e4b9bc] px-4 text-sm font-semibold text-[#b4232d] hover:bg-[#fff5f5] focus-visible:outline-2 focus-visible:outline-[#b4232d] disabled:opacity-50"
             >
@@ -116,6 +126,16 @@
         <button type="button" aria-label="Dismiss cancellation message" (click)="canceled.set(false)"
           class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]">Dismiss</button>
       </div>
+    }
+    @if (pickupSuccess()) {
+      <div role="status" class="flex items-center justify-between gap-3 rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-4 py-3 text-sm text-[#116b48]">
+        <span>{{ pickupSuccess() }}</span>
+        <button type="button" aria-label="Dismiss pickup message" (click)="pickupSuccess.set(null)"
+          class="rounded-md px-2 py-1 font-semibold hover:bg-[#d8f2e3] focus-visible:outline-2 focus-visible:outline-[#2458c5]">Dismiss</button>
+      </div>
+    }
+    @if (pickupActionError()) {
+      <p role="alert" class="rounded-md border border-[#f1dfb3] bg-[#fffaf0] px-4 py-3 text-sm text-[#8b5b12]">{{ pickupActionError() }}</p>
     }
     @if (cancelActionError()) {
       <p role="alert" class="rounded-md border border-[#f1c5c7] bg-[#fff5f5] px-4 py-3 text-sm text-[#b4232d]">
@@ -436,6 +456,18 @@
       (edit)="editFromApproval()"
       (confirm)="confirmApproval()"
     />
+  }
+  @if (pickupOpen()) {
+    @if (order(); as pickupOrder) {
+      <app-sales-order-pickup-dialog
+        [order]="pickupOrder"
+        (close)="closePickup()"
+        (completed)="onPickupCompleted($event)"
+        (conflict)="onPickupConflict()"
+        (unavailable)="onPickupUnavailable()"
+        (busyChange)="pickupBusy.set($event)"
+      />
+    }
   }
   @if (pendingCancel()) {
     @if (order(); as cancellationOrder) {

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../../shared/models/paged-result';
-import { CreateSalesOrderRequest, ListSalesOrdersParams, SalesOrderAvailabilityRequest, SalesOrderAvailabilityResult, SalesOrderDetails, SalesOrderListItem, UpdateSalesOrderRequest } from './models/sales-order';
+import { CreateSalesOrderPickupRequest, CreateSalesOrderRequest, ListSalesOrdersParams, SalesOrderAvailabilityRequest, SalesOrderAvailabilityResult, SalesOrderDetails, SalesOrderListItem, SalesOrderPickupResult, UpdateSalesOrderRequest } from './models/sales-order';
 
 @Injectable({ providedIn: 'root' })
 export class SalesOrdersService {
@@ -43,5 +43,9 @@ export class SalesOrdersService {
 
   cancelSalesOrder(id: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${id}/cancel`, null);
+  }
+
+  createSalesOrderPickup(id: number, request: CreateSalesOrderPickupRequest): Observable<SalesOrderPickupResult> {
+    return this.http.post<SalesOrderPickupResult>(`${this.url}/${id}/pickups`, request);
   }
 }

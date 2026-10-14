@@ -29,9 +29,11 @@ import {
   SalesOrderAllocationStatus,
   SalesOrderAvailabilityResult,
   SalesOrderDetails,
+  SalesOrderPickupResult,
 } from '../models/sales-order';
-import { MANAGE_OUTBOUND_ROLES } from '../permissions';
+import { CONFIRM_OUTBOUND_PICKUP_ROLES, MANAGE_OUTBOUND_ROLES } from '../permissions';
 import { SalesOrderApprovalDialogComponent } from '../sales-order-approval-dialog/sales-order-approval-dialog';
+import { SalesOrderPickupDialogComponent } from '../sales-order-pickup-dialog/sales-order-pickup-dialog';
 import { SalesOrderStatusBadge } from '../sales-order-status-badge/sales-order-status-badge';
 import { SalesOrdersService } from '../sales-orders.service';
 
@@ -42,6 +44,7 @@ import { SalesOrdersService } from '../sales-orders.service';
     DecimalPipe,
     RouterLink,
     SalesOrderApprovalDialogComponent,
+    SalesOrderPickupDialogComponent,
     SalesOrderStatusBadge,
   ],
   templateUrl: './sales-order-details-page.html',
@@ -56,6 +59,7 @@ export class SalesOrderDetailsPage implements OnInit {
   private readonly availabilityCheck$ = new Subject<SalesOrderDetails | null>();
   private approvalTrigger: HTMLElement | null = null;
   private cancelTrigger: HTMLElement | null = null;
+  private pickupTrigger: HTMLElement | null = null;
   private activeRouteId: string | null = null;
   private refreshApprovalAfterReload = false;
 
@@ -86,6 +90,10 @@ export class SalesOrderDetailsPage implements OnInit {
   readonly approvalNotice = signal<string | null>(null);
   readonly approvalActionError = signal<string | null>(null);
   readonly approving = signal(false);
+  readonly pickupOpen = signal(false);
+  readonly pickupBusy = signal(false);
+  readonly pickupSuccess = signal<string | null>(null);
+  readonly pickupActionError = signal<string | null>(null);
   readonly allocationCount = computed(
     () => this.order()?.lines.reduce((count, line) => count + line.allocations.length, 0) ?? 0,
   );
@@ -101,7 +109,13 @@ export class SalesOrderDetailsPage implements OnInit {
       !this.auth.hasRole('SystemAdmin') &&
       this.auth.hasAnyRole(MANAGE_OUTBOUND_ROLES),
   );
-  readonly actionBusy = computed(() => this.approving() || this.canceling());
+  readonly canPickup = computed(
+    () =>
+      (this.order()?.status === 'Allocated' || this.order()?.status === 'Picked') &&
+      !this.auth.hasRole('SystemAdmin') &&
+      this.auth.hasAnyRole(CONFIRM_OUTBOUND_PICKUP_ROLES),
+  );
+  readonly actionBusy = computed(() => this.approving() || this.canceling() || this.pickupBusy());
   readonly canConfirmApproval = computed(() => {
     const order = this.order();
     const result = this.approvalAvailability();
@@ -195,7 +209,11 @@ export class SalesOrderDetailsPage implements OnInit {
             this.approvalActionError.set(null);
             this.canceled.set(false);
             this.cancelActionError.set(null);
+            this.pickupSuccess.set(null);
+            this.pickupActionError.set(null);
           }
+          this.pickupOpen.set(false);
+          this.pickupBusy.set(false);
           this.pendingCancel.set(false);
           this.cancelError.set(null);
           this.loading.set(true);
@@ -254,7 +272,8 @@ export class SalesOrderDetailsPage implements OnInit {
       !this.canEdit() ||
       this.actionBusy() ||
       this.approvalOrder() ||
-      this.pendingCancel()
+      this.pendingCancel() ||
+      this.pickupOpen()
     )
       return;
     this.approvalTrigger = event.currentTarget as HTMLElement;
@@ -341,7 +360,7 @@ export class SalesOrderDetailsPage implements OnInit {
   }
 
   requestCancel(event: Event): void {
-    if (!this.canCancel() || this.actionBusy() || this.pendingCancel() || this.approvalOrder())
+    if (!this.canCancel() || this.actionBusy() || this.pendingCancel() || this.approvalOrder() || this.pickupOpen())
       return;
     this.cancelTrigger = event.currentTarget as HTMLElement;
     this.cancelError.set(null);
@@ -393,7 +412,8 @@ export class SalesOrderDetailsPage implements OnInit {
       !this.pendingCancel() ||
       !this.canCancel() ||
       this.actionBusy() ||
-      this.approvalOrder()
+      this.approvalOrder() ||
+      this.pickupOpen()
     )
       return;
     this.canceling.set(true);
@@ -433,6 +453,44 @@ export class SalesOrderDetailsPage implements OnInit {
           }
         },
       });
+  }
+
+  openPickup(event: Event): void {
+    if (!this.canPickup() || this.actionBusy() || this.pendingCancel() || this.approvalOrder() || this.pickupOpen())
+      return;
+    this.pickupTrigger = event.currentTarget as HTMLElement;
+    this.pickupActionError.set(null);
+    this.pickupOpen.set(true);
+  }
+
+  closePickup(): void {
+    if (this.pickupBusy()) return;
+    this.pickupOpen.set(false);
+    queueMicrotask(() => {
+      if (this.pickupTrigger?.isConnected) this.pickupTrigger.focus();
+      else this.backLink?.nativeElement.focus();
+    });
+  }
+
+  onPickupCompleted(result: SalesOrderPickupResult): void {
+    if (Number(this.activeRouteId) !== result.salesOrderId) return;
+    this.closePickup();
+    this.pickupSuccess.set(`Pickup confirmed: ${result.totalPickedQuantity} units collected.`);
+    this.reload$.next();
+  }
+
+  onPickupConflict(): void {
+    this.closePickup();
+    this.pickupActionError.set(
+      'This Sales Order or its allocations changed. Review the refreshed quantities before confirming another pickup.',
+    );
+    this.reload$.next();
+  }
+
+  onPickupUnavailable(): void {
+    this.closePickup();
+    this.pickupActionError.set('The Sales Order or an allocation is no longer available. Review the refreshed details.');
+    this.reload$.next();
   }
 
   @HostListener('document:keydown.escape')
