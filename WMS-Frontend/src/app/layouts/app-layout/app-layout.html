@@ -286,13 +286,15 @@
           </button>
           <div class="min-w-0">
             <p
-              class="truncate text-[11px] font-semibold uppercase tracking-[0.13em] text-[#72829c]"
+              class="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#52647e]"
             >
               {{ workspaceLabel() }}
             </p>
-            <h1 class="truncate text-lg font-bold tracking-[-0.025em] text-[#14243b] sm:text-xl">
-              {{ pageTitle() }}
-            </h1>
+            @if (pageTitle() !== 'Users') {
+              <h1 class="sr-only">
+                {{ pageTitle() }}
+              </h1>
+            }
           </div>
         </div>
 
