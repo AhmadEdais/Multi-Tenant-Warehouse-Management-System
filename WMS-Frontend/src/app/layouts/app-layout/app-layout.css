@@ -1,0 +1,21 @@
+.sidebar-navigation {
+  scrollbar-width: thin;
+  scrollbar-color: #4b607d transparent;
+}
+
+.sidebar-navigation::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-navigation::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #4b607d;
+}
+
+.sidebar-navigation::-webkit-scrollbar-thumb:hover {
+  background: #617796;
+}

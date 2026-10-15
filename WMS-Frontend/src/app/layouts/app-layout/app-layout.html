@@ -11,7 +11,7 @@
 
     <aside
       id="app-sidebar"
-      class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#14243b] text-white shadow-xl transition-transform duration-200 md:sticky md:top-0 md:z-auto md:h-screen md:shrink-0 md:translate-x-0 md:shadow-none"
+      class="fixed inset-y-0 left-0 z-50 flex h-dvh w-64 flex-col overflow-hidden bg-[#14243b] text-white shadow-xl transition-transform duration-200 md:sticky md:top-0 md:z-auto md:shrink-0 md:translate-x-0 md:shadow-none"
       [class]="sidebarOpen() ? 'translate-x-0' : '-translate-x-full'"
       aria-label="Application navigation"
     >
@@ -51,7 +51,7 @@
         </button>
       </div>
 
-      <nav class="flex-1 overflow-y-auto px-3 py-6 text-[#c4d0e1]" aria-label="Workspace pages">
+      <nav class="sidebar-navigation min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-3 py-6 text-[#c4d0e1]" aria-label="Workspace pages">
         <p class="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#8ea4c1]">
           Navigation
         </p>
