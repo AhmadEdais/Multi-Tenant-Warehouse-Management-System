@@ -1,182 +1,190 @@
 @if (canUseDashboard()) {
-  <div class="space-y-7">
+  <div class="min-w-0 space-y-6 lg:space-y-7">
     <section
-      class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#d7e1ef] bg-white px-5 py-6 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-7"
+      class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-[#d7e1ef] pb-5"
       aria-labelledby="dashboard-welcome"
     >
-      <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#647590]">
-          {{ primaryRole() }} workspace
-        </p>
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-[#52647e]">{{ primaryRole() }} workspace</p>
         <h2
           id="dashboard-welcome"
-          class="mt-1 text-2xl font-bold tracking-[-0.035em] text-[#14243b] sm:text-3xl"
+          class="mt-1 text-2xl font-bold tracking-[-0.035em] text-[#14243b] sm:text-[28px]"
         >
           Welcome back, {{ firstName() }}!
         </h2>
-        <p class="mt-2 text-sm text-[#52647e]">Here's your warehouse workspace.</p>
+        <p class="mt-1.5 text-sm text-[#52647e]">Here's your warehouse workspace.</p>
       </div>
-      <p
-        class="rounded-md border border-[#dfe7f1] bg-[#f7f9fd] px-3 py-2 text-sm font-medium text-[#405573]"
-      >
+      <time class="text-sm font-medium text-[#52647e]" [attr.datetime]="today | date: 'yyyy-MM-dd'">
         {{ today | date: 'fullDate' }}
-      </p>
+      </time>
     </section>
 
-    <section aria-labelledby="dashboard-workspace-heading">
-      <div class="mb-4">
-        <h2 id="dashboard-workspace-heading" class="text-lg font-bold text-[#14243b]">
-          Your workspace
+    <div class="grid min-w-0 items-start gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <section
+        class="min-w-0 rounded-xl border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        aria-labelledby="dashboard-actions-heading"
+      >
+        <h2 id="dashboard-actions-heading" class="text-base font-bold text-[#14243b]">
+          Quick Actions
         </h2>
-        <p class="mt-1 text-sm text-[#647590]">Open the areas you use most.</p>
-      </div>
-      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        @for (link of workspaceLinks(); track link.route) {
-          <a
-            [routerLink]="link.route"
-            class="group flex min-w-0 items-start gap-4 rounded-xl border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] transition-colors hover:border-[#a8c1ed] hover:bg-[#fbfdff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-          >
-            <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
-              aria-hidden="true"
+        <p class="mt-1 text-sm text-[#647590]">Start a task or open a working queue.</p>
+        <div class="mt-4 grid gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
+          @for (action of quickActions(); track action.route) {
+            <a
+              [routerLink]="action.route"
+              class="inline-flex min-h-11 min-w-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              [class]="
+                action.primary
+                  ? 'bg-[#2458c5] text-white shadow-sm hover:bg-[#1b49a9]'
+                  : 'border border-[#d8e2ef] bg-white text-[#30435f] hover:bg-[#f2f6fb]'
+              "
             >
-              @switch (link.icon) {
-                @case ('inventory') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3M7 4h10" />
-                  </svg>
-                }
-                @case ('purchase-orders') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M6 3h9l4 4v14H6V3ZM15 3v5h4M9 12h7M9 16h7" />
-                  </svg>
-                }
-                @case ('sales-orders') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M4 4h10l3 3v4M4 4v16h9M14 4v4h3M7 12h6M7 16h4M14 16h7m0 0-3-3m3 3-3 3"
-                    />
-                  </svg>
-                }
-                @case ('putaway') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M3 5h7v7H3V5Zm11 7h7v7h-7v-7ZM7 16h5m0 0-2.5-2.5M12 16l-2.5 2.5M12 8h5l3 3"
-                    />
-                  </svg>
-                }
-                @case ('products') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="m3 7 9-4 9 4-9 4-9-4Zm0 0v10l9 4 9-4V7M12 11v10" />
-                  </svg>
-                }
-                @case ('warehouses') {
-                  <svg
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="m2 9 10-6 10 6v12H2V9ZM2 9h20M7 21v-8h10v8M10 16h4" />
-                  </svg>
-                }
+              @if (action.primary) {
+                <svg
+                  class="h-4 w-4 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 4v16M4 12h16" />
+                </svg>
               }
-            </span>
-            <span class="min-w-0 flex-1">
-              <span class="block text-base font-bold text-[#14243b]">{{ link.title }}</span>
-              <span class="mt-1 block text-sm leading-5 text-[#647590]">{{
-                link.description
-              }}</span>
-              <span
-                class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#2458c5]"
-              >
-                Open {{ link.title }} <span aria-hidden="true">→</span>
-              </span>
-            </span>
-          </a>
-        }
-      </div>
-    </section>
+              {{ action.label }}
+            </a>
+          }
+        </div>
+      </section>
 
-    <section
-      class="rounded-xl border border-[#d7e1ef] bg-white px-5 py-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)] sm:px-6"
-      aria-labelledby="dashboard-actions-heading"
-    >
-      <h2 id="dashboard-actions-heading" class="text-lg font-bold text-[#14243b]">Quick Actions</h2>
-      <div class="mt-4 flex flex-wrap gap-2.5">
-        @for (action of quickActions(); track action.route) {
-          <a
-            [routerLink]="action.route"
-            class="inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-            [class]="
-              action.primary
-                ? 'bg-[#2458c5] text-white shadow-sm hover:bg-[#1b49a9]'
-                : 'border border-[#d8e2ef] bg-white text-[#30435f] hover:bg-[#f2f6fb]'
-            "
-          >
-            @if (action.primary) {
+      <section class="min-w-0" aria-labelledby="dashboard-workspace-heading">
+        <div class="mb-4">
+          <h2 id="dashboard-workspace-heading" class="text-base font-bold text-[#14243b]">
+            Your workspace
+          </h2>
+          <p class="mt-1 text-sm text-[#647590]">Open the areas you use most.</p>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+          @for (link of workspaceLinks(); track link.route) {
+            <a
+              [routerLink]="link.route"
+              class="group flex min-h-24 min-w-0 items-center gap-3 rounded-lg border border-[#d7e1ef] bg-white px-4 py-3 transition-colors hover:border-[#9fbbe9] hover:bg-[#fbfdff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+            >
+              <span
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#eaf1ff] text-[#2458c5]"
+                aria-hidden="true"
+              >
+                @switch (link.icon) {
+                  @case ('inventory') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3 7h18v13H3V7ZM3 11h18M8 15h3M15 15h3M7 4h10" />
+                    </svg>
+                  }
+                  @case ('purchase-orders') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M6 3h9l4 4v14H6V3ZM15 3v5h4M9 12h7M9 16h7" />
+                    </svg>
+                  }
+                  @case ('sales-orders') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M4 4h10l3 3v4M4 4v16h9M14 4v4h3M7 12h6M7 16h4M14 16h7m0 0-3-3m3 3-3 3"
+                      />
+                    </svg>
+                  }
+                  @case ('putaway') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M3 5h7v7H3V5Zm11 7h7v7h-7v-7ZM7 16h5m0 0-2.5-2.5M12 16l-2.5 2.5M12 8h5l3 3"
+                      />
+                    </svg>
+                  }
+                  @case ('products') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="m3 7 9-4 9 4-9 4-9-4Zm0 0v10l9 4 9-4V7M12 11v10" />
+                    </svg>
+                  }
+                  @case ('warehouses') {
+                    <svg
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="m2 9 10-6 10 6v12H2V9ZM2 9h20M7 21v-8h10v8M10 16h4" />
+                    </svg>
+                  }
+                }
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-bold text-[#14243b]">{{ link.title }}</span>
+                <span class="mt-0.5 block text-[13px] leading-[1.35rem] text-[#52647e]">{{
+                  link.description
+                }}</span>
+              </span>
               <svg
-                class="h-4 w-4"
+                class="h-4 w-4 shrink-0 text-[#7b8da7] transition-colors group-hover:text-[#2458c5]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="1.8"
                 stroke-linecap="round"
+                stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <path d="M12 4v16M4 12h16" />
+                <path d="m9 5 7 7-7 7" />
               </svg>
-            }
-            {{ action.label }}
-          </a>
-        }
-      </div>
-    </section>
+            </a>
+          }
+        </div>
+      </section>
+    </div>
 
-    <div class="grid items-start gap-5 xl:grid-cols-2">
+    <div class="grid min-w-0 items-start gap-5 xl:grid-cols-2">
       <section
         class="min-w-0 overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
         aria-labelledby="dashboard-purchase-orders-heading"
@@ -185,14 +193,14 @@
           class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
         >
           <div>
-            <h2 id="dashboard-purchase-orders-heading" class="text-base font-bold text-[#14243b]">
+            <h2 id="dashboard-purchase-orders-heading" class="text-lg font-bold text-[#14243b]">
               Recent Purchase Orders
             </h2>
-            <p class="mt-1 text-xs text-[#647590]">Latest supplier orders</p>
+            <p class="mt-0.5 text-sm text-[#647590]">Latest supplier orders</p>
           </div>
           <a
             routerLink="/purchase-orders"
-            class="text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
             >View All</a
           >
         </header>
@@ -206,7 +214,7 @@
             <button
               type="button"
               (click)="retryPurchaseOrders()"
-              class="mt-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+              class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
             >
               Try again
             </button>
@@ -216,19 +224,25 @@
         } @else {
           <ul class="divide-y divide-[#e9eef5]" role="list">
             @for (order of purchaseOrders(); track order.id) {
-              <li class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 sm:px-6">
-                <div class="min-w-0 flex-1 basis-40">
-                  <a
-                    [routerLink]="['/purchase-orders', order.id]"
-                    class="font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-                    >{{ order.orderNumber }}</a
-                  >
-                  <p class="truncate text-sm text-[#52647e]">{{ order.supplierName }}</p>
+              <li class="min-w-0 px-5 py-3.5 sm:px-6">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <a
+                      [routerLink]="['/purchase-orders', order.id]"
+                      class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                      >{{ order.orderNumber }}</a
+                    >
+                    <p class="mt-0.5 break-words text-sm text-[#52647e]">
+                      {{ order.supplierName }}
+                    </p>
+                  </div>
+                  <div class="flex shrink-0 flex-col items-end gap-1.5">
+                    <app-purchase-order-status-badge [status]="order.status" />
+                    <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
+                      order.createdOnUtc | date: 'mediumDate'
+                    }}</time>
+                  </div>
                 </div>
-                <app-purchase-order-status-badge [status]="order.status" />
-                <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
-                  order.createdOnUtc | date: 'mediumDate'
-                }}</time>
               </li>
             }
           </ul>
@@ -243,14 +257,14 @@
           class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
         >
           <div>
-            <h2 id="dashboard-sales-orders-heading" class="text-base font-bold text-[#14243b]">
+            <h2 id="dashboard-sales-orders-heading" class="text-lg font-bold text-[#14243b]">
               Recent Sales Orders
             </h2>
-            <p class="mt-1 text-xs text-[#647590]">Latest customer orders</p>
+            <p class="mt-0.5 text-sm text-[#647590]">Latest customer orders</p>
           </div>
           <a
             routerLink="/sales-orders"
-            class="text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+            class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
             >View All</a
           >
         </header>
@@ -264,7 +278,7 @@
             <button
               type="button"
               (click)="retrySalesOrders()"
-              class="mt-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+              class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
             >
               Try again
             </button>
@@ -274,19 +288,25 @@
         } @else {
           <ul class="divide-y divide-[#e9eef5]" role="list">
             @for (order of salesOrders(); track order.id) {
-              <li class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 sm:px-6">
-                <div class="min-w-0 flex-1 basis-40">
-                  <a
-                    [routerLink]="['/sales-orders', order.id]"
-                    class="font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
-                    >{{ order.orderNumber }}</a
-                  >
-                  <p class="truncate text-sm text-[#52647e]">{{ order.customerName }}</p>
+              <li class="min-w-0 px-5 py-3.5 sm:px-6">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <a
+                      [routerLink]="['/sales-orders', order.id]"
+                      class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                      >{{ order.orderNumber }}</a
+                    >
+                    <p class="mt-0.5 break-words text-sm text-[#52647e]">
+                      {{ order.customerName }}
+                    </p>
+                  </div>
+                  <div class="flex shrink-0 flex-col items-end gap-1.5">
+                    <app-sales-order-status-badge [status]="order.status" />
+                    <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
+                      order.createdOnUtc | date: 'mediumDate'
+                    }}</time>
+                  </div>
                 </div>
-                <app-sales-order-status-badge [status]="order.status" />
-                <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
-                  order.createdOnUtc | date: 'mediumDate'
-                }}</time>
               </li>
             }
           </ul>
