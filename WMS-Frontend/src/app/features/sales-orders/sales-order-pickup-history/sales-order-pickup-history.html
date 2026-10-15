@@ -1,5 +1,5 @@
 <section
-  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
   aria-labelledby="so-pickup-history-heading"
 >
   <header class="border-b border-[#e3eaf3] px-5 py-5 sm:px-6">
@@ -36,7 +36,7 @@
   } @else {
     <div class="space-y-3 p-5 sm:p-6">
       @for (pickup of pickups(); track pickup.id) {
-        <article class="min-w-0 overflow-hidden rounded-md border border-[#dfe7f1]">
+        <article class="min-w-0 overflow-hidden rounded-lg border border-[#dfe7f1]">
           <button
             type="button"
             [attr.aria-expanded]="expandedId() === pickup.id"
@@ -99,18 +99,18 @@
             </dl>
 
             <h4 class="mt-5 text-sm font-bold text-[#14243b]">Picked Items</h4>
-            <div class="mt-2 max-w-full overflow-x-auto">
+            <div class="mt-2 max-w-full overflow-x-auto rounded-lg border border-[#dfe7f1]">
               <table class="w-full min-w-[620px] border-collapse text-left text-sm">
-                <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
-                  <tr class="border-y border-[#dfe7f1]">
-                    <th scope="col" class="px-3 py-3">Product</th>
-                    <th scope="col" class="px-3 py-3">Bin / Location</th>
-                    <th scope="col" class="px-3 py-3 text-right">Picked Quantity</th>
+                <thead class="bg-[#f7f9fd] text-xs font-semibold tracking-[0.015em] text-[#405573]">
+                  <tr class="border-b border-[#dce5f0]">
+                    <th scope="col" class="border-r border-[#e5ebf3] px-3 py-3.5">Product</th>
+                    <th scope="col" class="border-r border-[#e5ebf3] px-3 py-3.5">Bin / Location</th>
+                    <th scope="col" class="px-3 py-3.5 text-right">Picked Quantity</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (line of pickup.lines; track line.id) {
-                    <tr class="border-b border-[#e2e9f2] last:border-b-0">
+                    <tr class="border-b border-[#e9eef5] last:border-b-0">
                       <td class="px-3 py-3">
                         <span class="block font-semibold text-[#182a43]">{{
                           line.productSku

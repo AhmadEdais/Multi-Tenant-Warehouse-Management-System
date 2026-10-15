@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -40,7 +41,7 @@ type ActionState = { action: 'deactivate' | 'reactivate'; location: LocationNode
 
 @Component({
   selector: 'app-locations-page',
-  imports: [DecimalPipe, LocationTreeNode, LocationFormComponent, LocationInventoryDetailsComponent],
+  imports: [DecimalPipe, LocationTreeNode, LocationFormComponent, LocationInventoryDetailsComponent, PageHeaderComponent],
   templateUrl: './locations-page.html',
   styleUrl: './locations-page.css',
 })

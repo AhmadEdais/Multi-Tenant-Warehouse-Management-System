@@ -1,0 +1,44 @@
+<header
+  [class]="
+    variant() === 'plain'
+      ? 'flex flex-wrap items-start justify-between gap-x-6 gap-y-3 border-b border-[#d7e1ef] pb-5'
+      : 'flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#dbe4f0] bg-white px-5 py-5 shadow-[0_8px_28px_rgba(24,48,83,0.045)] sm:px-6 sm:py-6'
+  "
+>
+  <div class="flex min-w-0 items-center gap-4">
+    <span
+      class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eaf1ff] text-[#2458c5]"
+      [class.hidden]="variant() === 'plain'"
+      aria-hidden="true"
+    >
+      <ng-content select="[pageHeaderIcon]" />
+    </span>
+    <div class="min-w-0">
+      <div class="flex min-w-0 flex-wrap items-center gap-3">
+        <h1
+          [id]="headingId() ?? null"
+          [class]="
+            variant() === 'plain'
+              ? 'text-2xl font-bold tracking-[-0.035em] text-[#14243b] sm:text-[28px]'
+              : 'text-[30px] font-bold leading-tight tracking-[-0.035em] text-[#14243b] sm:text-[32px]'
+          "
+        >
+          {{ title() }}
+        </h1>
+        <ng-content select="[pageHeaderBadge]" />
+      </div>
+      @if (subtitle(); as description) {
+        <p
+          [class]="
+            variant() === 'plain'
+              ? 'mt-1.5 text-sm text-[#52647e]'
+              : 'mt-1.5 text-[15px] leading-6 text-[#5b6f88]'
+          "
+        >
+          {{ description }}
+        </p>
+      }
+    </div>
+  </div>
+  <ng-content select="[pageHeaderActions]" />
+</header>

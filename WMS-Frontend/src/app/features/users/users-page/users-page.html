@@ -1,39 +1,24 @@
-<header
-  class="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#dbe4f0] bg-white px-5 py-5 shadow-[0_8px_28px_rgba(24,48,83,0.045)] sm:px-6 sm:py-6"
+<app-page-header
+  title="Users"
+  subtitle="Manage team members, roles, and account access."
+  headingId="users-heading"
+  class="mb-5"
 >
-  <div class="flex min-w-0 items-center gap-4">
-    <span
-      class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eaf1ff] text-[#2458c5]"
-      aria-hidden="true"
-    >
-      <svg
-        class="h-6 w-6"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle cx="9" cy="8" r="3" />
-        <path
-          d="M3 20v-2a6 6 0 0 1 12 0v2H3ZM17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1h-4"
-        />
-      </svg>
-    </span>
-    <div class="min-w-0">
-      <h1
-        id="users-heading"
-        class="text-[30px] font-bold leading-tight tracking-[-0.035em] text-[#14243b] sm:text-[32px]"
-      >
-        Users
-      </h1>
-      <p class="mt-1.5 text-[15px] leading-6 text-[#5b6f88]">
-        Manage team members, roles, and account access.
-      </p>
-    </div>
-  </div>
+  <svg
+    pageHeaderIcon
+    class="h-6 w-6"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="9" cy="8" r="3" />
+    <path d="M3 20v-2a6 6 0 0 1 12 0v2H3ZM17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1h-4" />
+  </svg>
   <button
+    pageHeaderActions
     type="button"
     (click)="openCreateModal()"
     class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] sm:ml-auto sm:w-auto"
@@ -50,7 +35,7 @@
     </svg>
     Add User
   </button>
-</header>
+</app-page-header>
 
 <section
   class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"

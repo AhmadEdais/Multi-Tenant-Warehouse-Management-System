@@ -8,10 +8,23 @@
     <span aria-hidden="true">←</span> Purchase Orders
   </button>
 
-  <header>
-    <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Create Purchase Order</h2>
-    <p class="mt-1 text-sm text-[#647590]">Create a draft supplier order for inbound inventory.</p>
-  </header>
+  <app-page-header
+    title="Create Purchase Order"
+    subtitle="Create a draft supplier order for inbound inventory."
+  >
+    <svg
+      pageHeaderIcon
+      class="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M7 4h10l4 4v12H3V4h4Zm0 5h10M7 13h10M7 17h7" />
+    </svg>
+  </app-page-header>
 
   <app-purchase-order-form
     [supplierOptions]="supplierOptions()"

@@ -1,27 +1,19 @@
 @if (canUseDashboard()) {
   <div class="min-w-0 space-y-6 lg:space-y-7">
-    <section
-      class="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 border-b border-[#d7e1ef] pb-5"
-      aria-labelledby="dashboard-welcome"
+    <app-page-header
+      title="Welcome back, {{ firstName() }}!"
+      subtitle="Quick access to your inventory, orders, and warehouse operations."
+      headingId="dashboard-welcome"
+      variant="plain"
     >
-      <div class="min-w-0">
-        <h2
-          id="dashboard-welcome"
-          class="text-2xl font-bold tracking-[-0.035em] text-[#14243b] sm:text-[28px]"
-        >
-          Welcome back, {{ firstName() }}!
-        </h2>
-        <p class="mt-1.5 text-sm text-[#52647e]">
-          Quick access to your inventory, orders, and warehouse operations.
-        </p>
-      </div>
       <time
+        pageHeaderActions
         class="shrink-0 text-sm font-medium text-[#52647e] md:pt-1"
         [attr.datetime]="today | date: 'yyyy-MM-dd'"
       >
         {{ today | date: 'fullDate' }}
       </time>
-    </section>
+    </app-page-header>
 
     <div class="grid min-w-0 items-start gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
       <section

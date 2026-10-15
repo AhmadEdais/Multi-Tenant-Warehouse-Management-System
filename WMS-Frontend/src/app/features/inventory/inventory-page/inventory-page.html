@@ -1,14 +1,26 @@
 <div class="space-y-5">
-  <header>
-    <h2 id="inventory-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-      Inventory
-    </h2>
-    <p class="mt-1 text-sm text-[#647590]">Current stock across your tenant workspace.</p>
-  </header>
+  <app-page-header
+    title="Inventory"
+    subtitle="Monitor on-hand, allocated, and available stock."
+    headingId="inventory-heading"
+  >
+    <svg
+      pageHeaderIcon
+      class="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M3 7h18v13H3V7Zm3-4h12l3 4H3l3-4Zm1 9h5m-5 4h9" />
+    </svg>
+  </app-page-header>
 
   <section aria-label="Inventory at a glance" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
     <div
-      class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-5 py-4 shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       <p class="text-xs font-semibold text-[#647590]">
         {{ appliedSearch() ? 'Matching tracked products' : 'Tracked products' }}
@@ -18,7 +30,7 @@
       </p>
     </div>
     <div
-      class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-5 py-4 shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       <p class="text-xs font-semibold text-[#647590]">Low stock on this page</p>
       <p class="mt-2 text-2xl font-bold text-[#b45309]">
@@ -26,7 +38,7 @@
       </p>
     </div>
     <div
-      class="rounded-md border border-[#d7e1ef] bg-white px-5 py-4 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-5 py-4 shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       <p class="text-xs font-semibold text-[#647590]">Healthy on this page</p>
       <p class="mt-2 text-2xl font-bold text-[#116b48]">
@@ -36,7 +48,7 @@
   </section>
 
   <section
-    class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+    class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     aria-labelledby="inventory-heading"
   >
     <div
@@ -65,24 +77,30 @@
           [value]="search()"
           (input)="onSearchInput($event)"
           placeholder="Search by SKU or product name..."
-          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full rounded-lg border border-[#d2deec] bg-white pl-10 pr-3 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none placeholder:text-[#6f809a] hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         />
       </label>
     </div>
 
     <div class="px-5 pb-5 pt-5 sm:px-6">
-      <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+      <div class="max-w-full overflow-x-auto rounded-lg border border-[#dfe7f1]">
         <table class="w-full min-w-[850px] border-collapse text-left text-sm">
-          <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
-            <tr class="border-b border-[#dfe7f1]">
-              <th scope="col" class="px-4 py-4">SKU</th>
-              <th scope="col" class="px-4 py-4">Product</th>
-              <th scope="col" class="px-4 py-4 text-right">On Hand</th>
-              <th scope="col" class="px-4 py-4 text-right">Allocated</th>
-              <th scope="col" class="px-4 py-4 text-right">Available</th>
-              <th scope="col" class="px-4 py-4 text-right">Reorder Point</th>
-              <th scope="col" class="px-4 py-4">Status</th>
-              <th scope="col" class="px-4 py-4">Action</th>
+          <thead class="bg-[#f7f9fd] text-xs font-semibold tracking-[0.015em] text-[#405573]">
+            <tr class="border-b border-[#dce5f0]">
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">SKU</th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Product</th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5 text-right">On Hand</th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5 text-right">
+                Allocated
+              </th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5 text-right">
+                Available
+              </th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5 text-right">
+                Reorder Point
+              </th>
+              <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Status</th>
+              <th scope="col" class="px-4 py-3.5">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -117,8 +135,8 @@
               </tr>
             } @else {
               @for (product of products(); track product.productId) {
-                <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
-                  <td class="px-4 py-4 font-semibold text-[#182a43]">{{ product.sku }}</td>
+                <tr class="border-b border-[#e9eef5] last:border-b-0 hover:bg-[#f8fbff]">
+                  <td class="px-4 py-4 font-semibold text-[#14243b]">{{ product.sku }}</td>
                   <td class="px-4 py-4 text-[#30435f]">{{ product.productName }}</td>
                   <td class="px-4 py-4 text-right tabular-nums text-[#30435f]">
                     {{ product.totalQuantityOnHand | number: '1.0-2' }}
@@ -161,7 +179,8 @@
       </div>
       <footer class="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#52647e]">
         <span
-          >Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} tracked products</span
+          >Showing {{ firstItem() }} to {{ lastItem() }} of {{ totalCount() }} tracked
+          products</span
         >
         <div class="flex items-center gap-2" aria-label="Inventory pages">
           <button

@@ -1,38 +1,49 @@
+<app-page-header
+  title="Products"
+  subtitle="Manage products, pricing, and inventory settings."
+  headingId="products-heading"
+  class="mb-5"
+>
+  <svg
+    pageHeaderIcon
+    class="h-6 w-6"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M3 7h18v13H3V7Zm3-4h12l3 4H3l3-4Zm1 9h5m-5 4h9" />
+  </svg>
+  @if (canManage()) {
+    <button
+      pageHeaderActions
+      type="button"
+      (click)="openCreateForm()"
+      class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] sm:ml-auto sm:w-auto"
+    >
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+      </svg>
+      Add Product
+    </button>
+  }
+</app-page-header>
+
 <section
-  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
   aria-labelledby="products-heading"
 >
-  <header
-    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
-  >
-    <div>
-      <h2 id="products-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-        Products
-      </h2>
-      <p class="mt-1 text-sm text-[#647590]">Manage your tenant product catalogue.</p>
-    </div>
-    @if (canManage()) {
-      <button
-        type="button"
-        (click)="openCreateForm()"
-        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-      >
-        <svg
-          class="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          aria-hidden="true"
-        >
-          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
-        </svg>
-        Add Product
-      </button>
-    }
-  </header>
   <div class="px-5 pb-6 pt-5 sm:px-6">
-    <div class="mb-5 flex flex-wrap items-center gap-3">
+    <div class="mb-5 flex flex-wrap items-center gap-3 border-b border-[#edf1f6] pb-5">
       <label class="relative min-w-0 flex-[1_1_250px]" for="product-search">
         <span class="sr-only">Search products by SKU or name</span>
         <svg
@@ -52,7 +63,7 @@
           [value]="search()"
           (input)="onSearchInput($event)"
           placeholder="Search SKU or name..."
-          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full rounded-lg border border-[#d2deec] bg-white pl-10 pr-3 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none placeholder:text-[#6f809a] hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         />
       </label>
       <div class="min-w-0 flex-[1_1_180px] sm:max-w-[260px]">
@@ -64,7 +75,7 @@
           [attr.aria-expanded]="categoryPickerOpen()"
           [disabled]="categoriesLoading() || !!categoriesError()"
           (click)="toggleCategoryPicker($event)"
-          class="flex h-11 w-full items-center justify-between gap-2 rounded-md border border-[#cdd9e9] bg-white px-3 text-left text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-60"
+          class="flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-[#d2deec] bg-white px-3 text-left text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-60"
         >
           <span class="min-w-0"
             ><span class="block text-[11px] leading-3 text-[#52647e]">Category</span
@@ -93,7 +104,7 @@
             id="product-status"
             [value]="status()"
             (change)="onStatusChange($event)"
-            class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+            class="h-11 w-full appearance-none rounded-lg border border-[#d2deec] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -130,17 +141,17 @@
     @if (formOpening()) {
       <p role="status" class="mb-4 text-sm text-[#52647e]">Loading product for editing...</p>
     }
-    <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+    <div class="max-w-full overflow-x-auto rounded-lg border border-[#dfe7f1]">
       <table class="w-full min-w-[720px] border-collapse text-left text-sm">
-        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
-          <tr class="border-b border-[#dfe7f1]">
-            <th scope="col" class="w-14 px-4 py-4">#</th>
-            <th scope="col" class="px-4 py-4">SKU</th>
-            <th scope="col" class="px-4 py-4">Name</th>
-            <th scope="col" class="px-4 py-4">Price</th>
-            <th scope="col" class="px-4 py-4">Reorder</th>
-            <th scope="col" class="px-4 py-4">Status</th>
-            <th scope="col" class="w-28 px-4 py-4">Actions</th>
+        <thead class="bg-[#f7f9fd] text-xs font-semibold tracking-[0.015em] text-[#405573]">
+          <tr class="border-b border-[#dce5f0]">
+            <th scope="col" class="border-r border-[#e5ebf3] w-14 px-4 py-3.5">#</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">SKU</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Name</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Price</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Reorder</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Status</th>
+            <th scope="col" class="w-28 px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -175,9 +186,9 @@
             </tr>
           } @else {
             @for (product of products(); track product.id; let index = $index) {
-              <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
+              <tr class="border-b border-[#e9eef5] last:border-b-0 hover:bg-[#f8fbff]">
                 <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
-                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ product.sku }}</td>
+                <td class="px-4 py-4 font-semibold text-[#14243b]">{{ product.sku }}</td>
                 <td class="px-4 py-4 text-[#30435f]">{{ product.name }}</td>
                 <td class="px-4 py-4 text-[#30435f]">{{ product.unitPrice | number: '1.2-4' }}</td>
                 <td class="px-4 py-4 text-[#30435f]">{{ product.reorderPoint }}</td>
@@ -194,7 +205,7 @@
                   >
                 </td>
                 <td class="px-4 py-4">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center justify-end gap-2">
                     <button
                       type="button"
                       (click)="$event.stopPropagation(); openDetails(product)"
@@ -259,7 +270,7 @@
   <div
     role="menu"
     aria-label="Filter by category"
-    class="fixed z-40 max-h-[60vh] w-56 overflow-y-auto rounded-md border border-[#d7e1ef] bg-white p-1 shadow-lg"
+    class="fixed z-40 max-h-[60vh] w-56 overflow-y-auto rounded-xl border border-[#dbe4f0] bg-white p-1 shadow-lg"
     [style.top.px]="categoryPickerPosition().top"
     [style.left.px]="categoryPickerPosition().left"
     (click)="$event.stopPropagation()"
@@ -287,7 +298,7 @@
 @if (menuProduct(); as product) {
   <div
     role="menu"
-    class="fixed z-40 w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
+    class="fixed z-40 w-44 rounded-xl border border-[#dbe4f0] bg-white py-1 text-sm shadow-lg"
     [style.top.px]="menuPosition().top"
     [style.left.px]="menuPosition().left"
     (click)="$event.stopPropagation()"

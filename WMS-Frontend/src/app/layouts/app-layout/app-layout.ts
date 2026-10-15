@@ -158,10 +158,6 @@ export class AppLayout {
     this.currentUser()?.roles.includes('SystemAdmin') ? 'Platform workspace' : 'Tenant workspace',
   );
 
-  readonly isUsersPage = computed(
-    () => this.routeUrl().split(/[?#]/, 1)[0] === '/users',
-  );
-
   readonly pageTitle = computed(() => {
     const path = this.routeUrl().split(/[?#]/, 1)[0];
     if (path === '/sales-orders/new') return 'Create Sales Order';
@@ -174,6 +170,31 @@ export class AppLayout {
           (item.route === '/sales-orders' && path.startsWith('/sales-orders/')),
       )?.label ?? this.workspaceLabel()
     );
+  });
+
+  readonly breadcrumb = computed(() => {
+    const path = this.routeUrl().split(/[?#]/, 1)[0];
+    if (path === '/dashboard') return null;
+
+    const platform = this.currentUser()?.roles.includes('SystemAdmin') ?? false;
+    const rootLabel = platform ? 'Platform' : 'Workspace';
+    const rootRoute = platform ? null : '/dashboard';
+    const orderSection = path.startsWith('/purchase-orders/')
+      ? { label: 'Purchase Orders', route: '/purchase-orders' }
+      : path.startsWith('/sales-orders/')
+        ? { label: 'Sales Orders', route: '/sales-orders' }
+        : null;
+
+    if (orderSection) {
+      const currentLabel = path.endsWith('/new')
+        ? 'Create'
+        : path.endsWith('/edit')
+          ? 'Edit'
+          : 'Details';
+      return { rootLabel, rootRoute, parent: orderSection, currentLabel };
+    }
+
+    return { rootLabel, rootRoute, parent: null, currentLabel: this.pageTitle() };
   });
 
   readonly primaryRole = computed(() => {

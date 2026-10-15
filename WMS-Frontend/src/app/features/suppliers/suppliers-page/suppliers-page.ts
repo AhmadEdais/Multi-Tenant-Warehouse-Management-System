@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -31,7 +32,7 @@ type FormState = { mode: 'create' | 'edit'; supplier: Supplier | null };
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [SupplierFormComponent],
+  imports: [SupplierFormComponent, PageHeaderComponent],
   templateUrl: './suppliers-page.html',
 })
 export class SuppliersPage implements OnInit {

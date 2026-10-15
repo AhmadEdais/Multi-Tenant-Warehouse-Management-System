@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -32,7 +33,7 @@ type FormState = { mode: 'create' | 'edit'; customer: Customer | null };
 
 @Component({
   selector: 'app-customers-page',
-  imports: [CustomerFormComponent, DecimalPipe],
+  imports: [CustomerFormComponent, DecimalPipe, PageHeaderComponent],
   templateUrl: './customers-page.html',
 })
 export class CustomersPage implements OnInit {

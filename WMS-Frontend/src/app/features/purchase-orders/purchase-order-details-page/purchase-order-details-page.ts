@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -32,7 +33,7 @@ import { PurchaseOrdersService } from '../purchase-orders.service';
 
 @Component({
   selector: 'app-purchase-order-details-page',
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, PurchaseOrderStatusBadge],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, PurchaseOrderStatusBadge, PageHeaderComponent],
   templateUrl: './purchase-order-details-page.html',
 })
 export class PurchaseOrderDetailsPage implements OnInit {

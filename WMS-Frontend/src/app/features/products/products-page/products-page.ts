@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -42,7 +43,7 @@ type FormState = { mode: 'create' | 'edit'; product: ProductDetails | null };
 
 @Component({
   selector: 'app-products-page',
-  imports: [DecimalPipe, ProductFormComponent, CategoryParentMenuItem],
+  imports: [DecimalPipe, ProductFormComponent, CategoryParentMenuItem, PageHeaderComponent],
   templateUrl: './products-page.html',
   styleUrl: './products-page.css',
 })

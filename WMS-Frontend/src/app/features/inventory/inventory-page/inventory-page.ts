@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,7 +19,7 @@ import { ProductInventoryDetailsComponent } from '../product-inventory-details/p
 
 @Component({
   selector: 'app-inventory-page',
-  imports: [DecimalPipe, ProductInventoryDetailsComponent],
+  imports: [DecimalPipe, ProductInventoryDetailsComponent, PageHeaderComponent],
   templateUrl: './inventory-page.html',
 })
 export class InventoryPage implements OnInit {

@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
@@ -11,7 +12,7 @@ import { PutawayService } from '../putaway.service';
 
 @Component({
   selector: 'app-putaway-page',
-  imports: [DecimalPipe, PutawayDialogComponent],
+  imports: [DecimalPipe, PutawayDialogComponent, PageHeaderComponent],
   templateUrl: './putaway-page.html',
 })
 export class PutawayPage implements OnInit {

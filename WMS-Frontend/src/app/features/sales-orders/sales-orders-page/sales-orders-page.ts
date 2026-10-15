@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +30,7 @@ import { SalesOrdersService } from '../sales-orders.service';
 
 @Component({
   selector: 'app-sales-orders-page',
-  imports: [DatePipe, DecimalPipe, RouterLink, SalesOrderStatusBadge],
+  imports: [DatePipe, DecimalPipe, RouterLink, SalesOrderStatusBadge, PageHeaderComponent],
   templateUrl: './sales-orders-page.html',
 })
 export class SalesOrdersPage implements OnInit {

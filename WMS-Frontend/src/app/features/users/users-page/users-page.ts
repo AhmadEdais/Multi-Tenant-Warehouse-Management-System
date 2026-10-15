@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -43,7 +44,7 @@ const atLeastOneRole = (control: AbstractControl): ValidationErrors | null =>
 
 @Component({
   selector: 'app-users-page',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, PageHeaderComponent],
   templateUrl: './users-page.html',
   styleUrl: './users-page.css',
 })

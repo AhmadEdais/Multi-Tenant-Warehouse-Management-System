@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -137,7 +138,7 @@ const RECENT_SALES_ORDERS: ListSalesOrdersParams = {
 };
 
 @Component({
-  imports: [DatePipe, RouterLink, PurchaseOrderStatusBadge, SalesOrderStatusBadge],
+  imports: [DatePipe, RouterLink, PurchaseOrderStatusBadge, SalesOrderStatusBadge, PageHeaderComponent],
   selector: 'app-dashboard-page',
   styleUrl: './dashboard-page.css',
   templateUrl: './dashboard-page.html',

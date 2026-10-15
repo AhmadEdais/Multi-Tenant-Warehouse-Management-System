@@ -285,17 +285,25 @@
             </svg>
           </button>
           <div class="min-w-0">
-            @if (isUsersPage()) {
+            @if (breadcrumb(); as crumbs) {
               <nav aria-label="Breadcrumb">
-                <ol class="flex min-w-0 items-center gap-2 text-sm">
-                  <li>
-                    <a
-                      routerLink="/dashboard"
-                      class="inline-flex min-h-10 items-center text-[#647590] hover:text-[#2458c5] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-                      >Workspace</a
-                    >
+                <ol class="flex min-w-0 items-center gap-2 overflow-hidden text-sm">
+                  <li [class.hidden]="!!crumbs.parent" class="sm:list-item">
+                    @if (crumbs.rootRoute) {
+                      <a
+                        [routerLink]="crumbs.rootRoute"
+                        class="inline-flex min-h-10 items-center text-[#647590] hover:text-[#2458c5] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ crumbs.rootLabel }}</a
+                      >
+                    } @else {
+                      <span class="text-[#647590]">{{ crumbs.rootLabel }}</span>
+                    }
                   </li>
-                  <li aria-hidden="true" class="text-[#9aabc0]">
+                  <li
+                    aria-hidden="true"
+                    [class.hidden]="!!crumbs.parent"
+                    class="text-[#9aabc0] sm:list-item"
+                  >
                     <svg
                       class="h-4 w-4"
                       viewBox="0 0 24 24"
@@ -306,18 +314,35 @@
                       <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </li>
-                  <li aria-current="page" class="font-medium text-[#30435f]">Users</li>
+                  @if (crumbs.parent; as parent) {
+                    <li>
+                      <a
+                        [routerLink]="parent.route"
+                        class="inline-flex min-h-10 items-center whitespace-nowrap text-[#647590] hover:text-[#2458c5] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ parent.label }}</a
+                      >
+                    </li>
+                    <li aria-hidden="true" class="text-[#9aabc0]">
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      >
+                        <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </li>
+                  }
+                  <li aria-current="page" class="min-w-0 truncate font-medium text-[#30435f]">
+                    {{ crumbs.currentLabel }}
+                  </li>
                 </ol>
               </nav>
             } @else {
-              <p
-                class="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#52647e]"
-              >
+              <p class="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#52647e]">
                 {{ workspaceLabel() }}
               </p>
-              <h1 class="sr-only">
-                {{ pageTitle() }}
-              </h1>
             }
           </div>
         </div>
