@@ -158,6 +158,10 @@ export class AppLayout {
     this.currentUser()?.roles.includes('SystemAdmin') ? 'Platform workspace' : 'Tenant workspace',
   );
 
+  readonly isUsersPage = computed(
+    () => this.routeUrl().split(/[?#]/, 1)[0] === '/users',
+  );
+
   readonly pageTitle = computed(() => {
     const path = this.routeUrl().split(/[?#]/, 1)[0];
     if (path === '/sales-orders/new') return 'Create Sales Order';
