@@ -1,45 +1,56 @@
-<main class="min-h-screen bg-[#fbfcfe] text-[#07152f]">
-  <header class="h-[76px] bg-white">
+<div class="flex min-h-screen flex-col bg-[#f4f7fb] text-[#14243b]">
+  <a
+    href="#not-found-content"
+    class="sr-only fixed top-4 left-4 z-50 rounded-md bg-[#2458c5] px-4 py-3 font-semibold text-white focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+  >
+    Skip to content
+  </a>
+
+  <header class="border-b border-[#dbe4f0] bg-white">
     <div
-      class="mx-auto flex h-full w-[calc(100%-32px)] max-w-[1440px] items-center justify-between sm:w-[calc(100%-64px)]"
+      class="mx-auto flex min-h-[72px] w-full max-w-[1248px] items-center justify-between gap-4 px-5 sm:px-8"
     >
-      <div class="flex items-center gap-2.5" aria-label="WMS Warehouse Management System">
+      <a
+        [routerLink]="homeRoute()"
+        class="inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+        aria-label="WMS home"
+      >
         <svg
-          class="h-9 w-9 fill-none stroke-[#145ff4] stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]"
+          class="h-9 w-9 fill-none stroke-[#2458c5] stroke-[2.5] [stroke-linecap:round] [stroke-linejoin:round]"
           viewBox="0 0 48 48"
           aria-hidden="true"
         >
           <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
-          <path
-            d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5M14 29.5v8l10 5.5 10-5.5v-8"
-          />
+          <path d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5" />
         </svg>
         <span class="flex flex-col leading-none">
-          <strong class="text-[20px] tracking-[-0.04em]">WMS</strong>
-          <small class="mt-1 hidden text-[8px] text-[#45536e] sm:block">
+          <strong class="text-[21px] tracking-[-0.035em]">WMS</strong>
+          <small class="mt-1 hidden text-[9px] text-[#647590] sm:block">
             Warehouse Management System
           </small>
         </span>
-      </div>
+      </a>
 
-      <nav class="flex items-center gap-3 text-xs font-semibold sm:gap-7" aria-label="Page actions">
-        <button class="cursor-pointer px-1 py-2 text-[#142039]" type="button">Home</button>
-        <button class="cursor-pointer px-1 py-2 text-[#142039]" type="button">Login</button>
+      <nav class="flex items-center text-sm font-semibold" aria-label="Page navigation">
+        @if (sessionReady()) {
+          <a
+            [routerLink]="isSignedIn() ? homeRoute() : '/login'"
+            class="inline-flex min-h-11 items-center rounded-md px-2 text-[#2458c5] hover:text-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+          >
+            {{ isSignedIn() ? 'Go to workspace' : 'Sign in' }}
+          </a>
+        }
       </nav>
     </div>
   </header>
 
-  <section
-    class="flex min-h-[calc(100vh-76px)] items-center justify-center px-5 pt-8 pb-20 sm:pt-4 sm:pb-24"
+  <main
+    id="not-found-content"
+    class="flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-14"
     aria-labelledby="not-found-heading"
   >
     <div class="w-full max-w-[520px] text-center">
-      <svg
-        class="mx-auto h-auto w-[180px] sm:w-[205px]"
-        viewBox="0 0 240 180"
-        role="img"
-        aria-label="An open package with a paper airplane"
-      >
+      <svg class="mx-auto h-auto w-[168px] sm:w-[190px]" viewBox="0 0 240 180" aria-hidden="true">
         <path
           d="M106 64c-22-26-53-4-39 19 11 18 43 5 37-17-7-26-44-17-43 11 1 19 23 30 44 24 34-10 51-29 64-52"
           fill="none"
@@ -64,34 +75,37 @@
         <path d="M120 126v42" stroke="#6e8db5" stroke-width="1.5" />
       </svg>
 
+      <p class="mt-1 text-sm font-bold tracking-[0.08em] text-[#2458c5]">404</p>
       <h1
         id="not-found-heading"
-        class="mt-1 text-[72px] leading-none font-extrabold tracking-[-0.055em] text-[#07152f] sm:text-[84px]"
+        class="mt-2 text-[30px] leading-tight font-bold tracking-[-0.035em] text-[#14243b] sm:text-[38px]"
       >
-        404
-      </h1>
-      <h2 class="mt-2 text-[25px] font-bold tracking-[-0.035em] text-[#07152f] sm:text-[28px]">
         Page not found
-      </h2>
-      <p class="mt-2.5 text-[15px] leading-6 text-[#34425d] sm:text-base">
-        The page you're looking for doesn't exist<br />
-        or has been moved.
+      </h1>
+      <p class="mx-auto mt-3 max-w-[420px] text-[15px] leading-7 text-[#52647e] sm:text-base">
+        This address may be incorrect, or the page may have moved.
+        {{
+          isSignedIn()
+            ? 'Check the link or return to your workspace.'
+            : 'Check the link or return to the WMS home page.'
+        }}
       </p>
 
-      <div class="mx-auto mt-8 grid max-w-[300px] grid-cols-2 gap-3">
-        <button
-          class="h-11 cursor-pointer rounded-md bg-[#1461f2] px-5 text-sm font-semibold text-white shadow-[0_4px_10px_rgba(20,97,242,0.16)]"
-          type="button"
+      <div class="mx-auto mt-8 flex max-w-[340px] flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          [routerLink]="homeRoute()"
+          class="inline-flex min-h-11 flex-1 items-center justify-center rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
         >
-          Go to Home
-        </button>
+          {{ isSignedIn() ? 'Go to workspace' : 'Return home' }}
+        </a>
         <button
-          class="h-11 cursor-pointer rounded-md border border-[#d2dceb] bg-[#f1f5fa] px-5 text-sm font-semibold text-[#17233b]"
+          class="min-h-11 flex-1 cursor-pointer rounded-md border border-[#dbe4f0] bg-white px-5 text-sm font-semibold text-[#14243b] transition-colors hover:bg-[#f7f9fd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
           type="button"
+          (click)="goBack()"
         >
           Back
         </button>
       </div>
     </div>
-  </section>
-</main>
+  </main>
+</div>
