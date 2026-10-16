@@ -1,1 +1,7 @@
+:host {
+  display: block;
+}
 
+.landing-anchor {
+  scroll-margin-top: 72px;
+}

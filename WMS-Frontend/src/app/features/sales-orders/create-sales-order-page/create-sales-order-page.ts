@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,7 +13,7 @@ import { SalesOrdersService } from '../sales-orders.service';
 
 @Component({
   selector: 'app-create-sales-order-page',
-  imports: [RouterLink, SalesOrderFormComponent],
+  imports: [RouterLink, SalesOrderFormComponent, PageHeaderComponent],
   templateUrl: './create-sales-order-page.html',
 })
 export class CreateSalesOrderPage implements OnInit {

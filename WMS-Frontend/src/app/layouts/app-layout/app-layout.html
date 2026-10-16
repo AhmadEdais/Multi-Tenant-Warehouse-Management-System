@@ -11,7 +11,7 @@
 
     <aside
       id="app-sidebar"
-      class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#14243b] text-white shadow-xl transition-transform duration-200 md:sticky md:top-0 md:z-auto md:h-screen md:shrink-0 md:translate-x-0 md:shadow-none"
+      class="fixed inset-y-0 left-0 z-50 flex h-dvh w-64 flex-col overflow-hidden bg-[#14243b] text-white shadow-xl transition-transform duration-200 md:sticky md:top-0 md:z-auto md:shrink-0 md:translate-x-0 md:shadow-none"
       [class]="sidebarOpen() ? 'translate-x-0' : '-translate-x-full'"
       aria-label="Application navigation"
     >
@@ -51,7 +51,7 @@
         </button>
       </div>
 
-      <nav class="flex-1 overflow-y-auto px-3 py-6 text-[#c4d0e1]" aria-label="Workspace pages">
+      <nav class="sidebar-navigation min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-3 py-6 text-[#c4d0e1]" aria-label="Workspace pages">
         <p class="px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#8ea4c1]">
           Navigation
         </p>
@@ -285,14 +285,65 @@
             </svg>
           </button>
           <div class="min-w-0">
-            <p
-              class="truncate text-[11px] font-semibold uppercase tracking-[0.13em] text-[#72829c]"
-            >
-              {{ workspaceLabel() }}
-            </p>
-            <h1 class="truncate text-lg font-bold tracking-[-0.025em] text-[#14243b] sm:text-xl">
-              {{ pageTitle() }}
-            </h1>
+            @if (breadcrumb(); as crumbs) {
+              <nav aria-label="Breadcrumb">
+                <ol class="flex min-w-0 items-center gap-2 overflow-hidden text-sm">
+                  <li [class.hidden]="!!crumbs.parent" class="sm:list-item">
+                    @if (crumbs.rootRoute) {
+                      <a
+                        [routerLink]="crumbs.rootRoute"
+                        class="inline-flex min-h-10 items-center text-[#647590] hover:text-[#2458c5] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ crumbs.rootLabel }}</a
+                      >
+                    } @else {
+                      <span class="text-[#647590]">{{ crumbs.rootLabel }}</span>
+                    }
+                  </li>
+                  <li
+                    aria-hidden="true"
+                    [class.hidden]="!!crumbs.parent"
+                    class="text-[#9aabc0] sm:list-item"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </li>
+                  @if (crumbs.parent; as parent) {
+                    <li>
+                      <a
+                        [routerLink]="parent.route"
+                        class="inline-flex min-h-10 items-center whitespace-nowrap text-[#647590] hover:text-[#2458c5] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ parent.label }}</a
+                      >
+                    </li>
+                    <li aria-hidden="true" class="text-[#9aabc0]">
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      >
+                        <path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </li>
+                  }
+                  <li aria-current="page" class="min-w-0 truncate font-medium text-[#30435f]">
+                    {{ crumbs.currentLabel }}
+                  </li>
+                </ol>
+              </nav>
+            } @else {
+              <p class="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#52647e]">
+                {{ workspaceLabel() }}
+              </p>
+            }
           </div>
         </div>
 

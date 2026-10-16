@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -27,7 +28,7 @@ type ActionState = { action: 'deactivate' | 'reactivate'; category: CategoryNode
 
 @Component({
   selector: 'app-categories-page',
-  imports: [CategoryTreeNode, CategoryFormComponent],
+  imports: [CategoryTreeNode, CategoryFormComponent, PageHeaderComponent],
   templateUrl: './categories-page.html',
   styleUrl: './categories-page.css',
 })

@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -28,7 +29,7 @@ import { MANAGE_INBOUND_ROLES } from '../permissions';
 
 @Component({
   selector: 'app-purchase-orders-page',
-  imports: [DatePipe, DecimalPipe, RouterLink, PurchaseOrderStatusBadge],
+  imports: [DatePipe, DecimalPipe, RouterLink, PurchaseOrderStatusBadge, PageHeaderComponent],
   templateUrl: './purchase-orders-page.html',
 })
 export class PurchaseOrdersPage implements OnInit {

@@ -172,6 +172,31 @@ export class AppLayout {
     );
   });
 
+  readonly breadcrumb = computed(() => {
+    const path = this.routeUrl().split(/[?#]/, 1)[0];
+    if (path === '/dashboard') return null;
+
+    const platform = this.currentUser()?.roles.includes('SystemAdmin') ?? false;
+    const rootLabel = platform ? 'Platform' : 'Workspace';
+    const rootRoute = platform ? null : '/dashboard';
+    const orderSection = path.startsWith('/purchase-orders/')
+      ? { label: 'Purchase Orders', route: '/purchase-orders' }
+      : path.startsWith('/sales-orders/')
+        ? { label: 'Sales Orders', route: '/sales-orders' }
+        : null;
+
+    if (orderSection) {
+      const currentLabel = path.endsWith('/new')
+        ? 'Create'
+        : path.endsWith('/edit')
+          ? 'Edit'
+          : 'Details';
+      return { rootLabel, rootRoute, parent: orderSection, currentLabel };
+    }
+
+    return { rootLabel, rootRoute, parent: null, currentLabel: this.pageTitle() };
+  });
+
   readonly primaryRole = computed(() => {
     const roles = this.currentUser()?.roles ?? [];
     const role = ROLE_PRIORITY.find((name) => roles.includes(name)) ?? roles[0];

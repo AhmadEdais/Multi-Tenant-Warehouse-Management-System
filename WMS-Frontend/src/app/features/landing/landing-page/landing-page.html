@@ -1,209 +1,721 @@
-<main class="min-h-screen bg-[#f6f9fd] text-[#091127]">
-  <header
-    class="sticky top-0 z-50 border-b border-white/60 bg-white/50 shadow-[0_1px_12px_rgba(15,23,42,0.04)] backdrop-blur-md"
+<div id="top" class="min-h-screen bg-white text-[#14243b]">
+  <a
+    href="#main-content"
+    class="sr-only fixed left-4 top-4 z-[70] rounded-md bg-[#2458c5] px-4 py-3 font-semibold text-white focus:not-sr-only focus:outline-2 focus:outline-offset-2 focus:outline-[#2458c5]"
   >
+    Skip to content
+  </a>
+
+  <header class="sticky top-0 z-50 border-b border-[#dbe4f0] bg-white/95 backdrop-blur-md">
     <nav
-      class="mx-auto grid h-[76px] w-[calc(100%-32px)] max-w-[1360px] grid-cols-[1fr_auto] items-center md:w-[calc(100%-48px)] md:grid-cols-[1fr_auto_1fr]"
+      class="mx-auto flex h-[72px] w-full max-w-[1248px] items-center justify-between gap-5 px-5 sm:px-8"
       aria-label="Primary navigation"
     >
       <a
-        class="flex w-max items-center gap-2 text-[#091127] no-underline"
-        href="#"
+        routerLink="/"
+        (click)="closeMobileMenu()"
+        class="inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md text-[#14243b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
         aria-label="WMS home"
       >
         <svg
-          class="h-10 w-10 fill-none stroke-[#1259e7] stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]"
+          class="h-9 w-9 fill-none stroke-[#2458c5] stroke-[2.5] [stroke-linecap:round] [stroke-linejoin:round]"
           viewBox="0 0 48 48"
           aria-hidden="true"
         >
           <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
-          <path
-            d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5M14 29.5v8l10 5.5 10-5.5v-8"
-          />
+          <path d="m6 13.5 18 10 18-10M24 23.5V44M14 18.5l20 11M34 18.5 14 29.5" />
         </svg>
         <span class="flex flex-col leading-none">
-          <strong class="text-[22px] tracking-[-0.04em]">WMS</strong>
-          <small class="mt-1 hidden text-[8px] text-[#34415d] sm:block"
-            >Warehouse Management System</small
-          >
+          <strong class="text-[21px] tracking-[-0.035em]">WMS</strong>
+          <small class="mt-1 hidden text-[9px] text-[#647590] sm:block">
+            Warehouse Management System
+          </small>
         </span>
       </a>
 
-      <div class="hidden items-center gap-9 text-[13px] font-semibold md:flex">
-        <a class="transition-colors hover:text-blue-600" href="#features">Features</a>
-        <a class="transition-colors hover:text-blue-600" href="#about">About</a>
-        <a class="transition-colors hover:text-blue-600" href="#contact">Contact</a>
+      <div class="hidden items-center gap-7 text-sm font-medium text-[#52647e] md:flex">
+        <a
+          href="#workflow"
+          class="rounded-sm hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2458c5]"
+          >How it works</a
+        >
+        <a
+          href="#features"
+          class="rounded-sm hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2458c5]"
+          >Features</a
+        >
+        <a
+          href="#about"
+          class="rounded-sm hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2458c5]"
+          >About</a
+        >
+        <a
+          href="#contact"
+          class="rounded-sm hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2458c5]"
+          >Contact</a
+        >
       </div>
 
-      <div class="flex justify-end gap-2.5">
+      <div class="flex items-center gap-2">
         <a
-          class="hidden min-h-9 items-center justify-center rounded-md border border-[#d9e0ec] bg-white/90 px-5 text-[13px] font-semibold shadow-sm transition-transform hover:-translate-y-0.5 sm:inline-flex"
-          href="/login"
+          routerLink="/login"
+          class="hidden min-h-11 items-center justify-center rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] md:inline-flex"
         >
-          Login
+          Sign in
         </a>
+        <button
+          #menuToggle
+          type="button"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[#dbe4f0] text-[#14243b] hover:bg-[#f4f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] md:hidden"
+          aria-label="Toggle navigation"
+          aria-controls="landing-mobile-menu"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          (click)="toggleMobileMenu()"
+        >
+          @if (mobileMenuOpen()) {
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M5 5 19 19M19 5 5 19" stroke-linecap="round" />
+            </svg>
+          } @else {
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+            </svg>
+          }
+        </button>
       </div>
     </nav>
+    <div
+      id="landing-mobile-menu"
+      class="border-t border-[#e6edf5] bg-white px-5 py-3 shadow-[0_12px_20px_rgba(24,48,83,0.08)] md:hidden"
+      [class.hidden]="!mobileMenuOpen()"
+    >
+      <div class="mx-auto flex max-w-[1248px] flex-col text-sm font-semibold">
+        <a
+          href="#workflow"
+          (click)="closeMobileMenu()"
+          class="rounded-md px-3 py-3 hover:bg-[#f4f7fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >How it works</a
+        >
+        <a
+          href="#features"
+          (click)="closeMobileMenu()"
+          class="rounded-md px-3 py-3 hover:bg-[#f4f7fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >Features</a
+        >
+        <a
+          href="#about"
+          (click)="closeMobileMenu()"
+          class="rounded-md px-3 py-3 hover:bg-[#f4f7fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >About</a
+        >
+        <a
+          href="#contact"
+          (click)="closeMobileMenu()"
+          class="rounded-md px-3 py-3 hover:bg-[#f4f7fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >Contact</a
+        >
+        <a
+          routerLink="/login"
+          (click)="closeMobileMenu()"
+          class="mt-2 rounded-md bg-[#2458c5] px-3 py-3 text-center text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+          >Sign in</a
+        >
+      </div>
+    </div>
   </header>
 
-  <section class="relative overflow-hidden bg-[#f7f9fc]" aria-labelledby="hero-title">
-    <div
-      class="absolute inset-x-0 top-0 h-[518px] bg-[url('/images/warehouse-hero.png')] bg-cover bg-[67%_center] opacity-35 md:left-1/2 md:opacity-100"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="absolute inset-0 h-[518px] bg-[#f7f9fc]/85 md:right-1/2 md:bg-[#f7f9fc]"
-      aria-hidden="true"
-    ></div>
-
-    <div
-      class="relative z-10 mx-auto h-[442px] w-[calc(100%-32px)] max-w-[1360px] md:w-[calc(100%-48px)]"
-    >
-      <div class="w-full pt-[67px] md:w-1/2 md:pr-8 md:pt-[76px]">
-        <h1
-          id="hero-title"
-          class="m-0 max-w-[610px] text-[clamp(38px,4.2vw,61px)] leading-[1.01] font-[780] tracking-[-0.045em]"
-        >
-          Smarter warehouse<br />operations, from<br />receiving to fulfillment.
-        </h1>
-        <p class="mt-5 text-[15px] leading-6 text-[#45536e] md:text-base">
-          Manage inventory, warehouses, purchasing<br class="hidden sm:block" />
-          and fulfillment from one centralized system.
-        </p>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a
-            class="inline-flex min-h-11 items-center justify-center rounded-md border border-[#d9e0ec] bg-white px-6 text-[13px] font-bold shadow-[0_3px_10px_rgba(29,45,75,0.06)] transition-transform hover:-translate-y-0.5"
-            href="#features"
+  <main id="main-content" tabindex="-1">
+    <section class="overflow-hidden bg-[#f4f7fb]">
+      <div
+        class="mx-auto grid w-full max-w-[1248px] items-center gap-10 px-5 pb-16 pt-14 sm:px-8 sm:pt-20 lg:grid-cols-[0.94fr_1.06fr] lg:gap-14 lg:pb-24 lg:pt-24"
+      >
+        <div class="max-w-[610px]">
+          <p class="mb-5 text-sm font-semibold text-[#2458c5]">Portfolio project by Ahmad Edais</p>
+          <h1
+            class="max-w-[640px] text-[clamp(2.55rem,5vw,4.5rem)] font-bold leading-[1.06] tracking-[-0.045em] text-[#14243b]"
           >
-            Learn More
+            Know where stock is. Keep orders moving.
+          </h1>
+          <p class="mt-6 max-w-[530px] text-base leading-7 text-[#52647e] sm:text-lg">
+            WMS connects receiving, bin inventory, and customer fulfillment in one workspace for
+            your warehouse team.
+          </p>
+          <p class="mt-4 max-w-[530px] text-sm leading-6 text-[#52647e]">
+            This multi-tenant warehouse system is a portfolio demonstration and is not offered for
+            sale.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              routerLink="/login"
+              class="inline-flex min-h-12 items-center justify-center rounded-md bg-[#2458c5] px-6 text-sm font-semibold text-white shadow-[0_7px_18px_rgba(36,88,197,0.17)] transition-colors hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+            >
+              Sign in to WMS
+            </a>
+            <a
+              href="#workflow"
+              class="inline-flex min-h-12 items-center justify-center rounded-md border border-[#cbd8e8] bg-white px-6 text-sm font-semibold text-[#243b5c] hover:border-[#2458c5] hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+            >
+              See how it works
+            </a>
+          </div>
+          <p class="mt-7 text-sm leading-6 text-[#647590]">
+            From the receiving dock to the final customer pickup.
+          </p>
+        </div>
+
+        <figure class="relative min-w-0">
+          <div
+            class="overflow-hidden rounded-2xl border border-[#d4dfed] bg-[#dce7f2] shadow-[0_24px_60px_rgba(20,36,59,0.12)]"
+          >
+            <img
+              src="/images/warehouse-hero-landing.jpg"
+              width="1672"
+              height="1005"
+              fetchpriority="high"
+              decoding="async"
+              alt="Warehouse aisles with storage racks and a forklift carrying packaged goods"
+              class="aspect-[5/4] w-full object-cover object-[72%_center] sm:aspect-[4/3] lg:aspect-[5/4]"
+            />
+          </div>
+          <figcaption class="mt-3 text-xs leading-5 text-[#647590]">
+            A clearer path for the stock entering, moving through, and leaving your warehouse.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section
+      id="workflow"
+      class="landing-anchor bg-white py-16 sm:py-20"
+      aria-labelledby="workflow-heading"
+    >
+      <div class="mx-auto w-full max-w-[1248px] px-5 sm:px-8">
+        <div class="max-w-[740px]">
+          <h2
+            id="workflow-heading"
+            class="text-[clamp(2rem,3.2vw,2.85rem)] font-bold leading-tight tracking-[-0.035em]"
+          >
+            One path from arrival to handoff
+          </h2>
+          <p class="mt-4 text-base leading-7 text-[#52647e]">
+            Each physical step has a matching record, so teams can follow an item through the
+            warehouse.
+          </p>
+        </div>
+        <ol class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="rounded-xl border border-[#dbe4f0] bg-[#f8fafd] p-5">
+            <span class="text-sm font-bold text-[#2458c5]">01 / Receive</span>
+            <h3 class="mt-4 text-lg font-bold">Record what arrived</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Receive purchase order quantities into the warehouse Receiving Dock.
+            </p>
+          </li>
+          <li class="rounded-xl border border-[#dbe4f0] bg-[#f8fafd] p-5">
+            <span class="text-sm font-bold text-[#2458c5]">02 / Put away</span>
+            <h3 class="mt-4 text-lg font-bold">Place stock in bins</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Move received stock from the dock into active storage bins.
+            </p>
+          </li>
+          <li class="rounded-xl border border-[#dbe4f0] bg-[#f8fafd] p-5">
+            <span class="text-sm font-bold text-[#2458c5]">03 / Allocate</span>
+            <h3 class="mt-4 text-lg font-bold">Reserve available units</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Approve sales orders against available stock in warehouse bins.
+            </p>
+          </li>
+          <li class="rounded-xl border border-[#dbe4f0] bg-[#f8fafd] p-5">
+            <span class="text-sm font-bold text-[#2458c5]">04 / Pickup</span>
+            <h3 class="mt-4 text-lg font-bold">Confirm what left</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Record partial or full customer pickups against reserved bin stock.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section
+      id="features"
+      class="landing-anchor bg-[#f4f7fb] py-16 sm:py-20"
+      aria-labelledby="features-heading"
+    >
+      <div class="mx-auto w-full max-w-[1248px] px-5 sm:px-8">
+        <div class="grid items-start gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:gap-14">
+          <div>
+            <h2
+              id="features-heading"
+              class="text-[clamp(2rem,3.2vw,2.85rem)] font-bold leading-tight tracking-[-0.035em]"
+            >
+              See inventory in context
+            </h2>
+            <p class="mt-4 text-base leading-7 text-[#52647e]">
+              Stock belongs to a warehouse and a location. WMS keeps ordered, allocated, and
+              available quantities clear as work moves forward.
+            </p>
+            <ul class="mt-8 space-y-5" role="list">
+              <li class="border-l-[3px] border-[#2458c5] pl-4">
+                <h3 class="font-bold">Inventory by product and location</h3>
+                <p class="mt-1 text-sm leading-6 text-[#52647e]">
+                  Review on-hand, reserved, and available stock without losing its warehouse
+                  context.
+                </p>
+              </li>
+              <li class="border-l-[3px] border-[#2458c5] pl-4">
+                <h3 class="font-bold">Warehouse hierarchy</h3>
+                <p class="mt-1 text-sm leading-6 text-[#52647e]">
+                  Navigate from warehouse to zone, aisle, rack, and bin.
+                </p>
+              </li>
+              <li class="border-l-[3px] border-[#2458c5] pl-4">
+                <h3 class="font-bold">Order progress</h3>
+                <p class="mt-1 text-sm leading-6 text-[#52647e]">
+                  Follow receiving and fulfillment as quantities change.
+                </p>
+              </li>
+            </ul>
+          </div>
+
+          <figure class="min-w-0">
+            <div
+              class="overflow-hidden rounded-xl border border-[#d6e1ee] bg-white shadow-[0_18px_46px_rgba(24,48,83,0.09)]"
+              aria-hidden="true"
+            >
+              <div class="flex items-center gap-3 bg-[#14243b] px-4 py-3 text-white">
+                <svg
+                  class="h-6 w-6 shrink-0 fill-none stroke-[#6aa3ff] stroke-[2.2]"
+                  viewBox="0 0 48 48"
+                >
+                  <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
+                  <path d="m6 13.5 18 10 18-10M24 23.5V44" />
+                </svg>
+                <span class="text-sm font-bold">WMS</span>
+                <span class="ml-auto hidden text-xs text-[#bdcce1] sm:block"
+                  >Inventory workspace</span
+                >
+              </div>
+              <div class="border-b border-[#e3eaf3] px-5 py-5">
+                <p class="text-lg font-bold">Inventory</p>
+                <p class="mt-1 text-xs text-[#647590]">
+                  Monitor on-hand, allocated, and available stock.
+                </p>
+              </div>
+              <div class="grid gap-3 px-5 py-5 sm:grid-cols-3">
+                <div class="rounded-lg border border-[#e1e8f2] bg-[#fafcff] p-3">
+                  <p class="text-xs font-semibold text-[#647590]">On hand</p>
+                  <span class="mt-3 block h-4 w-2/3 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg border border-[#e1e8f2] bg-[#fafcff] p-3">
+                  <p class="text-xs font-semibold text-[#647590]">Allocated</p>
+                  <span class="mt-3 block h-4 w-1/2 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg border border-[#e1e8f2] bg-[#fafcff] p-3">
+                  <p class="text-xs font-semibold text-[#647590]">Available</p>
+                  <span class="mt-3 block h-4 w-3/5 rounded bg-[#dce7f5]"></span>
+                </div>
+              </div>
+              <div class="mx-5 mb-5 overflow-x-auto rounded-lg border border-[#e1e8f2]">
+                <table class="w-full min-w-[520px] text-left text-xs">
+                  <thead
+                    class="border-b border-[#dbe4f0] bg-[#f7f9fd] font-semibold text-[#425673]"
+                  >
+                    <tr>
+                      <th class="px-4 py-3">SKU</th>
+                      <th class="px-4 py-3">Product</th>
+                      <th class="px-4 py-3">On hand</th>
+                      <th class="px-4 py-3">Allocated</th>
+                      <th class="px-4 py-3">Available</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b border-[#edf1f6]">
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-14 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-24 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-9 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-8 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-9 rounded bg-[#dce7f5]"></span>
+                      </td>
+                    </tr>
+                    <tr class="border-b border-[#edf1f6]">
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-16 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-20 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-8 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-9 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-8 rounded bg-[#dce7f5]"></span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-12 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-28 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-9 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-8 rounded bg-[#dce7f5]"></span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="block h-2.5 w-10 rounded bg-[#dce7f5]"></span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <figcaption class="mt-3 text-xs leading-5 text-[#647590]">
+              Representative interface based on the WMS Inventory page. No tenant data is shown.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="mt-12 grid gap-4 lg:grid-cols-2">
+          <figure class="min-w-0">
+            <div
+              class="h-full rounded-xl border border-[#dbe4f0] bg-white p-5 shadow-[0_5px_20px_rgba(24,48,83,0.04)]"
+              aria-hidden="true"
+            >
+              <div class="flex items-center gap-3 border-b border-[#e3eaf3] pb-4">
+                <span
+                  class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
+                >
+                  <svg
+                    class="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path d="M7 4h10l4 4v12H3V4h4Zm0 5h10M7 13h10M7 17h7" />
+                  </svg>
+                </span>
+                <div>
+                  <p class="font-bold">Purchase Order details</p>
+                  <p class="text-xs text-[#647590]">Inbound progress</p>
+                </div>
+              </div>
+              <div class="mt-5 grid grid-cols-3 gap-2 text-center text-xs sm:gap-3">
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Expected</p>
+                  <span class="mx-auto mt-3 block h-3 w-12 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Received</p>
+                  <span class="mx-auto mt-3 block h-3 w-10 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Remaining</p>
+                  <span class="mx-auto mt-3 block h-3 w-9 rounded bg-[#dce7f5]"></span>
+                </div>
+              </div>
+              <p class="mt-5 text-xs font-semibold text-[#52647e]">
+                Draft → Pending → Receiving → Received
+              </p>
+            </div>
+            <figcaption class="mt-2 text-xs leading-5 text-[#647590]">
+              Representative purchase order view; no order data is shown.
+            </figcaption>
+          </figure>
+          <figure class="min-w-0">
+            <div
+              class="h-full rounded-xl border border-[#dbe4f0] bg-white p-5 shadow-[0_5px_20px_rgba(24,48,83,0.04)]"
+              aria-hidden="true"
+            >
+              <div class="flex items-center gap-3 border-b border-[#e3eaf3] pb-4">
+                <span
+                  class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
+                >
+                  <svg
+                    class="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path d="M3 5h12v11H3V5Zm12 4h3l3 3v4h-6V9ZM7 20h.01M18 20h.01" />
+                  </svg>
+                </span>
+                <div>
+                  <p class="font-bold">Sales Order details</p>
+                  <p class="text-xs text-[#647590]">Outbound progress</p>
+                </div>
+              </div>
+              <div class="mt-5 grid grid-cols-3 gap-2 text-center text-xs sm:gap-3">
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Ordered</p>
+                  <span class="mx-auto mt-3 block h-3 w-12 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Allocated</p>
+                  <span class="mx-auto mt-3 block h-3 w-10 rounded bg-[#dce7f5]"></span>
+                </div>
+                <div class="rounded-lg bg-[#f4f7fb] p-3">
+                  <p class="font-semibold text-[#52647e]">Picked</p>
+                  <span class="mx-auto mt-3 block h-3 w-9 rounded bg-[#dce7f5]"></span>
+                </div>
+              </div>
+              <p class="mt-5 text-xs font-semibold text-[#52647e]">
+                Draft → Allocated → Picked → Shipped
+              </p>
+            </div>
+            <figcaption class="mt-2 text-xs leading-5 text-[#647590]">
+              Representative sales order view; no order data is shown.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="mt-12 grid gap-4 md:grid-cols-3">
+          <article
+            class="rounded-xl border border-[#dbe4f0] bg-white p-6 shadow-[0_5px_20px_rgba(24,48,83,0.04)]"
+          >
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
+            >
+              <svg
+                class="h-6 w-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                aria-hidden="true"
+              >
+                <path d="M3 7h18v13H3V7Zm3-4h12l3 4H3l3-4Zm1 9h5m-5 4h9" />
+              </svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold">Stock visibility</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              See quantities where they physically sit, including stock awaiting putaway at the
+              Receiving Dock.
+            </p>
+          </article>
+          <article
+            class="rounded-xl border border-[#dbe4f0] bg-white p-6 shadow-[0_5px_20px_rgba(24,48,83,0.04)]"
+          >
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
+            >
+              <svg
+                class="h-6 w-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                aria-hidden="true"
+              >
+                <path d="M7 4h10l4 4v12H3V4h4Zm0 5h10M7 13h10M7 17h7" />
+              </svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold">Inbound receiving</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Track expected, received, and remaining purchase order quantities across partial
+              deliveries.
+            </p>
+          </article>
+          <article
+            class="rounded-xl border border-[#dbe4f0] bg-white p-6 shadow-[0_5px_20px_rgba(24,48,83,0.04)]"
+          >
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
+            >
+              <svg
+                class="h-6 w-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                aria-hidden="true"
+              >
+                <path d="M3 5h12v11H3V5Zm12 4h3l3 3v4h-6V9ZM7 20h.01M18 20h.01" />
+              </svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold">Outbound fulfillment</h3>
+            <p class="mt-2 text-sm leading-6 text-[#52647e]">
+              Reserve bin stock for sales orders and record each customer pickup against its
+              allocation.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="about"
+      class="landing-anchor bg-[#14243b] py-16 text-white sm:py-20"
+      aria-labelledby="about-heading"
+    >
+      <div class="mx-auto grid w-full max-w-[1248px] gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-20">
+        <div>
+          <h2
+            id="about-heading"
+            class="text-[clamp(2rem,3.2vw,2.85rem)] font-bold leading-tight tracking-[-0.035em]"
+          >
+            Built for the people moving the goods
+          </h2>
+          <p class="mt-5 max-w-[580px] text-base leading-7 text-[#d3deec]">
+            WMS brings purchasing, warehouse operations, and customer orders into the same working
+            record. Teams can see what was received, where it was stored, and what remains to be
+            fulfilled.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-xl border border-white/15 bg-white/5 p-5">
+            <h3 class="text-base font-bold">A workspace for each tenant</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c5d4e6]">
+              Organizations work within their own tenant data and warehouse records.
+            </p>
+          </div>
+          <div class="rounded-xl border border-white/15 bg-white/5 p-5">
+            <h3 class="text-base font-bold">Access by role</h3>
+            <p class="mt-2 text-sm leading-6 text-[#c5d4e6]">
+              Administrators, managers, operators, and analysts see actions appropriate to their
+              work.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="contact"
+      class="landing-anchor bg-white py-16 sm:py-20"
+      aria-labelledby="contact-heading"
+    >
+      <div
+        class="mx-auto flex w-full max-w-[1248px] flex-col gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between"
+      >
+        <div class="max-w-[700px]">
+          <h2
+            id="contact-heading"
+            class="text-[clamp(2rem,3.2vw,2.85rem)] font-bold leading-tight tracking-[-0.035em]"
+          >
+            Let's talk about the project
+          </h2>
+          <p class="mt-4 text-base leading-7 text-[#52647e]">
+            Have a question about the WMS implementation or my work? Email me or connect on
+            LinkedIn. This is a portfolio project, not a commercial product.
+          </p>
+          <a
+            href="mailto:ahmad.edais.jo@gmail.com"
+            class="mt-3 inline-block text-sm font-semibold text-[#2458c5] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+          >
+            ahmad.edais.jo@gmail.com
+          </a>
+        </div>
+        <div class="flex max-w-full flex-wrap gap-3 lg:max-w-[480px] lg:justify-end">
+          <a
+            href="mailto:ahmad.edais.jo@gmail.com?subject=WMS%20portfolio%20project"
+            class="inline-flex min-h-12 items-center justify-center rounded-md bg-[#2458c5] px-6 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+          >
+            Contact Ahmad about WMS
+          </a>
+          <a
+            href="https://www.linkedin.com/in/ahmad-edais/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-h-12 items-center justify-center rounded-md border border-[#cbd8e8] px-6 text-sm font-semibold text-[#243b5c] hover:border-[#2458c5] hover:text-[#2458c5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+          >
+            Ahmad on LinkedIn <span class="sr-only">(opens in a new tab)</span>
           </a>
         </div>
       </div>
+    </section>
+  </main>
 
-      <aside
-        class="absolute top-[47px] right-[20%] hidden items-center gap-3.5 rounded-lg border border-[#dce3ee] bg-white/97 px-[18px] py-3.5 text-xs leading-[1.35] text-[#172036] shadow-[0_10px_26px_rgba(20,40,75,0.17)] lg:flex"
-        aria-label="Real-time inventory across all warehouses"
-      >
-        <span class="h-6 w-6 rounded-full border-4 border-[#16b979]" aria-hidden="true"></span>
-        <strong>Real-time inventory<br />across all warehouses</strong>
-      </aside>
-
-      <aside
-        class="absolute right-[4%] bottom-7 hidden items-center gap-3.5 rounded-lg border border-[#dce3ee] bg-white/97 px-[18px] py-3.5 text-xs leading-[1.35] text-[#172036] shadow-[0_10px_26px_rgba(20,40,75,0.17)] lg:flex"
-        aria-label="From receiving to fulfillment"
-      >
-        <svg
-          class="h-8 w-8 fill-none stroke-[#1463ef] stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 32 32"
-          aria-hidden="true"
-        >
-          <path d="M3 7h16v14H3zM19 12h6l4 5v4H19z" />
-          <circle cx="9" cy="24" r="2.5" />
-          <circle cx="25" cy="24" r="2.5" />
-        </svg>
-        <strong>From receiving<br />to fulfillment</strong>
-      </aside>
-    </div>
-
+  <footer class="border-t border-white/10 bg-[#0f2036] text-[#c5d4e6]">
     <div
-      class="relative z-10 mx-auto my-20 flex min-h-23 w-[calc(100%-32px)] max-w-340 flex-col gap-5 py-5 md:w-[calc(100%-48px)] md:flex-row md:gap-0 md:py-0"
-      aria-label="Platform benefits"
+      class="mx-auto grid w-full max-w-[1248px] gap-8 px-5 py-12 sm:px-8 md:grid-cols-[1fr_auto]"
     >
-      <div class="flex flex-1 items-center gap-4">
-        <svg
-          class="h-[34px] w-[34px] fill-none stroke-[#1261f2] stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 32 32"
-          aria-hidden="true"
+      <div>
+        <a
+          href="#top"
+          class="inline-flex items-center gap-2 rounded-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
-          <path d="m16 3 11 6v13L16 29 5 22V9zM5 9l11 7 11-7M16 16v13" />
-        </svg>
-        <span class="text-[13px] leading-[1.4] font-semibold text-[#25314a]"
-          >Track stock<br />in real time</span
-        >
+          <svg
+            class="h-7 w-7 fill-none stroke-[#6aa3ff] stroke-[2.4]"
+            viewBox="0 0 48 48"
+            aria-hidden="true"
+          >
+            <path d="M24 3 43 13.5v21L24 45 5 34.5v-21L24 3Z" />
+            <path d="m6 13.5 18 10 18-10M24 23.5V44" />
+          </svg>
+          WMS
+        </a>
+        <p class="mt-3 max-w-[360px] text-sm leading-6">
+          A connected workspace for warehouse inventory, inbound orders, and customer fulfillment.
+        </p>
       </div>
-      <div class="flex flex-1 items-center gap-4 md:justify-center">
-        <svg class="h-[34px] w-[34px] fill-[#1261f2]" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M4 21h5v8H4zM13.5 14h5v15h-5zM23 5h5v24h-5z" />
-        </svg>
-        <span class="text-[13px] leading-[1.4] font-semibold text-[#25314a]"
-          >Improve<br />operational efficiency</span
+      <nav
+        aria-label="Footer navigation"
+        class="flex flex-wrap items-start gap-x-6 gap-y-3 text-sm"
+      >
+        <a
+          href="#workflow"
+          class="hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >How it works</a
         >
-      </div>
-      <div class="flex flex-1 items-center gap-4 md:justify-end">
-        <svg class="h-[34px] w-[34px] fill-[#1261f2]" viewBox="0 0 32 32" aria-hidden="true">
-          <circle cx="11" cy="10" r="4" />
-          <circle cx="23" cy="12" r="3" />
-          <path d="M3 28c.5-6 3-9 8-9s7.5 3 8 9M18 27c.4-4 2-6.5 5-6.5 3.5 0 5.4 2.5 5.8 6.5" />
-        </svg>
-        <span class="text-[13px] leading-[1.4] font-semibold text-[#25314a]"
-          >Built for<br />growing businesses</span
+        <a
+          href="#features"
+          class="hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >Features</a
         >
+        <a
+          href="#about"
+          class="hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >About</a
+        >
+        <a
+          href="#contact"
+          class="hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >Contact</a
+        >
+        <a
+          routerLink="/login"
+          class="hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >Sign in</a
+        >
+      </nav>
+    </div>
+    <div class="border-t border-white/10">
+      <div
+        class="mx-auto flex w-full max-w-[1248px] flex-wrap justify-between gap-2 px-5 py-5 text-xs sm:px-8"
+      >
+        <span>© {{ currentYear }} WMS. All rights reserved.</span>
+        <span>Portfolio demonstration · Not for sale</span>
       </div>
     </div>
-  </section>
-
-  <section
-    id="features"
-    class="bg-gradient-to-b from-[#f5f8fc] to-white px-4 pt-7 pb-5 md:px-6"
-    aria-labelledby="features-title"
-  >
-    <h2 id="features-title" class="sr-only">Warehouse management features</h2>
-    <div class="mx-auto grid max-w-340 grid-cols-1 gap-6 md:grid-cols-3">
-      <article
-        class="min-h-[170px] rounded-[10px] border border-[#e0e6ef] bg-white/95 p-[22px] shadow-[0_7px_24px_rgba(22,43,79,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(22,43,79,0.1)]"
-      >
-        <svg
-          class="h-[34px] w-[34px] fill-none stroke-[#1765f3] stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 32 32"
-          aria-hidden="true"
-        >
-          <path d="m16 3 11 6v13L16 29 5 22V9zM5 9l11 7 11-7M16 16v13" />
-        </svg>
-        <h3 class="mt-[13px] text-[17px] font-bold tracking-[-0.025em]">Inventory Control</h3>
-        <p class="mt-2 text-[13px] leading-5 text-[#45536e]">
-          Track stock across multiple<br />warehouses and locations.
-        </p>
-      </article>
-
-      <article
-        class="min-h-[170px] rounded-[10px] border border-[#e0e6ef] bg-white/95 p-[22px] shadow-[0_7px_24px_rgba(22,43,79,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(22,43,79,0.1)]"
-      >
-        <svg
-          class="h-[34px] w-[34px] fill-none stroke-[#1765f3] stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-          viewBox="0 0 32 32"
-          aria-hidden="true"
-        >
-          <path d="M3 7h16v14H3zM19 12h6l4 5v4H19z" />
-          <circle cx="9" cy="24" r="2.5" />
-          <circle cx="25" cy="24" r="2.5" />
-        </svg>
-        <h3 class="mt-[13px] text-[17px] font-bold tracking-[-0.025em]">Inbound Operations</h3>
-        <p class="mt-2 text-[13px] leading-5 text-[#45536e]">
-          Manage purchase orders<br />and receiving with ease.
-        </p>
-      </article>
-
-      <article
-        class="min-h-[170px] rounded-[10px] border border-[#e0e6ef] bg-white/95 p-[22px] shadow-[0_7px_24px_rgba(22,43,79,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(22,43,79,0.1)]"
-      >
-        <svg class="h-[34px] w-[34px] fill-[#1765f3]" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M4 21h5v8H4zM13.5 14h5v15h-5zM23 5h5v24h-5z" />
-        </svg>
-        <h3 class="mt-[13px] text-[17px] font-bold tracking-[-0.025em]">Fulfillment</h3>
-        <p class="mt-2 text-[13px] leading-5 text-[#45536e]">
-          Allocate, pick and ship<br />customer orders efficiently.
-        </p>
-      </article>
-    </div>
-    <p class="mt-5 text-center text-[13px] font-semibold text-[#26334b]">
-      Everything you need to keep your warehouse running smoothly.
-    </p>
-    <span
-      class="mx-auto mt-3.5 block h-[3px] w-12 rounded-full bg-[#145cf0]"
-      aria-hidden="true"
-    ></span>
-  </section>
-
-  <section id="about" class="sr-only" aria-label="About WMS"></section>
-  <section id="contact" class="sr-only" aria-label="Contact WMS"></section>
-</main>
+  </footer>
+</div>

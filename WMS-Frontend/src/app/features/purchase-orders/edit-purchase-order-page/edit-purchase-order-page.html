@@ -18,13 +18,13 @@
   @if (loading()) {
     <section
       role="status"
-      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       Loading Purchase Order...
     </section>
   } @else if (notFound()) {
     <section
-      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       <h2 class="text-xl font-bold text-[#14243b]">Purchase Order not found</h2>
       <p class="mt-2 text-sm text-[#647590]">
@@ -33,7 +33,7 @@
     </section>
   } @else if (error()) {
     <section
-      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
     >
       <p role="alert" class="text-sm text-[#b4232d]">{{ error() }}</p>
       <button
@@ -47,18 +47,29 @@
   } @else if (order(); as purchaseOrder) {
     @if (purchaseOrder.status !== 'Draft') {
       <section
-        class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
       >
         <h2 class="text-xl font-bold text-[#14243b]">This Purchase Order cannot be edited</h2>
         <p class="mt-2 text-sm text-[#647590]">Only Draft Purchase Orders can be edited.</p>
       </section>
     } @else {
-      <header>
-        <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-          Edit {{ purchaseOrder.orderNumber }}
-        </h2>
-        <p class="mt-1 text-sm text-[#647590]">Update this draft supplier order.</p>
-      </header>
+      <app-page-header
+        title="Edit {{ purchaseOrder.orderNumber }}"
+        subtitle="Update this draft supplier order."
+      >
+        <svg
+          pageHeaderIcon
+          class="h-6 w-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 4h10l4 4v12H3V4h4Zm0 5h10M7 13h10M7 17h7" />
+        </svg>
+      </app-page-header>
 
       <app-purchase-order-form
         mode="edit"

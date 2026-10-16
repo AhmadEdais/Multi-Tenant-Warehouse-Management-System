@@ -1,38 +1,49 @@
+<app-page-header
+  title="Suppliers"
+  subtitle="Manage supplier information and contact details."
+  headingId="suppliers-heading"
+  class="mb-5"
+>
+  <svg
+    pageHeaderIcon
+    class="h-6 w-6"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M3 5h12v11H3V5Zm12 4h3l3 3v4h-6V9ZM7 20h.01M18 20h.01" />
+  </svg>
+  @if (canManage()) {
+    <button
+      pageHeaderActions
+      type="button"
+      (click)="openCreateForm()"
+      class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] sm:ml-auto sm:w-auto"
+    >
+      <svg
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+      </svg>
+      Add Supplier
+    </button>
+  }
+</app-page-header>
+
 <section
-  class="min-w-0 overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
   aria-labelledby="suppliers-heading"
 >
-  <header
-    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
-  >
-    <div>
-      <h2 id="suppliers-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-        Suppliers
-      </h2>
-      <p class="mt-1 text-sm text-[#647590]">Manage suppliers in your tenant workspace.</p>
-    </div>
-    @if (canManage()) {
-      <button
-        type="button"
-        (click)="openCreateForm()"
-        class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-      >
-        <svg
-          class="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          aria-hidden="true"
-        >
-          <path d="M12 4v16M4 12h16" stroke-linecap="round" />
-        </svg>
-        Add Supplier
-      </button>
-    }
-  </header>
   <div class="px-5 pb-6 pt-5 sm:px-6">
-    <div class="mb-5 flex flex-wrap items-center gap-3">
+    <div class="mb-5 flex flex-wrap items-center gap-3 border-b border-[#edf1f6] pb-5">
       <label class="relative min-w-0 flex-[1_1_240px] sm:max-w-[520px]" for="supplier-search">
         <span class="sr-only">Search suppliers by code or name</span>
         <svg
@@ -52,7 +63,7 @@
           [value]="search()"
           (input)="onSearchInput($event)"
           placeholder="Search by code or name..."
-          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full rounded-lg border border-[#d2deec] bg-white pl-10 pr-3 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none placeholder:text-[#6f809a] hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         />
       </label>
       <label class="relative min-w-0 flex-[1_1_160px] sm:max-w-[190px]" for="supplier-status">
@@ -63,7 +74,7 @@
           id="supplier-status"
           [value]="status()"
           (change)="onStatusChange($event)"
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full appearance-none rounded-lg border border-[#d2deec] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         >
           <option value="all">All</option>
           <option value="active">Active</option>
@@ -87,17 +98,17 @@
     @if (formOpening()) {
       <p role="status" class="mb-4 text-sm text-[#52647e]">Loading supplier for editing...</p>
     }
-    <div class="max-w-full overflow-x-auto rounded-md border border-[#dfe7f1]">
+    <div class="max-w-full overflow-x-auto rounded-lg border border-[#dfe7f1]">
       <table class="w-full min-w-[790px] border-collapse text-left text-sm">
-        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
-          <tr class="border-b border-[#dfe7f1]">
-            <th scope="col" class="w-14 px-4 py-4">#</th>
-            <th scope="col" class="px-4 py-4">Code</th>
-            <th scope="col" class="px-4 py-4">Supplier Name</th>
-            <th scope="col" class="px-4 py-4">Contact Email</th>
-            <th scope="col" class="px-4 py-4">Phone</th>
-            <th scope="col" class="px-4 py-4">Status</th>
-            <th scope="col" class="w-28 px-4 py-4">Actions</th>
+        <thead class="bg-[#f7f9fd] text-xs font-semibold tracking-[0.015em] text-[#405573]">
+          <tr class="border-b border-[#dce5f0]">
+            <th scope="col" class="border-r border-[#e5ebf3] w-14 px-4 py-3.5">#</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Code</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Supplier Name</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Contact Email</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Phone</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Status</th>
+            <th scope="col" class="w-28 px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -132,9 +143,9 @@
             </tr>
           } @else {
             @for (supplier of suppliers(); track supplier.id; let index = $index) {
-              <tr class="border-b border-[#e2e9f2] last:border-b-0 hover:bg-[#f8fbff]">
+              <tr class="border-b border-[#e9eef5] last:border-b-0 hover:bg-[#f8fbff]">
                 <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
-                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ supplier.code }}</td>
+                <td class="px-4 py-4 font-semibold text-[#14243b]">{{ supplier.code }}</td>
                 <td class="px-4 py-4 text-[#30435f]">{{ supplier.name }}</td>
                 <td class="max-w-52 truncate px-4 py-4 text-[#30435f]">
                   {{ supplier.contactEmail || '—' }}
@@ -153,7 +164,7 @@
                   >
                 </td>
                 <td class="px-4 py-4">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center justify-end gap-2">
                     <button
                       type="button"
                       (click)="$event.stopPropagation(); openDetails(supplier)"
@@ -217,7 +228,7 @@
 @if (menuSupplier(); as supplier) {
   <div
     role="menu"
-    class="fixed z-[55] w-44 rounded-md border border-[#d7e1ef] bg-white py-1 text-sm shadow-lg"
+    class="fixed z-[55] w-44 rounded-xl border border-[#dbe4f0] bg-white py-1 text-sm shadow-lg"
     [style.top.px]="menuPosition().top"
     [style.left.px]="menuPosition().left"
     (click)="$event.stopPropagation()"

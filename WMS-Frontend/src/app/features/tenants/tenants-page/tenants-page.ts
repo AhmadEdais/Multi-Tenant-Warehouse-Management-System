@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -40,7 +41,7 @@ const requiredText = (control: AbstractControl): ValidationErrors | null =>
 
 @Component({
   selector: 'app-tenants-page',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, PageHeaderComponent],
   templateUrl: './tenants-page.html',
   styleUrl: './tenants-page.css',
 })

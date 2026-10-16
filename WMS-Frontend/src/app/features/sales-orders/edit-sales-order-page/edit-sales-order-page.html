@@ -1,56 +1,99 @@
 <div class="space-y-5">
   @if (order(); as salesOrder) {
-    <a [routerLink]="['/sales-orders', salesOrder.id]"
-      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+    <a
+      [routerLink]="['/sales-orders', salesOrder.id]"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+    >
       <span aria-hidden="true">←</span> Sales Order {{ salesOrder.orderNumber }}
     </a>
   } @else {
-    <a routerLink="/sales-orders"
-      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+    <a
+      routerLink="/sales-orders"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+    >
       <span aria-hidden="true">←</span> Sales Orders
     </a>
   }
 
   @if (loading()) {
-    <section role="status"
-      class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_4px_20px_rgba(24,48,83,0.03)]">
+    <section
+      role="status"
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center text-sm text-[#52647e] shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
+    >
       Loading Sales Order...
     </section>
   } @else if (notFound()) {
-    <section class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]">
+    <section
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
+    >
       <h2 class="text-xl font-bold text-[#14243b]">Sales Order not found</h2>
-      <p class="mt-2 text-sm text-[#647590]">This Sales Order is not available in your workspace.</p>
+      <p class="mt-2 text-sm text-[#647590]">
+        This Sales Order is not available in your workspace.
+      </p>
     </section>
   } @else if (error()) {
-    <section class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]">
+    <section
+      class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
+    >
       <p role="alert" class="text-sm text-[#b4232d]">{{ error() }}</p>
-      <button type="button" (click)="retry()"
-        class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+      <button
+        type="button"
+        (click)="retry()"
+        class="mt-3 text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+      >
         Try again
       </button>
     </section>
   } @else if (order(); as salesOrder) {
     @if (salesOrder.status !== 'Draft') {
-      <section class="rounded-md border border-[#d7e1ef] bg-white px-6 py-14 text-center shadow-[0_4px_20px_rgba(24,48,83,0.03)]">
+      <section
+        class="rounded-xl border border-[#dbe4f0] bg-white px-6 py-14 text-center shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
+      >
         <h2 class="text-xl font-bold text-[#14243b]">This Sales Order cannot be edited</h2>
         <p class="mt-2 text-sm text-[#647590]">Only Draft Sales Orders can be edited.</p>
-        <a [routerLink]="['/sales-orders', salesOrder.id]"
-          class="mt-3 inline-block text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+        <a
+          [routerLink]="['/sales-orders', salesOrder.id]"
+          class="mt-3 inline-block text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+        >
           Return to Sales Order details
         </a>
       </section>
     } @else {
-      <header>
-        <h2 class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">Edit {{ salesOrder.orderNumber }}</h2>
-        <p class="mt-1 text-sm text-[#647590]">Update this draft customer order.</p>
-      </header>
+      <app-page-header
+        title="Edit {{ salesOrder.orderNumber }}"
+        subtitle="Update this draft customer order."
+      >
+        <svg
+          pageHeaderIcon
+          class="h-6 w-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 5h12v11H3V5Zm12 4h3l3 3v4h-6V9ZM7 20h.01M18 20h.01" />
+        </svg>
+      </app-page-header>
 
       @if (saved()) {
-        <section role="status" class="rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-5 py-5 text-sm text-[#116b48]">
+        <section
+          role="status"
+          class="rounded-md border border-[#b9e7cd] bg-[#eaf8f0] px-5 py-5 text-sm text-[#116b48]"
+        >
           <p class="font-semibold">Sales Order changes saved.</p>
-          <p class="mt-1">{{ navigationFailed() ? 'Its details could not be opened automatically.' : 'Opening its details...' }}</p>
-          <a [routerLink]="['/sales-orders', salesOrder.id]"
-            class="mt-3 inline-block font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]">
+          <p class="mt-1">
+            {{
+              navigationFailed()
+                ? 'Its details could not be opened automatically.'
+                : 'Opening its details...'
+            }}
+          </p>
+          <a
+            [routerLink]="['/sales-orders', salesOrder.id]"
+            class="mt-3 inline-block font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+          >
             Open Sales Order
           </a>
         </section>

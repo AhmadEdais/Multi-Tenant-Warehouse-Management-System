@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -48,6 +49,7 @@ import { SalesOrdersService } from '../sales-orders.service';
     SalesOrderPickupDialogComponent,
     SalesOrderPickupHistoryComponent,
     SalesOrderStatusBadge,
+    PageHeaderComponent,
   ],
   templateUrl: './sales-order-details-page.html',
 })

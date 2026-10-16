@@ -1,38 +1,52 @@
+<app-page-header
+  title="Users"
+  subtitle="Manage team members, roles, and account access."
+  headingId="users-heading"
+  class="mb-5"
+>
+  <svg
+    pageHeaderIcon
+    class="h-6 w-6"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="9" cy="8" r="3" />
+    <path d="M3 20v-2a6 6 0 0 1 12 0v2H3ZM17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1h-4" />
+  </svg>
+  <button
+    pageHeaderActions
+    type="button"
+    (click)="openCreateModal()"
+    class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] sm:ml-auto sm:w-auto"
+  >
+    <svg
+      class="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      aria-hidden="true"
+    >
+      <path d="M12 4v16M4 12h16" stroke-linecap="round" />
+    </svg>
+    Add User
+  </button>
+</app-page-header>
+
 <section
-  class="overflow-hidden rounded-md border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+  class="min-w-0 overflow-hidden rounded-xl border border-[#dbe4f0] bg-white shadow-[0_8px_28px_rgba(24,48,83,0.04)]"
   aria-labelledby="users-heading"
 >
-  <header
-    class="flex flex-wrap items-center justify-between gap-4 border-b border-[#e3eaf3] px-5 py-5 sm:px-6"
-  >
-    <div>
-      <h2 id="users-heading" class="text-2xl font-bold tracking-[-0.035em] text-[#14243b]">
-        Users
-      </h2>
-      <p class="mt-1 text-sm text-[#647590]">Manage the people in your tenant workspace.</p>
-    </div>
-    <button
-      type="button"
-      (click)="openCreateModal()"
-      class="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-    >
-      <svg
-        class="h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        aria-hidden="true"
+  <div class="px-5 pb-6 pt-5 sm:px-6 sm:pt-6">
+    <div class="mb-5 flex flex-wrap items-center gap-3 border-b border-[#edf1f6] pb-5">
+      <label
+        class="relative w-full min-w-0 sm:min-w-[220px] sm:flex-1 sm:max-w-[520px]"
+        for="user-search"
       >
-        <path d="M12 4v16M4 12h16" stroke-linecap="round" />
-      </svg>
-      Add User
-    </button>
-  </header>
-
-  <div class="px-5 pb-6 pt-5 sm:px-6">
-    <div class="mb-5 flex flex-wrap items-center gap-3">
-      <label class="relative min-w-[220px] flex-1 sm:max-w-[520px]" for="user-search">
         <span class="sr-only">Search users by name or email</span>
         <svg
           class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#526988]"
@@ -51,7 +65,7 @@
           [value]="search()"
           (input)="onSearchInput($event)"
           placeholder="Search users by name or email..."
-          class="h-11 w-full rounded-md border border-[#cdd9e9] bg-white pl-10 pr-3 text-sm text-[#1b2d48] outline-none placeholder:text-[#6f809a] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full rounded-lg border border-[#d2deec] bg-white pl-10 pr-3 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none placeholder:text-[#6f809a] hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         />
       </label>
       <label class="relative w-full sm:w-[180px]" for="user-status">
@@ -62,7 +76,7 @@
           id="user-status"
           [value]="status()"
           (change)="onStatusChange($event)"
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
+          class="h-11 w-full appearance-none rounded-lg border border-[#d2deec] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15"
         >
           <option value="all">All</option>
           <option value="active">Active</option>
@@ -88,7 +102,7 @@
           [value]="roleFilter()"
           (change)="onRoleChange($event)"
           [disabled]="rolesLoading() || !!rolesError()"
-          class="h-11 w-full appearance-none rounded-md border border-[#cdd9e9] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] outline-none focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
+          class="h-11 w-full appearance-none rounded-lg border border-[#d2deec] bg-white px-3 pb-1 pt-4 text-sm text-[#1b2d48] shadow-[0_1px_2px_rgba(24,48,83,0.03)] outline-none hover:border-[#acbed7] focus:border-[#2458c5] focus:ring-2 focus:ring-[#2458c5]/15 disabled:opacity-50"
         >
           <option value="all">All</option>
           @for (role of roles(); track role.id) {
@@ -106,7 +120,7 @@
           <path d="m5 9 7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </label>
-      <span class="ml-auto text-sm text-[#52647e]"
+      <span class="ml-auto rounded-md bg-[#f4f7fb] px-3 py-2 text-xs font-semibold text-[#52647e]"
         >{{ totalCount() }} {{ totalCount() === 1 ? 'user' : 'users' }}</span
       >
     </div>
@@ -123,16 +137,16 @@
       </p>
     }
 
-    <div class="overflow-x-auto rounded-md border border-[#dfe7f1]">
+    <div class="overflow-x-auto rounded-lg border border-[#dfe7f1]">
       <table class="w-full min-w-[760px] border-collapse text-left text-sm">
-        <thead class="bg-[#f7f9fd] text-xs font-semibold text-[#30435f]">
-          <tr class="border-b border-[#dfe7f1]">
-            <th scope="col" class="w-14 px-4 py-4">#</th>
-            <th scope="col" class="px-4 py-4">Full Name</th>
-            <th scope="col" class="px-4 py-4">Email</th>
-            <th scope="col" class="px-4 py-4">Roles</th>
-            <th scope="col" class="px-4 py-4">Status</th>
-            <th scope="col" class="w-44 px-4 py-4">Actions</th>
+        <thead class="bg-[#f7f9fd] text-xs font-semibold tracking-[0.015em] text-[#405573]">
+          <tr class="border-b border-[#dce5f0]">
+            <th scope="col" class="w-14 border-r border-[#e5ebf3] px-4 py-3.5">#</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Full Name</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Email</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Roles</th>
+            <th scope="col" class="border-r border-[#e5ebf3] px-4 py-3.5">Status</th>
+            <th scope="col" class="w-44 px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -163,10 +177,10 @@
             </tr>
           } @else {
             @for (user of users(); track user.id; let index = $index) {
-              <tr class="border-b border-[#e2e9f2] last:border-b-0">
+              <tr class="border-b border-[#e9eef5] last:border-b-0">
                 <td class="px-4 py-4 text-[#20324d]">{{ (page() - 1) * pageSize + index + 1 }}</td>
-                <td class="px-4 py-4 font-semibold text-[#182a43]">{{ user.fullName }}</td>
-                <td class="px-4 py-4 text-[#30435f]">{{ user.email }}</td>
+                <td class="px-4 py-4 font-semibold text-[#14243b]">{{ user.fullName }}</td>
+                <td class="px-4 py-4 text-[#405573]">{{ user.email }}</td>
                 <td class="px-4 py-4">
                   <div class="flex flex-wrap gap-1.5">
                     @for (role of user.roles; track role) {
@@ -182,21 +196,21 @@
                 </td>
                 <td class="px-4 py-4">
                   <span
-                    class="inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                    class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold"
                     [class]="
                       user.isActive ? 'bg-[#e1f7eb] text-[#116b48]' : 'bg-[#ffe9e9] text-[#bd2d31]'
                     "
-                    ><span class="h-2 w-2 rounded-full bg-current"></span
+                    ><span class="h-1.5 w-1.5 rounded-full bg-current"></span
                     >{{ user.isActive ? 'Active' : 'Inactive' }}</span
                   >
                 </td>
                 <td class="px-4 py-4">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center justify-end gap-2">
                     <button
                       type="button"
                       (click)="openViewModal(user)"
                       [attr.aria-label]="'View details for ' + user.fullName"
-                      class="inline-flex h-9 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      class="inline-flex h-10 items-center gap-2 rounded-md border border-[#d8e2ef] px-3 text-xs font-medium text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
                     >
                       <svg
                         class="h-4 w-4"
@@ -220,7 +234,7 @@
                       "
                       aria-haspopup="menu"
                       (click)="openMenu(user, $event)"
-                      class="flex h-9 w-9 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-[#2458c5]"
+                      class="flex h-10 w-10 items-center justify-center rounded-md border border-[#d8e2ef] text-[#405573] hover:bg-[#f2f6fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
                     >
                       <svg
                         class="h-4 w-4"

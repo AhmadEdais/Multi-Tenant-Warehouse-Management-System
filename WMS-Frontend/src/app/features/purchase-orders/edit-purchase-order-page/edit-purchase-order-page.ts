@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +30,7 @@ import { PurchaseOrdersService } from '../purchase-orders.service';
 
 @Component({
   selector: 'app-edit-purchase-order-page',
-  imports: [RouterLink, PurchaseOrderFormComponent],
+  imports: [RouterLink, PurchaseOrderFormComponent, PageHeaderComponent],
   templateUrl: './edit-purchase-order-page.html',
 })
 export class EditPurchaseOrderPage implements OnInit {

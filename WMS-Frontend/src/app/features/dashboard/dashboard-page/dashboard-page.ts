@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -50,42 +51,42 @@ const ROLE_LABELS: Record<string, string> = {
 const WORKSPACE_LINKS: readonly WorkspaceLink[] = [
   {
     title: 'Inventory',
-    description: 'View stock levels and availability across warehouse locations.',
+    description: 'View stock by warehouse and location.',
     route: '/inventory',
     icon: 'inventory',
     allowedRoles: VIEW_INVENTORY_ROLES,
   },
   {
     title: 'Purchase Orders',
-    description: 'Track supplier orders and inbound receiving.',
+    description: 'Track supplier orders and receiving.',
     route: '/purchase-orders',
     icon: 'purchase-orders',
     allowedRoles: VIEW_ORDER_ROLES,
   },
   {
     title: 'Sales Orders',
-    description: 'Follow customer orders, allocations, and pickups.',
+    description: 'Track customer orders and pickups.',
     route: '/sales-orders',
     icon: 'sales-orders',
     allowedRoles: VIEW_ORDER_ROLES,
   },
   {
     title: 'Putaway',
-    description: 'Move received stock from the dock into Bins.',
+    description: 'Move dock stock into warehouse Bins.',
     route: '/putaway',
     icon: 'putaway',
     allowedRoles: PUTAWAY_ROLES,
   },
   {
     title: 'Products',
-    description: 'Browse the product catalog and item details.',
+    description: 'Browse SKUs and product details.',
     route: '/products',
     icon: 'products',
     allowedRoles: VIEW_ORDER_ROLES,
   },
   {
     title: 'Warehouses',
-    description: 'Manage warehouse configuration and locations.',
+    description: 'Manage warehouses and locations.',
     route: '/warehouses',
     icon: 'warehouses',
     allowedRoles: ['TenantAdmin'],
@@ -137,7 +138,7 @@ const RECENT_SALES_ORDERS: ListSalesOrdersParams = {
 };
 
 @Component({
-  imports: [DatePipe, RouterLink, PurchaseOrderStatusBadge, SalesOrderStatusBadge],
+  imports: [DatePipe, RouterLink, PurchaseOrderStatusBadge, SalesOrderStatusBadge, PageHeaderComponent],
   selector: 'app-dashboard-page',
   styleUrl: './dashboard-page.css',
   templateUrl: './dashboard-page.html',
