@@ -15,60 +15,64 @@
       </time>
     </app-page-header>
 
-    <div class="grid min-w-0 items-start gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
+    <div class="min-w-0 space-y-6 lg:space-y-7">
       <section
-        class="min-w-0 rounded-xl border border-[#d7e1ef] bg-white p-5 shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
+        class="min-w-0 rounded-xl border border-[#cfdef1] bg-[#eaf2fd] p-5 shadow-[0_6px_22px_rgba(24,48,83,0.035)] sm:p-6"
         aria-labelledby="dashboard-actions-heading"
       >
-        <h2 id="dashboard-actions-heading" class="text-base font-bold text-[#14243b]">
-          Quick Actions
-        </h2>
-        <p class="mt-1 text-sm text-[#647590]">Start a task or open a working queue.</p>
-        <div class="mt-4 grid gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
-          @for (action of quickActions(); track action.route) {
-            <a
-              [routerLink]="action.route"
-              class="inline-flex min-h-11 min-w-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-              [class]="
-                action.primary
-                  ? 'bg-[#2458c5] text-white shadow-sm hover:bg-[#1b49a9]'
-                  : 'border border-[#d8e2ef] bg-white text-[#30435f] hover:bg-[#f2f6fb]'
-              "
-            >
-              @if (action.primary) {
-                <svg
-                  class="h-4 w-4 shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 4v16M4 12h16" />
-                </svg>
-              }
-              {{ action.label }}
-            </a>
-          }
+        <div class="flex min-w-0 flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div class="min-w-0">
+            <h2 id="dashboard-actions-heading" class="text-lg font-bold text-[#14243b]">
+              Quick Actions
+            </h2>
+            <p class="mt-1 text-sm text-[#52647e]">Start a task or open a working queue.</p>
+          </div>
+          <div class="flex min-w-0 flex-wrap gap-2.5">
+            @for (action of quickActions(); track action.route) {
+              <a
+                [routerLink]="action.route"
+                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                [class]="
+                  action.primary
+                    ? 'bg-[#2458c5] text-white hover:bg-[#1b49a9]'
+                    : 'border border-[#c7d7eb] bg-white text-[#243b5c] hover:border-[#9fbbe9] hover:bg-[#f9fbff]'
+                "
+              >
+                @if (action.primary) {
+                  <svg
+                    class="h-4 w-4 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 4v16M4 12h16" />
+                  </svg>
+                }
+                {{ action.label }}
+              </a>
+            }
+          </div>
         </div>
       </section>
 
       <section class="min-w-0" aria-labelledby="dashboard-workspace-heading">
         <div class="mb-4">
-          <h2 id="dashboard-workspace-heading" class="text-base font-bold text-[#14243b]">
+          <h2 id="dashboard-workspace-heading" class="text-lg font-bold text-[#14243b]">
             Workspace shortcuts
           </h2>
           <p class="mt-1 text-sm text-[#647590]">Open the areas you use most.</p>
         </div>
-        <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           @for (link of workspaceLinks(); track link.route) {
             <a
               [routerLink]="link.route"
-              class="group flex min-h-24 min-w-0 items-center gap-3 rounded-lg border border-[#d7e1ef] bg-white px-4 py-3 transition-colors hover:border-[#9fbbe9] hover:bg-[#fbfdff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              class="group flex min-h-28 min-w-0 items-center gap-3.5 rounded-xl border border-[#d7e1ef] bg-white px-4 py-4 shadow-[0_3px_14px_rgba(24,48,83,0.035)] transition-[border-color,box-shadow] hover:border-[#a8c1e7] hover:shadow-[0_7px_22px_rgba(24,48,83,0.08)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5] sm:px-5"
             >
               <span
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#eaf1ff] text-[#2458c5]"
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#eaf1ff] text-[#2458c5]"
                 aria-hidden="true"
               >
                 @switch (link.icon) {
@@ -180,134 +184,160 @@
       </section>
     </div>
 
-    <div class="grid min-w-0 items-start gap-5 xl:grid-cols-2">
-      <section
-        class="min-w-0 overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
-        aria-labelledby="dashboard-purchase-orders-heading"
-      >
-        <header
-          class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
+    <section class="min-w-0" aria-labelledby="dashboard-recent-heading">
+      <div class="mb-4">
+        <h2 id="dashboard-recent-heading" class="text-lg font-bold text-[#14243b]">
+          Recent orders
+        </h2>
+        <p class="mt-1 text-sm text-[#647590]">The latest inbound and customer orders.</p>
+      </div>
+      <div class="grid min-w-0 items-start gap-5 xl:grid-cols-2">
+        <section
+          class="min-w-0 overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.04)]"
+          aria-labelledby="dashboard-purchase-orders-heading"
         >
-          <div>
-            <h2 id="dashboard-purchase-orders-heading" class="text-lg font-bold text-[#14243b]">
-              Recent Purchase Orders
-            </h2>
-            <p class="mt-0.5 text-sm text-[#647590]">Latest supplier orders</p>
-          </div>
-          <a
-            routerLink="/purchase-orders"
-            class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-            >View All</a
+          <header
+            class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
           >
-        </header>
-        @if (purchaseOrdersLoading()) {
-          <p role="status" class="px-5 py-10 text-center text-sm text-[#52647e]">
-            Loading Purchase Orders...
-          </p>
-        } @else if (purchaseOrdersError()) {
-          <div class="px-5 py-10 text-center">
-            <p role="alert" class="text-sm text-[#b4232d]">{{ purchaseOrdersError() }}</p>
-            <button
-              type="button"
-              (click)="retryPurchaseOrders()"
-              class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+            <div>
+              <h3 id="dashboard-purchase-orders-heading" class="text-base font-bold text-[#14243b]">
+                Purchase Orders
+              </h3>
+              <p class="mt-0.5 text-sm text-[#647590]">Latest supplier orders</p>
+            </div>
+            <a
+              routerLink="/purchase-orders"
+              class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              >View all</a
             >
-              Try again
-            </button>
-          </div>
-        } @else if (purchaseOrders().length === 0) {
-          <p class="px-5 py-10 text-center text-sm text-[#52647e]">No Purchase Orders yet.</p>
-        } @else {
-          <ul class="divide-y divide-[#e9eef5]" role="list">
-            @for (order of purchaseOrders(); track order.id) {
-              <li class="min-w-0 px-5 py-3.5 sm:px-6">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <a
-                      [routerLink]="['/purchase-orders', order.id]"
-                      class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-                      >{{ order.orderNumber }}</a
-                    >
-                    <p class="mt-0.5 break-words text-sm text-[#52647e]">
-                      {{ order.supplierName }}
-                    </p>
+          </header>
+          @if (purchaseOrdersLoading()) {
+            <div role="status" class="space-y-4 px-5 py-6 sm:px-6">
+              <span class="sr-only">Loading Purchase Orders…</span>
+              @for (row of [1, 2, 3]; track row) {
+                <div aria-hidden="true" class="flex items-center justify-between gap-4">
+                  <div class="space-y-2">
+                    <div class="h-3 w-28 rounded bg-[#e1e9f4]"></div>
+                    <div class="h-2.5 w-36 rounded bg-[#edf1f7]"></div>
                   </div>
-                  <div class="flex shrink-0 flex-col items-end gap-1.5">
-                    <app-purchase-order-status-badge [status]="order.status" />
-                    <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
-                      order.createdOnUtc | date: 'mediumDate'
-                    }}</time>
-                  </div>
+                  <div class="h-6 w-20 rounded-full bg-[#edf1f7]"></div>
                 </div>
-              </li>
-            }
-          </ul>
-        }
-      </section>
+              }
+            </div>
+          } @else if (purchaseOrdersError()) {
+            <div class="px-5 py-10 text-center">
+              <p role="alert" class="text-sm text-[#b4232d]">{{ purchaseOrdersError() }}</p>
+              <button
+                type="button"
+                (click)="retryPurchaseOrders()"
+                class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              >
+                Try again
+              </button>
+            </div>
+          } @else if (purchaseOrders().length === 0) {
+            <p class="px-5 py-10 text-center text-sm text-[#52647e]">No Purchase Orders yet.</p>
+          } @else {
+            <ul class="divide-y divide-[#e9eef5]" role="list">
+              @for (order of purchaseOrders(); track order.id) {
+                <li class="min-w-0 px-5 py-4 transition-colors hover:bg-[#f9fbfe] sm:px-6">
+                  <div class="flex min-w-0 items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <a
+                        [routerLink]="['/purchase-orders', order.id]"
+                        class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ order.orderNumber }}</a
+                      >
+                      <p class="mt-0.5 break-words text-sm text-[#52647e]">
+                        {{ order.supplierName }}
+                      </p>
+                    </div>
+                    <div class="flex shrink-0 flex-col items-end gap-1.5">
+                      <app-purchase-order-status-badge [status]="order.status" />
+                      <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
+                        order.createdOnUtc | date: 'mediumDate'
+                      }}</time>
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
 
-      <section
-        class="min-w-0 overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.03)]"
-        aria-labelledby="dashboard-sales-orders-heading"
-      >
-        <header
-          class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
+        <section
+          class="min-w-0 overflow-hidden rounded-xl border border-[#d7e1ef] bg-white shadow-[0_4px_20px_rgba(24,48,83,0.04)]"
+          aria-labelledby="dashboard-sales-orders-heading"
         >
-          <div>
-            <h2 id="dashboard-sales-orders-heading" class="text-lg font-bold text-[#14243b]">
-              Recent Sales Orders
-            </h2>
-            <p class="mt-0.5 text-sm text-[#647590]">Latest customer orders</p>
-          </div>
-          <a
-            routerLink="/sales-orders"
-            class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-            >View All</a
+          <header
+            class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e3eaf3] px-5 py-4 sm:px-6"
           >
-        </header>
-        @if (salesOrdersLoading()) {
-          <p role="status" class="px-5 py-10 text-center text-sm text-[#52647e]">
-            Loading Sales Orders...
-          </p>
-        } @else if (salesOrdersError()) {
-          <div class="px-5 py-10 text-center">
-            <p role="alert" class="text-sm text-[#b4232d]">{{ salesOrdersError() }}</p>
-            <button
-              type="button"
-              (click)="retrySalesOrders()"
-              class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+            <div>
+              <h3 id="dashboard-sales-orders-heading" class="text-base font-bold text-[#14243b]">
+                Sales Orders
+              </h3>
+              <p class="mt-0.5 text-sm text-[#647590]">Latest customer orders</p>
+            </div>
+            <a
+              routerLink="/sales-orders"
+              class="inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              >View all</a
             >
-              Try again
-            </button>
-          </div>
-        } @else if (salesOrders().length === 0) {
-          <p class="px-5 py-10 text-center text-sm text-[#52647e]">No Sales Orders yet.</p>
-        } @else {
-          <ul class="divide-y divide-[#e9eef5]" role="list">
-            @for (order of salesOrders(); track order.id) {
-              <li class="min-w-0 px-5 py-3.5 sm:px-6">
-                <div class="flex min-w-0 items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <a
-                      [routerLink]="['/sales-orders', order.id]"
-                      class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
-                      >{{ order.orderNumber }}</a
-                    >
-                    <p class="mt-0.5 break-words text-sm text-[#52647e]">
-                      {{ order.customerName }}
-                    </p>
+          </header>
+          @if (salesOrdersLoading()) {
+            <div role="status" class="space-y-4 px-5 py-6 sm:px-6">
+              <span class="sr-only">Loading Sales Orders…</span>
+              @for (row of [1, 2, 3]; track row) {
+                <div aria-hidden="true" class="flex items-center justify-between gap-4">
+                  <div class="space-y-2">
+                    <div class="h-3 w-28 rounded bg-[#e1e9f4]"></div>
+                    <div class="h-2.5 w-36 rounded bg-[#edf1f7]"></div>
                   </div>
-                  <div class="flex shrink-0 flex-col items-end gap-1.5">
-                    <app-sales-order-status-badge [status]="order.status" />
-                    <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
-                      order.createdOnUtc | date: 'mediumDate'
-                    }}</time>
-                  </div>
+                  <div class="h-6 w-20 rounded-full bg-[#edf1f7]"></div>
                 </div>
-              </li>
-            }
-          </ul>
-        }
-      </section>
-    </div>
+              }
+            </div>
+          } @else if (salesOrdersError()) {
+            <div class="px-5 py-10 text-center">
+              <p role="alert" class="text-sm text-[#b4232d]">{{ salesOrdersError() }}</p>
+              <button
+                type="button"
+                (click)="retrySalesOrders()"
+                class="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+              >
+                Try again
+              </button>
+            </div>
+          } @else if (salesOrders().length === 0) {
+            <p class="px-5 py-10 text-center text-sm text-[#52647e]">No Sales Orders yet.</p>
+          } @else {
+            <ul class="divide-y divide-[#e9eef5]" role="list">
+              @for (order of salesOrders(); track order.id) {
+                <li class="min-w-0 px-5 py-4 transition-colors hover:bg-[#f9fbfe] sm:px-6">
+                  <div class="flex min-w-0 items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <a
+                        [routerLink]="['/sales-orders', order.id]"
+                        class="inline-flex min-h-7 items-center text-sm font-bold text-[#2458c5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+                        >{{ order.orderNumber }}</a
+                      >
+                      <p class="mt-0.5 break-words text-sm text-[#52647e]">
+                        {{ order.customerName }}
+                      </p>
+                    </div>
+                    <div class="flex shrink-0 flex-col items-end gap-1.5">
+                      <app-sales-order-status-badge [status]="order.status" />
+                      <time class="text-xs text-[#647590]" [attr.datetime]="order.createdOnUtc">{{
+                        order.createdOnUtc | date: 'mediumDate'
+                      }}</time>
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+    </section>
   </div>
 }
