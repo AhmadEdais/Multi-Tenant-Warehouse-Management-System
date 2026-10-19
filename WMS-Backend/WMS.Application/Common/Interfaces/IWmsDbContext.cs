@@ -7,6 +7,8 @@ public interface IWmsDbContext
     DbSet<Tenant> Tenants { get; }
     DbSet<Warehouse> Warehouses { get; }
     DbSet<User> Users { get; }
+    DbSet<AuthSession> AuthSessions { get; }
+    DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<Role> Roles { get; }
     DbSet<UserRole> UserRoles { get; }
     DbSet<Category> Categories { get; }
