@@ -75,4 +75,13 @@ public sealed class AuthSession
         RevokedAtUtc = nowUtc;
         RevocationReason = "RefreshTokenReuse";
     }
+
+    public void RevokeForLogout(DateTime nowUtc)
+    {
+        if (RevokedAtUtc.HasValue)
+            return;
+
+        RevokedAtUtc = nowUtc;
+        RevocationReason = "Logout";
+    }
 }

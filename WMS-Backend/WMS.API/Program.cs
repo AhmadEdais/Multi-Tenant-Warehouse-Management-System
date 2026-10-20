@@ -195,6 +195,14 @@ builder.Services.AddAuthentication(options =>
                 return;
             }
 
+                var sessionClaim = context.Principal?.FindFirst("sid")?.Value
+                ?? context.Principal?.FindFirst(ClaimTypes.Sid)?.Value;
+            if (!int.TryParse(sessionClaim, out var sessionId) || sessionId <= 0)
+            {
+                context.Fail("Invalid session claim.");
+                return;
+            }
+
             var tenantClaim = context.Principal?.FindFirst("tenantId")?.Value;
             int? tenantId = null;
             if (tenantClaim is not null && int.TryParse(tenantClaim, out var parsedTenantId))
@@ -208,6 +216,18 @@ builder.Services.AddAuthentication(options =>
             }
 
             var dbContext = context.HttpContext.RequestServices.GetRequiredService<WMS.Application.Common.Interfaces.IWmsDbContext>();
+            var nowUtc = DateTime.UtcNow;
+            var isActiveSession = await dbContext.AuthSessions.AsNoTracking()
+                .AnyAsync(session => session.Id == sessionId && session.UserId == userId &&
+                    session.RevokedAtUtc == null && session.IdleExpiresAtUtc > nowUtc &&
+                    session.AbsoluteExpiresAtUtc > nowUtc,
+                    context.HttpContext.RequestAborted);
+            if (!isActiveSession)
+            {
+                context.Fail("Authentication session is invalid.");
+                return;
+            }
+
             var isActiveUser = await dbContext.Users
                 .IgnoreQueryFilters()
                 .AnyAsync(u => u.Id == userId && u.TenantId == tenantId && u.IsActive,

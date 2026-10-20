@@ -11,7 +11,6 @@ internal sealed class RefreshTokenCommandHandler(
 {
     // A second use immediately after rotation may be a competing browser request.
     // It gets no credentials but does not automatically revoke the session.
-    private static readonly TimeSpan RecentRotationWindow = TimeSpan.FromSeconds(5);
     private const string InvalidCredentialMessage = "Invalid refresh credentials.";
 
     public async Task<AuthenticationResult> Handle(
@@ -34,8 +33,8 @@ internal sealed class RefreshTokenCommandHandler(
         {
             var elapsedSinceRotation = nowUtc - token.ConsumedAtUtc.Value;
             // A small negative interval tolerates clock skew between API instances.
-            if (elapsedSinceRotation >= -RecentRotationWindow &&
-                elapsedSinceRotation <= RecentRotationWindow)
+            if (elapsedSinceRotation >= -AuthSessionPolicy.RecentRotationWindow &&
+                elapsedSinceRotation <= AuthSessionPolicy.RecentRotationWindow)
                 throw new ConflictException("Refresh was already completed by another request.");
 
             token.RecordReuse(nowUtc);

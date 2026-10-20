@@ -46,5 +46,25 @@
                 throw;
             }
         }
+
+        [AllowAnonymous]
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+        {
+            var refreshToken = Request.Cookies[RefreshCookieManager.CookieName];
+            var trustedOrigin = RefreshRequestOriginGuard.IsTrusted(Request, configuration);
+            if (!trustedOrigin && (Request.Headers.Origin.Count > 0 ||
+                !string.IsNullOrEmpty(refreshToken)))
+                return Problem(statusCode: StatusCodes.Status403Forbidden,
+                    title: "Forbidden", detail: "Untrusted request origin.");
+
+            await sender.Send(new LogoutCommand(refreshToken), cancellationToken);
+            RefreshCookieManager.Clear(Response);
+            return NoContent();
+        }
     }
 }

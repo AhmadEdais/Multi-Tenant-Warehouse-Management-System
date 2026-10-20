@@ -2,6 +2,8 @@ namespace WMS.Application.Common.Models;
 
 public sealed class AuthSessionPolicy
 {
+    public static readonly TimeSpan RecentRotationWindow = TimeSpan.FromSeconds(5);
+
     public int NonPersistentIdleMinutes { get; set; }
     public int NonPersistentAbsoluteMinutes { get; set; }
     public int PersistentIdleHours { get; set; }
