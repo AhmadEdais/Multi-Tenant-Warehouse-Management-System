@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, landingRouteFor, SessionInitializationError } from '../auth.services';
 import { LoginRequest } from '../models/login-request';
@@ -33,21 +34,22 @@ export class Login {
   });
 
   onSubmit() {
+    if (this.isSubmitting()) return;
     this.loginError.set(null);
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
-    const { email, password } = this.loginForm.getRawValue();
+    const { email, password, rememberMe } = this.loginForm.getRawValue();
     const request: LoginRequest = {
       email,
       password,
+      rememberMe,
     };
-    const rememberMe = this.loginForm.controls.rememberMe.value;
     this.isSubmitting.set(true);
 
     this.authService
-      .login(request, rememberMe)
+      .login(request)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -60,7 +62,13 @@ export class Login {
 
         error: (error) => {
           if (error instanceof SessionInitializationError) {
-            this.loginError.set('Could not load your account. Please sign in again.');
+            if (error.cause instanceof HttpErrorResponse && error.cause.status === 401) {
+              this.loginError.set('Could not load your account. Please sign in again.');
+            } else if (error.cause instanceof HttpErrorResponse && error.cause.status === 403) {
+              this.loginError.set('Your account is not authorized to access this workspace.');
+            } else {
+              this.loginError.set('Could not load your account. Please try again.');
+            }
           } else if (error.status === 401) {
             this.loginError.set('Invalid email or password.');
           } else {
