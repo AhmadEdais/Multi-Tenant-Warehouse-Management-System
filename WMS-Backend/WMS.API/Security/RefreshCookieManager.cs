@@ -2,7 +2,7 @@ namespace WMS.API.Security;
 
 internal static class RefreshCookieManager
 {
-    private const string CookieName = "__Host-wms-refresh";
+    public const string CookieName = "__Host-wms-refresh";
 
     public static void Set(HttpResponse response, AuthenticationResult authentication)
     {
@@ -19,4 +19,13 @@ internal static class RefreshCookieManager
 
         response.Cookies.Append(CookieName, authentication.RefreshToken, options);
     }
+
+    public static void Clear(HttpResponse response) => response.Cookies.Delete(CookieName,
+        new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/"
+        });
 }

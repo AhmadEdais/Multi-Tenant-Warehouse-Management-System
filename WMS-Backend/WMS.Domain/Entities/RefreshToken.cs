@@ -31,4 +31,22 @@ public sealed class RefreshToken
             ExpiresAtUtc = expiresAtUtc
         };
     }
+
+    public void Consume(RefreshToken replacement, DateTime nowUtc)
+    {
+        if (ConsumedAtUtc.HasValue || replacement.AuthSession != AuthSession ||
+            replacement == this || nowUtc >= ExpiresAtUtc)
+            throw new InvalidOperationException("Refresh token cannot be consumed.");
+
+        ConsumedAtUtc = nowUtc;
+        ReplacedByToken = replacement;
+    }
+
+    public void RecordReuse(DateTime nowUtc)
+    {
+        if (!ConsumedAtUtc.HasValue)
+            throw new InvalidOperationException("Only a consumed token can be marked as reused.");
+
+        ReuseDetectedAtUtc ??= nowUtc;
+    }
 }

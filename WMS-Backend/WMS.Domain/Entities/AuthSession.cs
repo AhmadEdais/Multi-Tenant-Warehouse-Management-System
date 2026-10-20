@@ -43,4 +43,36 @@ public sealed class AuthSession
 
         _refreshTokens.Add(RefreshToken.Create(this, tokenHash, CreatedAtUtc, expiresAtUtc));
     }
+
+    public RefreshToken AddReplacementRefreshToken(byte[] tokenHash, DateTime nowUtc,
+        DateTime expiresAtUtc)
+    {
+        if (RevokedAtUtc.HasValue || nowUtc >= IdleExpiresAtUtc ||
+            nowUtc >= AbsoluteExpiresAtUtc || expiresAtUtc > AbsoluteExpiresAtUtc)
+            throw new InvalidOperationException("Authentication session cannot be refreshed.");
+
+        var replacement = RefreshToken.Create(this, tokenHash, nowUtc, expiresAtUtc);
+        _refreshTokens.Add(replacement);
+        return replacement;
+    }
+
+    public void RecordRefresh(DateTime nowUtc, DateTime idleExpiresAtUtc)
+    {
+        if (RevokedAtUtc.HasValue || nowUtc >= IdleExpiresAtUtc ||
+            nowUtc >= AbsoluteExpiresAtUtc || idleExpiresAtUtc <= nowUtc ||
+            idleExpiresAtUtc > AbsoluteExpiresAtUtc)
+            throw new InvalidOperationException("Authentication session cannot be refreshed.");
+
+        LastRefreshedAtUtc = nowUtc;
+        IdleExpiresAtUtc = idleExpiresAtUtc;
+    }
+
+    public void RevokeForRefreshTokenReuse(DateTime nowUtc)
+    {
+        if (RevokedAtUtc.HasValue)
+            return;
+
+        RevokedAtUtc = nowUtc;
+        RevocationReason = "RefreshTokenReuse";
+    }
 }

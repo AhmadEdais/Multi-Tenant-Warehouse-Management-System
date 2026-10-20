@@ -23,4 +23,13 @@ public sealed class AuthSessionPolicy
             : nowUtc.AddMinutes(NonPersistentIdleMinutes);
         return (idle < absolute ? idle : absolute, absolute);
     }
+
+    public DateTime GetRefreshedIdleDeadline(DateTime nowUtc, bool rememberMe,
+        DateTime absoluteExpiresAtUtc)
+    {
+        var idle = rememberMe
+            ? nowUtc.AddHours(PersistentIdleHours)
+            : nowUtc.AddMinutes(NonPersistentIdleMinutes);
+        return idle < absoluteExpiresAtUtc ? idle : absoluteExpiresAtUtc;
+    }
 }
