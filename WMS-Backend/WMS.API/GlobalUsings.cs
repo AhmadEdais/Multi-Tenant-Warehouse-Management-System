@@ -26,3 +26,4 @@ global using WMS.Application.Features.Customers.Commands;
 global using WMS.Application.Features.Customers.Queries;
 global using WMS.Application.Features.Inventory.Queries;
 global using WMS.Application.Features.Inbound.Commands;
+global using WMS.API.Security;

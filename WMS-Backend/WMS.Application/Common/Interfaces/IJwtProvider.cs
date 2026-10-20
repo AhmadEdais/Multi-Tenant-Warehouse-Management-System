@@ -2,5 +2,5 @@
 
 public interface IJwtProvider
 {
-    string GenerateToken(User user, IEnumerable<string> roles);
+    AccessTokenResponse GenerateToken(User user, IEnumerable<string> roles, int sessionId);
 }

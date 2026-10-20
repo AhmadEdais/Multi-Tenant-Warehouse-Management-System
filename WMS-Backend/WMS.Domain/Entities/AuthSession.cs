@@ -19,4 +19,28 @@ public sealed class AuthSession
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
 
     private AuthSession() { }
+
+    public static AuthSession Create(int userId, DateTime nowUtc, DateTime idleExpiresAtUtc,
+        DateTime absoluteExpiresAtUtc, bool rememberMe)
+    {
+        if (userId <= 0 || idleExpiresAtUtc <= nowUtc || absoluteExpiresAtUtc < idleExpiresAtUtc)
+            throw new ArgumentException("Invalid authentication session details.");
+
+        return new AuthSession
+        {
+            UserId = userId,
+            CreatedAtUtc = nowUtc,
+            IdleExpiresAtUtc = idleExpiresAtUtc,
+            AbsoluteExpiresAtUtc = absoluteExpiresAtUtc,
+            RememberMe = rememberMe
+        };
+    }
+
+    public void AddInitialRefreshToken(byte[] tokenHash, DateTime expiresAtUtc)
+    {
+        if (_refreshTokens.Count != 0 || expiresAtUtc > IdleExpiresAtUtc || expiresAtUtc > AbsoluteExpiresAtUtc)
+            throw new InvalidOperationException("Invalid initial refresh token expiration.");
+
+        _refreshTokens.Add(RefreshToken.Create(this, tokenHash, CreatedAtUtc, expiresAtUtc));
+    }
 }

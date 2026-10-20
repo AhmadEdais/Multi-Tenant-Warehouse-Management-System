@@ -16,4 +16,19 @@ public sealed class RefreshToken
     public RefreshToken? ReplacedByToken { get; private set; }
 
     private RefreshToken() { }
+
+    internal static RefreshToken Create(AuthSession session, byte[] tokenHash,
+        DateTime createdAtUtc, DateTime expiresAtUtc)
+    {
+        if (tokenHash.Length != 32 || expiresAtUtc <= createdAtUtc)
+            throw new ArgumentException("Invalid refresh token details.");
+
+        return new RefreshToken
+        {
+            AuthSession = session,
+            TokenHash = (byte[])tokenHash.Clone(),
+            CreatedAtUtc = createdAtUtc,
+            ExpiresAtUtc = expiresAtUtc
+        };
+    }
 }

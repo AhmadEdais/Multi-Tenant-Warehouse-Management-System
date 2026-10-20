@@ -4,7 +4,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("WmsConnection");
+        services.AddOptions<AuthSessionPolicy>()
+            .Bind(configuration.GetSection("AuthSessionPolicy"))
+            .Validate(policy => policy.IsValid(), "Invalid authentication session expiration policy.")
+            .ValidateOnStart();
         
         services.AddScoped<TenantStampingInterceptor>();
 
@@ -23,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantContext, HttpTenantContext>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtProvider, JwtProvider>();
+        services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<ICurrentUserService, HttpCurrentUserService>();
 
         return services;
