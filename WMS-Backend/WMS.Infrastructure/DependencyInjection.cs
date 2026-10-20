@@ -24,7 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IPurchaseOrderNumberGenerator, PurchaseOrderNumberGenerator>();
         services.AddScoped<ISalesOrderNumberGenerator, SalesOrderNumberGenerator>();
         services.AddScoped<ITenantContext, HttpTenantContext>();
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<ICurrentUserService, HttpCurrentUserService>();
