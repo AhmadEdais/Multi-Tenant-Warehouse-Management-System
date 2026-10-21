@@ -4,12 +4,15 @@ internal sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
 
-    public string GenerateToken(User user, IEnumerable<string> roles)
+    public AccessTokenResponse GenerateToken(User user, IEnumerable<string> roles, int sessionId)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sessionId);
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email)
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Sid, sessionId.ToString())
         };
 
         if (user.TenantId.HasValue)
@@ -32,6 +35,7 @@ internal sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes),
             credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new AccessTokenResponse(new JwtSecurityTokenHandler().WriteToken(token),
+            checked(_options.ExpiryMinutes * 60));
     }
 }

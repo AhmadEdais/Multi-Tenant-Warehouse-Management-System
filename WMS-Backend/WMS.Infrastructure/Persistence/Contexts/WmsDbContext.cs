@@ -10,6 +10,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options, ITenantContext
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<AuthSession> AuthSessions => Set<AuthSession>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole > UserRoles => Set<UserRole>();
     public DbSet<Product> Products => Set<Product>();

@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Globalization;
 using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,33 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        }));
+
+    options.OnRejected = async (context, _) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            var seconds = Math.Max(0, (int)Math.Ceiling(retryAfter.TotalSeconds));
+            context.HttpContext.Response.Headers["Retry-After"] = seconds.ToString(CultureInfo.InvariantCulture);
+        }
+
+        await Results.Problem(
+            title: "Too Many Requests",
+            detail: "Too many login attempts. Please wait before trying again.",
+            statusCode: StatusCodes.Status429TooManyRequests)
+            .ExecuteAsync(context.HttpContext);
+    };
+});
 
 
 builder.Services.AddAuthorizationBuilder()
@@ -156,9 +186,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins(builder.Configuration.GetSection("Frontend:AllowedOrigins").Get<string[]>() ?? [])
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtSettings"));
@@ -195,6 +226,14 @@ builder.Services.AddAuthentication(options =>
                 return;
             }
 
+                var sessionClaim = context.Principal?.FindFirst("sid")?.Value
+                ?? context.Principal?.FindFirst(ClaimTypes.Sid)?.Value;
+            if (!int.TryParse(sessionClaim, out var sessionId) || sessionId <= 0)
+            {
+                context.Fail("Invalid session claim.");
+                return;
+            }
+
             var tenantClaim = context.Principal?.FindFirst("tenantId")?.Value;
             int? tenantId = null;
             if (tenantClaim is not null && int.TryParse(tenantClaim, out var parsedTenantId))
@@ -208,6 +247,18 @@ builder.Services.AddAuthentication(options =>
             }
 
             var dbContext = context.HttpContext.RequestServices.GetRequiredService<WMS.Application.Common.Interfaces.IWmsDbContext>();
+            var nowUtc = DateTime.UtcNow;
+            var isActiveSession = await dbContext.AuthSessions.AsNoTracking()
+                .AnyAsync(session => session.Id == sessionId && session.UserId == userId &&
+                    session.RevokedAtUtc == null && session.IdleExpiresAtUtc > nowUtc &&
+                    session.AbsoluteExpiresAtUtc > nowUtc,
+                    context.HttpContext.RequestAborted);
+            if (!isActiveSession)
+            {
+                context.Fail("Authentication session is invalid.");
+                return;
+            }
+
             var isActiveUser = await dbContext.Users
                 .IgnoreQueryFilters()
                 .AnyAsync(u => u.Id == userId && u.TenantId == tenantId && u.IsActive,
@@ -250,7 +301,9 @@ if (app.Environment.IsDevelopment())
 }
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("Frontend");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

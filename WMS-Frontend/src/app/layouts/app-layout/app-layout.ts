@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { filter, finalize, map } from 'rxjs';
 import { AuthService } from '../../features/auth/auth.services';
 import { PUTAWAY_ROLES } from '../../features/putaway/permissions';
 
@@ -131,9 +132,12 @@ const ROLE_PRIORITY = [
 export class AppLayout {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly currentUser = this.authService.currentUser;
   readonly sidebarOpen = signal(false);
+  readonly isLoggingOut = signal(false);
+  readonly logoutError = signal<string | null>(null);
 
   private readonly routeUrl = toSignal(
     this.router.events.pipe(
@@ -224,8 +228,27 @@ export class AppLayout {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.closeSidebar();
-    void this.router.navigateByUrl('/login');
+    if (this.isLoggingOut()) return;
+    this.logoutError.set(null);
+    this.isLoggingOut.set(true);
+    this.authService
+      .logout()
+      .pipe(
+        finalize(() => this.isLoggingOut.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.closeSidebar();
+          void this.router.navigateByUrl('/login');
+        },
+        error: (error: unknown) => {
+          this.logoutError.set(
+            error instanceof HttpErrorResponse && error.status === 403
+              ? 'Log out was blocked. Please try again from this workspace.'
+              : 'Could not log out. Please try again.',
+          );
+        },
+      });
   }
 }

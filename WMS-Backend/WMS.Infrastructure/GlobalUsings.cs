@@ -4,6 +4,7 @@ global using WMS.Domain.Entities;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using WMS.Application.Common.Interfaces;
+global using WMS.Application.Common.Models;
 global using WMS.Infrastructure.Persistence.Contexts;
 global using WMS.Infrastructure.Security;
 global using System.IdentityModel.Tokens.Jwt;
