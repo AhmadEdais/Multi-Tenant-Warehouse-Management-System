@@ -14,10 +14,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const requestUrl = new URL(req.url, document.baseURI);
   const apiPath = apiUrl.pathname.replace(/\/$/, '');
 
+  // Only intercept requests to the API base URL.
   if (requestUrl.origin !== apiUrl.origin || !requestUrl.pathname.startsWith(`${apiPath}/`)) {
     return next(req);
   }
 
+  // Allow login, refresh, and logout requests to pass through without an access token.
   const endpoint = requestUrl.pathname.slice(apiPath.length);
   if (req.method === 'POST' && /^\/Authorization\/(login|refresh|logout)\/?$/i.test(endpoint)) {
     return next(req);
@@ -35,25 +37,34 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   };
 
   const send = (token: string) =>
+    // Send the request with access token
     next(withBearer(token)).pipe(
       catchError((error: unknown) => {
+        // If the request fails with a non-401 error, rethrow it.
         if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
           return throwError(() => error);
         }
-
+        // check if the session generation has changed since the request was sent.
         if (authService.getSessionGeneration() !== sessionGeneration) {
           return throwError(() => error);
         }
 
         // Another request may have installed a newer access token already.
+        /* Imagine Request A and Request B both started using JWT_A.
+        Request A receives 401, refreshes the access token, and stores JWT_B.
+        Request B then receives its delayed 401.
+        Token used by Request B: JWT_A
+        Current token in AuthService: JWT_B
+        So it can retry with JWT_B.*/
+
         const newerToken = authService.getToken();
         if ((!newerToken || newerToken === token) && !authService.hasSessionToRecover()) {
           return throwError(() => error);
         }
         const renewedToken$ =
           newerToken && newerToken !== token
-            ? of(newerToken)
-            : authService.refreshAccessToken().pipe(map(() => authService.getToken()));
+            ? of(newerToken) // Another request has already refreshed the token, so use it.
+            : authService.refreshAccessToken().pipe(map(() => authService.getToken())); // No other request has refreshed the token, so refresh it now.
 
         return renewedToken$.pipe(
           switchMap((renewedToken) => {
@@ -92,7 +103,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const token = authService.getToken();
   if (token) return send(token);
-
+  //if there is no token and no session to recover, just send the request without a token.
   if (!authService.hasSessionToRecover()) return next(req);
 
   return authService.refreshAccessToken().pipe(
