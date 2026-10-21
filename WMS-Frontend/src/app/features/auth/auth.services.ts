@@ -45,8 +45,11 @@ export class AuthService {
   private accessToken: string | null = null;
   private accessTokenExpiresAt = 0;
   private authGeneration = 0;
+  private sessionKnownInvalid = false;
   private refreshInFlight$: Observable<LoginResponse> | null = null;
   private restoreInFlight$: Observable<CurrentUser> | null = null;
+  private logoutInFlight$: Observable<void> | null = null;
+  private logoutPending = false;
 
   constructor() {
     this.removeLegacyToken();
@@ -103,6 +106,9 @@ export class AuthService {
   restoreSession(): Observable<CurrentUser> {
     const user = this.currentUser();
     if (user && this.getToken()) return of(user);
+    if (this.sessionKnownInvalid) {
+      return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
+    }
     if (this.restoreInFlight$) return this.restoreInFlight$;
 
     const accessReady$: Observable<LoginResponse | null> = this.getToken()
@@ -158,12 +164,40 @@ export class AuthService {
     return this.accessToken && Date.now() < this.accessTokenExpiresAt ? this.accessToken : null;
   }
 
-  logout(): void {
-    this.clearSession();
+  hasSessionToRecover(): boolean {
+    return !this.logoutPending && (this.accessToken !== null || this.currentUser() !== null);
+  }
+
+  getSessionGeneration(): number {
+    return this.authGeneration;
+  }
+
+  isSessionKnownInvalid(): boolean {
+    return this.sessionKnownInvalid;
+  }
+
+  logout(): Observable<void> {
+    if (this.logoutInFlight$) return this.logoutInFlight$;
+
+    this.logoutInFlight$ = defer(() => {
+      this.logoutPending = true;
+      return this.http.post<void>(`${this.apiBaseUrl}/Authorization/logout`, null, {
+        withCredentials: true,
+      });
+    }).pipe(
+      tap(() => this.clearSession()),
+      finalize(() => {
+        this.logoutPending = false;
+        this.logoutInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    return this.logoutInFlight$;
   }
 
   clearSession(): void {
     this.authGeneration++;
+    this.sessionKnownInvalid = true;
     this.accessToken = null;
     this.accessTokenExpiresAt = 0;
     this.currentUserState.set(null);
@@ -187,6 +221,7 @@ export class AuthService {
 
     this.accessToken = response.accessToken;
     this.accessTokenExpiresAt = expiresAt;
+    this.sessionKnownInvalid = false;
   }
 
   private removeLegacyToken(): void {

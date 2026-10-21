@@ -7,11 +7,7 @@ export const guestGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.getToken()) {
-    return true;
-  }
-
-  return authService.ensureCurrentUser().pipe(
+  return authService.restoreSession().pipe(
     map((user) => router.createUrlTree([landingRouteFor(user)])),
     catchError(() => of(true)),
   );
