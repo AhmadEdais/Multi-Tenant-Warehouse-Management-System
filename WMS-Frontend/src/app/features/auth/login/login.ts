@@ -71,6 +71,8 @@ export class Login {
             }
           } else if (error.status === 401) {
             this.loginError.set('Invalid email or password.');
+          } else if (error instanceof HttpErrorResponse && error.status === 429) {
+            this.loginError.set('Too many sign-in attempts. Please wait before trying again.');
           } else {
             this.loginError.set('Something went wrong. Please try again.');
           }
