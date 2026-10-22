@@ -204,6 +204,38 @@ This `raw` format requires Docker Compose 2.30 or later and preserves characters
 
 For local Visual Studio development, keep `ASPNETCORE_ENVIRONMENT=Development` and put `ConnectionStrings:WmsConnection` and `JwtSettings:Secret` in the **WMS.API** project's .NET User Secrets. The project already has a `UserSecretsId`; no local credentials belong in tracked settings. Production validation does not run in Development.
 
+## Initial SystemAdmin bootstrap
+
+Run the standalone `WMS.BootstrapAdmin` utility **once**, after publishing the WMS DACPAC to the production database. The DACPAC post-deployment script must have seeded the `SystemAdmin` role. The utility is not an API endpoint and is never called during API startup.
+
+1. Publish the utility, then copy the complete published directory to `/opt/wms/bootstrap-admin` on the VPS:
+
+   ```sh
+   dotnet publish WMS-Backend/WMS.BootstrapAdmin/WMS.BootstrapAdmin.csproj -c Release -o artifacts/bootstrap-admin
+   ```
+
+2. On the VPS, create a private `/etc/wms/bootstrap.env` containing one line, with the real value filled in there:
+
+   ```text
+   ConnectionStrings__WmsConnection=Server=<SQL_HOST>,1433;Database=<DB_NAME>;User Id=<DB_USER>;Password=<DB_PASSWORD>;Encrypt=True
+   ```
+
+   Keep the file outside the repository, restrict it to the deployment account (`chmod 600 /etc/wms/bootstrap.env`), and set its SQL encryption options to match the server certificate. Do not put the connection string or admin password in a shell command.
+
+3. Run this command from an interactive VPS terminal. Replace `<WMS_PRIVATE_NETWORK>` with the Docker network shared with SQL Server:
+
+   ```sh
+   docker run --rm -it --network <WMS_PRIVATE_NETWORK> \
+     --env-file /etc/wms/bootstrap.env \
+     --mount type=bind,source=/opt/wms/bootstrap-admin,target=/app,readonly \
+     mcr.microsoft.com/dotnet/aspnet:8.0 \
+     dotnet /app/WMS.BootstrapAdmin.dll
+   ```
+
+   Enter the email, full name, password, and password confirmation at the prompts. The password is not echoed or accepted as a command-line argument. Use 16 or more characters and no more than 72 UTF-8 bytes. Exit code `0` means the account and role assignment committed; `1` means it was refused or the database operation failed; `2` means the invocation or input was invalid.
+
+The utility normalizes the email, checks for duplicates, looks up `SystemAdmin` by name, and refuses to create another account with that role, including when the existing account is inactive. It saves the user and role assignment in a serializable SQL transaction. If an error occurs during commit, inspect the database before retrying. Remove the published maintenance files and private bootstrap environment file from the VPS after successful use.
+
 ---
 
 **Ahmad Edais**
