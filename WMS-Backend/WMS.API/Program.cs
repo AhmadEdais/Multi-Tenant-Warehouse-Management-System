@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Globalization;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using WMS.API.Services;
@@ -9,6 +11,32 @@ using WMS.API.HealthChecks;
 using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ReverseProxy__TrustedProxies is a comma-separated list of the proxy's IP addresses.
+var trustedProxySetting = builder.Configuration["ReverseProxy:TrustedProxies"];
+ForwardedHeadersOptions? forwardedHeadersOptions = null;
+if (!string.IsNullOrWhiteSpace(trustedProxySetting))
+{
+    forwardedHeadersOptions = new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        ForwardLimit = 1
+    };
+    forwardedHeadersOptions.KnownNetworks.Clear();
+    forwardedHeadersOptions.KnownProxies.Clear();
+
+    var proxyAddresses = trustedProxySetting.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    if (proxyAddresses.Length == 0)
+        throw new InvalidOperationException("ReverseProxy:TrustedProxies must contain at least one IP address.");
+
+    foreach (var address in proxyAddresses)
+    {
+        if (!IPAddress.TryParse(address, out var proxyAddress))
+            throw new InvalidOperationException($"Invalid trusted proxy IP address: {address}");
+
+        forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
+    }
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -323,6 +351,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseExceptionHandler();
+if (forwardedHeadersOptions is not null)
+    app.UseForwardedHeaders(forwardedHeadersOptions);
 app.UseWhen(context => !context.Request.Path.StartsWithSegments("/health"), branch => branch.UseHttpsRedirection());
 app.UseRouting();
 app.UseCors("Frontend");
