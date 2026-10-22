@@ -26,13 +26,13 @@ public  class Tenant
         };
     }
 
-    public static Tenant CreateDemo(string code, string name, DateTime expiresAtUtc)
+    public static Tenant CreateDemo(string code, string name, TimeSpan lifetime)
     {
-        if (expiresAtUtc.Kind != DateTimeKind.Utc || expiresAtUtc <= DateTime.UtcNow)
-            throw new ArgumentException("Demo expiration must be in the future and UTC.", nameof(expiresAtUtc));
+        if (lifetime <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(lifetime), "Demo lifetime must be positive.");
         var tenant = Create(code, name, null);
         tenant.IsDemo = true;
-        tenant.DemoExpiresAtUtc = expiresAtUtc;
+        tenant.DemoExpiresAtUtc = tenant.CreatedAtUtc.Add(lifetime);
         return tenant;
     }
 

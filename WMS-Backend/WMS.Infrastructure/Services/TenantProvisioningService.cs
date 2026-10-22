@@ -43,7 +43,7 @@ internal sealed class TenantProvisioningService(IWmsDbContext context, IPassword
         timer.Restart();
         var hash = passwordHasher.HashPassword(details.InitialPassword);
         var tenant = isDemo
-            ? Tenant.CreateDemo(code, details.Name.Trim(), DateTime.UtcNow.AddHours(24))
+            ? Tenant.CreateDemo(code, details.Name.Trim(), TimeSpan.FromHours(1))
             : Tenant.Create(code, details.Name.Trim(), creatorId);
         logger.LogInformation("[Provisioning Performance] Password hashing and tenant construction: {ElapsedMilliseconds:F2} ms",
             timer.Elapsed.TotalMilliseconds);

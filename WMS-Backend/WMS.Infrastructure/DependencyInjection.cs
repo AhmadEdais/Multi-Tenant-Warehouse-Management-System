@@ -14,7 +14,10 @@ public static class DependencyInjection
         
         services.AddOptions<DemoOptions>()
             .Bind(configuration.GetSection("Demo"))
-            .Validate(options => options.MaxActiveTenants is > 0 and <= 1000, "Demo capacity must be between 1 and 1000.")
+            .Validate(options => options.MaxActiveTenants is > 0 and <= 1000
+                && options.MaxConcurrentProvisioning is > 0 and <= 100
+                && options.CleanupBatchSize is > 0 and <= 100,
+                "Demo capacity, concurrency, or cleanup batch size is invalid.")
             .ValidateOnStart();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
         services.AddScoped<IAuthSessionIssuer, AuthSessionIssuer>();

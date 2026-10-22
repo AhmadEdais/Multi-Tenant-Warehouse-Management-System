@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
+using WMS.API.Services;
+using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,9 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddSingleton<DemoProvisioningLimiter>();
+builder.Services.AddScoped<DemoCleanupRunner>();
+builder.Services.AddHostedService<DemoCleanupWorker>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
 builder.Services.AddRateLimiter(options =>
@@ -25,12 +30,13 @@ builder.Services.AddRateLimiter(options =>
             AutoReplenishment = true
         }));
 
-    options.AddPolicy("demo", context => RateLimitPartition.GetFixedWindowLimiter(
+    options.AddPolicy("demo", context => RateLimitPartition.GetTokenBucketLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions
+        _ => new TokenBucketRateLimiterOptions
         {
-            PermitLimit = 3,
-            Window = TimeSpan.FromHours(1),
+            TokenLimit = 3,
+            TokensPerPeriod = 1,
+            ReplenishmentPeriod = TimeSpan.FromMinutes(5),
             QueueLimit = 0,
             AutoReplenishment = true
         }));
