@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using WMS.API.Services;
+using WMS.API.HealthChecks;
 using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,8 @@ builder.Services.AddScoped<DemoCleanupRunner>();
 builder.Services.AddHostedService<DemoCleanupWorker>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
+builder.Services.AddHealthChecks()
+    .AddCheck<SqlServerReadinessHealthCheck>("sql-server", tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
@@ -319,7 +323,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/health"), branch => branch.UseHttpsRedirection());
 app.UseRouting();
 app.UseCors("Frontend");
 app.UseRateLimiter();
@@ -327,5 +331,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+}).AllowAnonymous();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).AllowAnonymous();
 
 app.Run();
