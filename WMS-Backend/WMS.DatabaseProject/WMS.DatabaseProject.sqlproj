@@ -57,6 +57,8 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="StoredProcedures" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Tenants.sql" />
@@ -83,8 +85,12 @@
     <Build Include="Tables\SalesOrderSequences.sql" />
     <Build Include="Tables\SalesOrderPickupLines.sql" />
     <Build Include="Tables\SalesOrderPickups.sql" />
+    <Build Include="StoredProcedures\CleanupExpiredDemoTenants.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\PreviewExpiredDemoTenants.sql" />
   </ItemGroup>
 </Project>

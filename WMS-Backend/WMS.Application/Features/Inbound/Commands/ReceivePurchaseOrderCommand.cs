@@ -1,3 +1,4 @@
+using WMS.Application.Common.Operations;
 using WMS.Domain.Enums;
 
 namespace WMS.Application.Features.Inbound.Commands;
@@ -69,29 +70,8 @@ internal sealed class ReceivePurchaseOrderCommandHandler(
             .Where(x => x.LocationId == dock.Id && productIds.Contains(x.ProductId))
             .ToListAsync(cancellationToken);
         var stockByProduct = stockLevels.ToDictionary(x => x.ProductId);
-        var now = DateTime.UtcNow;
-
-        foreach (var receipt in request.Lines)
-        {
-            var line = poLines[receipt.PurchaseOrderLineId];
-            line.Receive(receipt.Quantity);
-
-            if (!stockByProduct.TryGetValue(line.ProductId, out var stock))
-            {
-                stock = StockLevel.Create(tenantId, line.ProductId, dock.Id, actor, now);
-                context.StockLevels.Add(stock);
-                stockByProduct.Add(line.ProductId, stock);
-            }
-            stock.Receive(receipt.Quantity, actor, now);
-
-            context.StockMovements.Add(StockMovement.Create(
-                tenantId, line.ProductId, dock.Id, receipt.Quantity,
-                MovementType.Receipt, actor, now, "PurchaseOrders", po.Id));
-        }
-
-        po.MarkAsReceiving();
-        po.TryMarkAsFullyReceived();
-        po.Touch(actor, now);
+        ReceivingOperations.Receive(
+            context, po, dock, request.Lines, stockByProduct, tenantId, actor);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

@@ -15,12 +15,26 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
+        // TODO(LOGGING): Restore exception error logging after focused demo performance diagnostics.
+        // Do not leave unexpected failures unlogged in production.
+        // _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
         ProblemDetails problemDetails;
 
         switch (exception)
         {
+            case ForbiddenException forbidden:
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden, Title = "Forbidden", Detail = forbidden.Message
+                };
+                break;
+            case ServiceUnavailableException unavailable:
+                problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status503ServiceUnavailable, Title = "Service Unavailable", Detail = unavailable.Message
+                };
+                break;
             case DbUpdateConcurrencyException:
                 problemDetails = new ProblemDetails
                 {

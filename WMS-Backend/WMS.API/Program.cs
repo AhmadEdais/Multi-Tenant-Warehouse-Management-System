@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
+using WMS.API.Services;
+using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,9 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddSingleton<DemoProvisioningLimiter>();
+builder.Services.AddScoped<DemoCleanupRunner>();
+builder.Services.AddHostedService<DemoCleanupWorker>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
 builder.Services.AddRateLimiter(options =>
@@ -25,6 +30,17 @@ builder.Services.AddRateLimiter(options =>
             AutoReplenishment = true
         }));
 
+    options.AddPolicy("demo", context => RateLimitPartition.GetTokenBucketLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = 3,
+            TokensPerPeriod = 1,
+            ReplenishmentPeriod = TimeSpan.FromMinutes(5),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        }));
+
     options.OnRejected = async (context, _) =>
     {
         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
@@ -35,7 +51,9 @@ builder.Services.AddRateLimiter(options =>
 
         await Results.Problem(
             title: "Too Many Requests",
-            detail: "Too many login attempts. Please wait before trying again.",
+            detail: context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName == "demo"
+                ? "Too many demo requests. Please wait before trying again."
+                : "Too many login attempts. Please wait before trying again.",
             statusCode: StatusCodes.Status429TooManyRequests)
             .ExecuteAsync(context.HttpContext);
     };
@@ -275,7 +293,8 @@ builder.Services.AddAuthentication(options =>
             }
 
             var isActive = await dbContext.Tenants
-                .AnyAsync(t => t.Id == tenantId.Value && t.IsActive, context.HttpContext.RequestAborted);
+                .AnyAsync(t => t.Id == tenantId.Value && t.IsActive &&
+                    (!t.IsDemo || t.DemoExpiresAtUtc > nowUtc), context.HttpContext.RequestAborted);
             if (!isActive)
             {
                 context.Fail("Tenant is inactive.");
@@ -283,6 +302,7 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+// TODO(DEMO-PERF): Review the temporary EF Core command logging suppression after profiling.
 builder.Logging.ClearProviders();
 
 builder.Logging.AddSimpleConsole(options =>

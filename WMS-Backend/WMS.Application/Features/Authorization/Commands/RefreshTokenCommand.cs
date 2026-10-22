@@ -61,13 +61,20 @@ internal sealed class RefreshTokenCommandHandler(
             (!user.TenantId.HasValue && roleNames.Any(role => role != Roles.SystemAdmin)))
             throw new UnauthorizedAccessException(InvalidCredentialMessage);
 
-        if (user.TenantId.HasValue && !await context.Tenants.AnyAsync(
-                tenant => tenant.Id == user.TenantId.Value && tenant.IsActive,
-                cancellationToken))
-            throw new UnauthorizedAccessException(InvalidCredentialMessage);
-
+        DateTime? tenantDeadline = null;
+        if (user.TenantId.HasValue)
+        {
+            var tenant = await context.Tenants.AsNoTracking().FirstOrDefaultAsync(
+                t => t.Id == user.TenantId.Value, cancellationToken);
+            if (tenant is null || !tenant.IsActive ||
+                (tenant.IsDemo && (!tenant.DemoExpiresAtUtc.HasValue || tenant.DemoExpiresAtUtc <= nowUtc)))
+                throw new UnauthorizedAccessException(InvalidCredentialMessage);
+            tenantDeadline = tenant.DemoExpiresAtUtc;
+        }
+        var absoluteDeadline = tenantDeadline.HasValue && tenantDeadline < session.AbsoluteExpiresAtUtc
+            ? tenantDeadline.Value : session.AbsoluteExpiresAtUtc;
         var updatedIdleDeadline = sessionPolicy.Value.GetRefreshedIdleDeadline(
-            nowUtc, session.RememberMe, session.AbsoluteExpiresAtUtc);
+            nowUtc, session.RememberMe, absoluteDeadline);
         var (replacementPlaintext, replacementHash) = refreshTokenGenerator.Generate();
         var accessToken = jwtProvider.GenerateToken(user, roleNames, session.Id);
 
@@ -79,6 +86,6 @@ internal sealed class RefreshTokenCommandHandler(
         await context.SaveChangesAsync(cancellationToken);
 
         return new AuthenticationResult(accessToken.AccessToken, accessToken.ExpiresIn,
-            replacementPlaintext, session.RememberMe, session.AbsoluteExpiresAtUtc);
+            replacementPlaintext, session.RememberMe, absoluteDeadline);
     }
 }

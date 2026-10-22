@@ -6,6 +6,8 @@ public  class Tenant
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public bool IsActive { get; private set; } = true;
+    public bool IsDemo { get; private set; }
+    public DateTime? DemoExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public int? CreatedByUserId { get; private set; }
     public virtual ICollection<Warehouse> Warehouses { get; private set; } = [];
@@ -22,6 +24,16 @@ public  class Tenant
             CreatedAtUtc = DateTime.UtcNow,
             CreatedByUserId = createdByUserId
         };
+    }
+
+    public static Tenant CreateDemo(string code, string name, TimeSpan lifetime)
+    {
+        if (lifetime <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(lifetime), "Demo lifetime must be positive.");
+        var tenant = Create(code, name, null);
+        tenant.IsDemo = true;
+        tenant.DemoExpiresAtUtc = tenant.CreatedAtUtc.Add(lifetime);
+        return tenant;
     }
 
     public void Deactivate()

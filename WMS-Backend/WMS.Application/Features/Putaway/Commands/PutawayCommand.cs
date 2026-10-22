@@ -1,3 +1,4 @@
+using WMS.Application.Common.Operations;
 using WMS.Domain.Enums;
 
 namespace WMS.Application.Features.Putaway.Commands;
@@ -75,36 +76,9 @@ internal sealed class PutawayCommandHandler(
         var stockByLocation = await context.StockLevels
             .Where(stock => stock.ProductId == request.ProductId && locationIds.Contains(stock.LocationId))
             .ToDictionaryAsync(stock => stock.LocationId, cancellationToken);
-        if (!stockByLocation.TryGetValue(dock.Id, out var dockStock))
-            throw new ConflictException("No stock for this product is available in the Receiving Dock.");
 
-        var totalQuantity = request.Destinations.Sum(destination => destination.Quantity);
-        if (totalQuantity > dockStock.QuantityOnHand)
-            throw new ConflictException("Putaway quantity exceeds the stock on hand in the Receiving Dock.");
-        if (totalQuantity > dockStock.AvailableQuantity)
-            throw new ConflictException("Allocated Receiving Dock stock cannot be put away.");
-
-        var now = DateTime.UtcNow;
-        dockStock.TransferOut(totalQuantity, actor, now);
-
-        foreach (var destination in request.Destinations)
-        {
-            if (!stockByLocation.TryGetValue(destination.LocationId, out var binStock))
-            {
-                binStock = StockLevel.Create(tenantId, request.ProductId, destination.LocationId, actor, now);
-                context.StockLevels.Add(binStock);
-                stockByLocation.Add(destination.LocationId, binStock);
-            }
-            binStock.TransferIn(destination.Quantity, actor, now);
-
-            // Each movement references the opposite location in its transfer pair.
-            context.StockMovements.Add(StockMovement.Create(
-                tenantId, request.ProductId, dock.Id, -destination.Quantity,
-                MovementType.TransferOut, actor, now, "Locations", destination.LocationId));
-            context.StockMovements.Add(StockMovement.Create(
-                tenantId, request.ProductId, destination.LocationId, destination.Quantity,
-                MovementType.TransferIn, actor, now, "Locations", dock.Id));
-        }
+        PutawayOperations.Transfer(context, tenantId, request.ProductId,
+            dock, bins, request.Destinations, stockByLocation, actor);
 
         await context.SaveChangesAsync(cancellationToken);
     }

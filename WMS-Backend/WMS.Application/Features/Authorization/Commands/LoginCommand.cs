@@ -14,9 +14,7 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 internal sealed class LoginCommandHandler(
     IWmsDbContext context,
     IPasswordHasher passwordHasher,
-    IJwtProvider jwtProvider,
-    IRefreshTokenGenerator refreshTokenGenerator,
-    Microsoft.Extensions.Options.IOptions<AuthSessionPolicy> sessionPolicy)
+    IAuthSessionIssuer sessionIssuer)
     : IRequestHandler<LoginCommand, AuthenticationResult>
 {
     public async Task<AuthenticationResult> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -34,29 +32,22 @@ internal sealed class LoginCommandHandler(
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        if (user.TenantId.HasValue && !await context.Tenants
-                .AnyAsync(t => t.Id == user.TenantId.Value && t.IsActive, cancellationToken))
+        DateTime? tenantDeadline = null;
+        if (user.TenantId.HasValue)
         {
-            throw new UnauthorizedAccessException("Invalid email or password.");
+            var tenant = await context.Tenants.AsNoTracking().FirstOrDefaultAsync(
+                t => t.Id == user.TenantId.Value, cancellationToken);
+            if (tenant is null || !tenant.IsActive ||
+                (tenant.IsDemo && (!tenant.DemoExpiresAtUtc.HasValue || tenant.DemoExpiresAtUtc <= DateTime.UtcNow)))
+                throw new UnauthorizedAccessException("Invalid email or password.");
+            tenantDeadline = tenant.DemoExpiresAtUtc;
         }
         if(user.UserRoles.Count == 0)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
         var roleNames = user.UserRoles.Select(ur => ur.Role.Name).ToList();
-        var nowUtc = DateTime.UtcNow;
-        var (idleDeadline, absoluteDeadline) = sessionPolicy.Value.GetDeadlines(nowUtc, request.RememberMe);
-        var session = AuthSession.Create(user.Id, nowUtc, idleDeadline, absoluteDeadline, request.RememberMe);
-        var (refreshToken, tokenHash) = refreshTokenGenerator.Generate();
-        session.AddInitialRefreshToken(tokenHash, idleDeadline);
-
-        user.RecordLogin();
-        context.AuthSessions.Add(session);
-        // EF Core saves the session and its token graph in one atomic SaveChanges call.
-        await context.SaveChangesAsync(cancellationToken);
-
-        var accessToken = jwtProvider.GenerateToken(user, roleNames, session.Id);
-        return new AuthenticationResult(accessToken.AccessToken, accessToken.ExpiresIn,
-            refreshToken, request.RememberMe, absoluteDeadline);
+        return await sessionIssuer.IssueAsync(user, roleNames, request.RememberMe,
+            tenantDeadline, cancellationToken);
     }
 }

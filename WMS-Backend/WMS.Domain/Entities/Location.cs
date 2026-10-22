@@ -19,7 +19,8 @@ namespace WMS.Domain.Entities
         // Navigation properties
         public Warehouse? Warehouse { get; private set; }
         public Location? ParentLocation { get; private set; }
-        public IReadOnlyCollection<Location> ChildLocations { get; private set; } = [];
+        private readonly List<Location> _childLocations = [];
+        public IReadOnlyCollection<Location> ChildLocations => _childLocations.AsReadOnly();
 
         private Location() { }
 

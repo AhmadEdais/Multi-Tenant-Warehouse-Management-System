@@ -1,4 +1,7 @@
-﻿namespace WMS.Infrastructure;
+﻿using WMS.Application.Features.Demo.Interfaces;
+using WMS.Infrastructure.Demo;
+
+namespace WMS.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -9,6 +12,17 @@ public static class DependencyInjection
             .Validate(policy => policy.IsValid(), "Invalid authentication session expiration policy.")
             .ValidateOnStart();
         
+        services.AddOptions<DemoOptions>()
+            .Bind(configuration.GetSection("Demo"))
+            .Validate(options => options.MaxActiveTenants is > 0 and <= 1000
+                && options.MaxConcurrentProvisioning is > 0 and <= 100
+                && options.CleanupBatchSize is > 0 and <= 100,
+                "Demo capacity, concurrency, or cleanup batch size is invalid.")
+            .ValidateOnStart();
+        services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+        services.AddScoped<IAuthSessionIssuer, AuthSessionIssuer>();
+        services.AddScoped<IDemoDataSeeder, DemoDataSeeder>();
+        services.AddScoped<IDemoCapacityGuard, DemoCapacityGuard>();
         services.AddScoped<TenantStampingInterceptor>();
 
         services.AddDbContext<WmsDbContext>((sp, options) =>
@@ -16,7 +30,6 @@ public static class DependencyInjection
             var interceptor = sp.GetRequiredService<TenantStampingInterceptor>();
             options.UseSqlServer(configuration.GetConnectionString("WmsConnection"))
                    .AddInterceptors(interceptor);
-            options.EnableSensitiveDataLogging(); // remove later
         });
 
         services.AddHttpContextAccessor();

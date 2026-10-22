@@ -1,9 +1,10 @@
 import { Component, ElementRef, HostListener, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DemoLaunch } from '../../auth/demo-launch/demo-launch';
 
 @Component({
   selector: 'app-landing-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DemoLaunch],
   styleUrl: './landing-page.css',
   templateUrl: './landing-page.html',
 })

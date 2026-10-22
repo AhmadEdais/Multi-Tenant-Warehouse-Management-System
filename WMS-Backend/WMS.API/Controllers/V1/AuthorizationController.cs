@@ -1,8 +1,13 @@
-﻿namespace WMS.API.Controllers.V1
+﻿using System.Diagnostics;
+using WMS.Application.Features.Demo.Commands;
+using WMS.API.Services;
+
+namespace WMS.API.Controllers.V1
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class AuthorizationController(ISender sender, IConfiguration configuration) : ControllerBase
+    public class AuthorizationController(ISender sender, IConfiguration configuration,
+        ILogger<AuthorizationController> logger, DemoProvisioningLimiter demoLimiter) : ControllerBase
     {
         
         [HttpPost("login")]
@@ -17,6 +22,50 @@
             var result = await sender.Send(command);
             RefreshCookieManager.Set(Response, result);
             return Ok(result.ToResponse());
+        }
+
+        [AllowAnonymous]
+        [HttpPost("demo")]
+        [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("demo")]
+        [ProducesResponseType(typeof(AccessTokenResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> StartDemo(CancellationToken cancellationToken)
+        {
+            var total = Stopwatch.StartNew();
+            try
+            {
+                // Reject even invalid/expired bearer headers before anonymous provisioning.
+                if (User.Identities.Any(identity => identity.IsAuthenticated) || Request.Headers.Authorization.Count > 0)
+                    return Problem(statusCode: StatusCodes.Status403Forbidden, title: "Forbidden",
+                        detail: "Live demos can only be started by guests.");
+                if (!RefreshRequestOriginGuard.IsTrusted(Request, configuration))
+                    return Problem(statusCode: StatusCodes.Status403Forbidden, title: "Forbidden",
+                        detail: "Untrusted request origin.");
+                if (!demoLimiter.TryAcquire())
+                {
+                    Response.Headers.RetryAfter = "5";
+                    return Problem(statusCode: StatusCodes.Status503ServiceUnavailable,
+                        title: "Service Unavailable", detail: "Demo creation is busy. Please try again shortly.");
+                }
+                try
+                {
+                    logger.LogInformation("[Demo Performance] Controller security checks: {ElapsedMilliseconds:F2} ms",
+                        total.Elapsed.TotalMilliseconds);
+                    var result = await sender.Send(new StartDemoCommand(), cancellationToken);
+                    RefreshCookieManager.Set(Response, result);
+                    return Ok(result.ToResponse());
+                }
+                finally { demoLimiter.Release(); }
+            }
+            finally
+            {
+                logger.LogInformation("[Demo Performance] Controller total: {ElapsedMilliseconds:F2} ms",
+                    total.Elapsed.TotalMilliseconds);
+            }
         }
 
         [AllowAnonymous]
