@@ -4,7 +4,13 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
-        builder.ToTable("Tenants");
+        builder.ToTable("Tenants", table => table.HasCheckConstraint("CK_Tenants_DemoExpiration",
+            "([IsDemo] = 0 AND [DemoExpiresAtUtc] IS NULL) OR " +
+            "([IsDemo] = 1 AND [DemoExpiresAtUtc] IS NOT NULL AND [DemoExpiresAtUtc] > [CreatedAtUtc])"));
+        builder.Property(t => t.IsDemo).IsRequired().HasDefaultValue(false);
+        builder.Property(t => t.DemoExpiresAtUtc).HasColumnType("datetime2");
+        builder.HasIndex(t => new { t.IsDemo, t.Id }).HasFilter("[IsDemo] = 1")
+            .HasDatabaseName("IX_Tenants_DemoCapacity");
 
         builder.HasKey(t => t.Id);
 

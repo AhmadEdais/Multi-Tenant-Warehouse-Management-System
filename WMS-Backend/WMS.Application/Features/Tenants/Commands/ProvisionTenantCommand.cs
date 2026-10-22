@@ -32,71 +32,20 @@ public sealed class ProvisionTenantCommandValidator : AbstractValidator<Provisio
 }
 
 internal sealed class ProvisionTenantCommandHandler(
-    IWmsDbContext context,
-    ICurrentUserService currentUser,
-    IPasswordHasher passwordHasher) : IRequestHandler<ProvisionTenantCommand, int>
+    IWmsDbContext context, ICurrentUserService currentUser, ITenantProvisioningService provisioning)
+    : IRequestHandler<ProvisionTenantCommand, int>
 {
     public async Task<int> Handle(ProvisionTenantCommand request, CancellationToken cancellationToken)
     {
         var systemAdminId = currentUser.UserId
             ?? throw new UnauthorizedAccessException("An authenticated SystemAdmin is required to provision a tenant.");
-
-        var tenantCode = request.TenantCode.Trim();
-        var tenantName = request.TenantName.Trim();
-        var adminEmail = User.NormalizeEmail(request.AdminEmail);
-        var adminFullName = request.AdminFullName.Trim();
-
-        var tenantCodeExists = await context.Tenants
-            .AnyAsync(t => t.Code == tenantCode, cancellationToken);
-
-        if (tenantCodeExists)
-        {
-            throw new ConflictException($"Tenant Code '{tenantCode}' already exists.");
-        }
-
-        var emailExists = await context.Users
-            .IgnoreQueryFilters()
-            .AnyAsync(u => u.Email == adminEmail, cancellationToken);
-
-        if (emailExists)
-        {
-            throw new ConflictException($"A user with the email '{adminEmail}' already exists.");
-        }
-
-        var tenantAdminRole = await context.Roles
-            .SingleOrDefaultAsync(r => r.Name == Roles.TenantAdmin, cancellationToken)
-            ?? throw new InvalidOperationException("The TenantAdmin role is not configured.");
-
-        var passwordHash = passwordHasher.HashPassword(request.InitialPassword);
-
+        if (!currentUser.IsInRole(Roles.SystemAdmin))
+            throw new ForbiddenException("SystemAdmin access is required.");
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-
-        try
-        {
-            var tenant = Tenant.Create(tenantCode, tenantName, systemAdminId);
-            context.Tenants.Add(tenant);
-            await context.SaveChangesAsync(cancellationToken);
-
-            var tenantAdmin = User.Create(
-                tenant.Id,
-                adminEmail,
-                passwordHash,
-                adminFullName);
-
-            context.Users.Add(tenantAdmin);
-            await context.SaveChangesAsync(cancellationToken);
-
-            tenantAdmin.AssignRole(tenantAdminRole.Id, systemAdminId);
-            await context.SaveChangesAsync(cancellationToken);
-
-            await transaction.CommitAsync(cancellationToken);
-
-            return tenant.Id;
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
+        var result = await provisioning.CreateNormalAsync(new TenantProvisioningDetails(
+            request.TenantCode, request.TenantName, request.AdminFullName, request.AdminEmail,
+            request.InitialPassword), systemAdminId, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return result.Tenant.Id;
     }
 }

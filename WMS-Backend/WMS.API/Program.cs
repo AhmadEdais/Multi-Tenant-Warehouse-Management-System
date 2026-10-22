@@ -25,6 +25,16 @@ builder.Services.AddRateLimiter(options =>
             AutoReplenishment = true
         }));
 
+    options.AddPolicy("demo", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 3,
+            Window = TimeSpan.FromHours(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        }));
+
     options.OnRejected = async (context, _) =>
     {
         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
@@ -35,7 +45,9 @@ builder.Services.AddRateLimiter(options =>
 
         await Results.Problem(
             title: "Too Many Requests",
-            detail: "Too many login attempts. Please wait before trying again.",
+            detail: context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName == "demo"
+                ? "Too many demo requests. Please wait before trying again."
+                : "Too many login attempts. Please wait before trying again.",
             statusCode: StatusCodes.Status429TooManyRequests)
             .ExecuteAsync(context.HttpContext);
     };
@@ -275,7 +287,8 @@ builder.Services.AddAuthentication(options =>
             }
 
             var isActive = await dbContext.Tenants
-                .AnyAsync(t => t.Id == tenantId.Value && t.IsActive, context.HttpContext.RequestAborted);
+                .AnyAsync(t => t.Id == tenantId.Value && t.IsActive &&
+                    (!t.IsDemo || t.DemoExpiresAtUtc > nowUtc), context.HttpContext.RequestAborted);
             if (!isActive)
             {
                 context.Fail("Tenant is inactive.");
@@ -283,6 +296,7 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+// TODO(DEMO-PERF): Review the temporary EF Core command logging suppression after profiling.
 builder.Logging.ClearProviders();
 
 builder.Logging.AddSimpleConsole(options =>
