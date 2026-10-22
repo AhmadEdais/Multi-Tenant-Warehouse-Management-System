@@ -8,9 +8,13 @@ using System.Security.Claims;
 using System.Threading.RateLimiting;
 using WMS.API.Services;
 using WMS.API.HealthChecks;
+using WMS.API.Configuration;
 using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsProduction())
+    ProductionConfigurationValidator.Validate(builder.Configuration);
 
 // ReverseProxy__TrustedProxies is a comma-separated list of the proxy's IP addresses.
 var trustedProxySetting = builder.Configuration["ReverseProxy:TrustedProxies"];
