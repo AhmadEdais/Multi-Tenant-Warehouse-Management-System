@@ -19,10 +19,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  // Allow login, refresh, and logout requests to pass through without an access token.
+  // Authentication endpoints use their own credentials and must never trigger recovery.
   const endpoint = requestUrl.pathname.slice(apiPath.length);
-  if (req.method === 'POST' && /^\/Authorization\/(login|refresh|logout)\/?$/i.test(endpoint)) {
-    return next(req);
+  if (req.method === 'POST' && /^\/Authorization\/(login|refresh|logout|demo)\/?$/i.test(endpoint)) {
+    return next(/^\/Authorization\/demo\/?$/i.test(endpoint)
+      ? req.clone({ headers: req.headers.delete('Authorization') })
+      : req);
   }
 
   const sessionGeneration = authService.getSessionGeneration();

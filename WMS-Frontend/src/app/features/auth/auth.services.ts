@@ -50,6 +50,10 @@ export class AuthService {
   private restoreInFlight$: Observable<CurrentUser> | null = null;
   private logoutInFlight$: Observable<void> | null = null;
   private logoutPending = false;
+  private demoInFlight$: Observable<CurrentUser> | null = null;
+  private readonly startingDemoState = signal(false);
+  readonly isStartingDemo = this.startingDemoState.asReadonly();
+  private demoWelcomePending = false;
 
   constructor() {
     this.removeLegacyToken();
@@ -75,6 +79,49 @@ export class AuthService {
           ),
         );
     });
+  }
+
+  startDemo(): Observable<CurrentUser> {
+    if (this.demoInFlight$) return this.demoInFlight$;
+    if (this.currentUser() || this.accessToken || this.logoutPending) {
+      return throwError(() => new HttpErrorResponse({ status: 403, statusText: 'Forbidden' }));
+    }
+
+    this.demoInFlight$ = defer(() => {
+      this.clearSession();
+      const generation = this.authGeneration;
+      this.startingDemoState.set(true);
+      return this.http
+        .post<LoginResponse>(`${this.apiBaseUrl}/Authorization/demo`, null, {
+          withCredentials: true,
+        })
+        .pipe(
+          tap((response) => {
+            this.acceptAccessToken(response, generation);
+            this.currentUserState.set(null);
+          }),
+          switchMap(() =>
+            this.loadCurrentUser().pipe(
+              catchError((error) => throwError(() => new SessionInitializationError(error))),
+            ),
+          ),
+          tap(() => {
+            if (generation !== this.authGeneration) throw new Error('Authentication state changed.');
+            this.demoWelcomePending = true;
+          }),
+          finalize(() => {
+            this.startingDemoState.set(false);
+            this.demoInFlight$ = null;
+          }),
+        );
+    }).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+    return this.demoInFlight$;
+  }
+
+  consumeDemoWelcome(): boolean {
+    const pending = this.demoWelcomePending;
+    this.demoWelcomePending = false;
+    return pending;
   }
 
   refreshAccessToken(): Observable<LoginResponse> {
@@ -198,6 +245,7 @@ export class AuthService {
   clearSession(): void {
     this.authGeneration++;
     this.sessionKnownInvalid = true;
+    this.demoWelcomePending = false;
     this.accessToken = null;
     this.accessTokenExpiresAt = 0;
     this.currentUserState.set(null);

@@ -1,5 +1,5 @@
 @if (canUseDashboard()) {
-  <div class="min-w-0 space-y-6 lg:space-y-7">
+  <div #dashboardContent tabindex="-1" class="min-w-0 space-y-6 lg:space-y-7 focus:outline-none">
     <app-page-header
       title="Welcome back, {{ firstName() }}!"
       subtitle="Quick access to your inventory, orders, and warehouse operations."
@@ -340,4 +340,37 @@
       </div>
     </section>
   </div>
+}
+
+@if (showDemoWelcome()) {
+  <dialog
+    #demoWelcomeDialog
+    aria-modal="true"
+    aria-labelledby="demo-welcome-title"
+    aria-describedby="demo-welcome-description"
+    (close)="onDemoWelcomeClosed()"
+    class="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-xl border border-[#d7e1ef] bg-white p-0 text-[#14243b] shadow-2xl backdrop:bg-[#091a35]/70 backdrop:backdrop-blur-sm"
+  >
+    <div class="p-6 sm:p-8">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eaf1ff] text-[#2458c5]" aria-hidden="true">
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8 12 3l9 5v11l-9 5-9-5V8ZM3 8l9 5 9-5M12 13v11" />
+        </svg>
+      </div>
+      <h2 id="demo-welcome-title" class="mt-5 text-2xl font-bold tracking-tight">Your demo workspace is ready!</h2>
+      <div id="demo-welcome-description" class="mt-4 space-y-3 text-sm leading-6 text-[#52647e]">
+        <p>This private workspace is preloaded with sample warehouses, inventory, and orders.</p>
+        <p>Explore and make changes freely. Your data is isolated from other tenants and visitors.</p>
+        <p>The demo expires after one hour, and its data is deleted afterward.</p>
+      </div>
+      <button
+        type="button"
+        autofocus
+        (click)="dismissDemoWelcome()"
+        class="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-[#2458c5] px-5 text-sm font-semibold text-white hover:bg-[#1b49a9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2458c5]"
+      >
+        Got it — Start exploring
+      </button>
+    </div>
+  </dialog>
 }

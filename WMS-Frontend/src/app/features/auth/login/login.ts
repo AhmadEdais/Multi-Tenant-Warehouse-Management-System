@@ -7,9 +7,10 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { TextField } from '../../../shared/components/text-field/text-field';
 import { PasswordField } from '../../../shared/components/password-field/password-field';
+import { DemoLaunch } from '../demo-launch/demo-launch';
 
 @Component({
-  imports: [ReactiveFormsModule, TextField, PasswordField],
+  imports: [ReactiveFormsModule, TextField, PasswordField, DemoLaunch],
   selector: 'app-login',
   styleUrl: './login.css',
   templateUrl: './login.html',

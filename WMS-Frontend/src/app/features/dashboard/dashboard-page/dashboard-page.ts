@@ -1,6 +1,6 @@
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { DatePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, of, startWith, Subject, switchMap } from 'rxjs';
@@ -143,13 +143,16 @@ const RECENT_SALES_ORDERS: ListSalesOrdersParams = {
   styleUrl: './dashboard-page.css',
   templateUrl: './dashboard-page.html',
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements OnInit, AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly purchaseOrdersService = inject(PurchaseOrdersService);
   private readonly salesOrdersService = inject(SalesOrdersService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly reloadPurchaseOrders$ = new Subject<void>();
   private readonly reloadSalesOrders$ = new Subject<void>();
+  private readonly demoWelcomeDialog = viewChild<ElementRef<HTMLDialogElement>>('demoWelcomeDialog');
+  private readonly dashboardContent = viewChild<ElementRef<HTMLElement>>('dashboardContent');
+  readonly showDemoWelcome = signal(this.auth.consumeDemoWelcome());
 
   readonly currentUser = this.auth.currentUser;
   readonly today = new Date();
@@ -227,6 +230,19 @@ export class DashboardPage implements OnInit {
         this.salesOrders.set(result?.data ?? []);
         this.salesOrdersLoading.set(false);
       });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.showDemoWelcome()) this.demoWelcomeDialog()?.nativeElement.showModal();
+  }
+
+  dismissDemoWelcome(): void {
+    this.demoWelcomeDialog()?.nativeElement.close();
+  }
+
+  onDemoWelcomeClosed(): void {
+    this.showDemoWelcome.set(false);
+    this.dashboardContent()?.nativeElement.focus({ preventScroll: true });
   }
 
   retryPurchaseOrders(): void {
