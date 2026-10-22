@@ -1,0 +1,17 @@
+wms.local.test {
+    tls internal
+
+    handle /api/v1/* {
+        reverse_proxy api:8080
+    }
+
+    handle /health/* {
+        reverse_proxy api:8080
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+}

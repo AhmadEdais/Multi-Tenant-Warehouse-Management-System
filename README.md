@@ -180,7 +180,7 @@ The next stages are to connect the remaining backend modules to Angular screens 
 
 ## Production API configuration
 
-Use [`.env.example`](.env.example) as a list of API environment variables. Put the populated file in a private location on the VPS, such as `/etc/wms/api.env`, outside the repository and Docker build context. Limit access to the account that runs deployment. Do not commit the populated file or put credentials in `appsettings.json`, a Dockerfile, or a Compose file.
+Use [`.env.example`](.env.example) as a list of API environment variables. For Windows Docker Desktop, follow [the local Docker deployment guide](DOCKER_LOCAL_DEPLOYMENT.md). The root `.env` supplies Compose interpolation, and `compose.yaml` explicitly passes the required values into the API container. For a later VPS deployment, keep populated secrets in a private location outside the repository and Docker build context. Do not commit the populated file or put credentials in `appsettings.json`, a Dockerfile, or a Compose file.
 
 - `ConnectionStrings__WmsConnection`: SQL Server connection string with the actual server, database, application user, and password. For example, use the shape `Server=<SQL_HOST>,1433;Database=<DB_NAME>;User Id=<DB_USER>;Password=<DB_PASSWORD>;Encrypt=True`, adjusting TLS settings for the SQL Server certificate.
 - `JwtSettings__Secret`: a randomly generated signing key of at least 32 UTF-8 bytes. Keep the complete generated value, including any trailing `=` characters.
@@ -190,17 +190,7 @@ Use [`.env.example`](.env.example) as a list of API environment variables. Put t
 - `ReverseProxy__TrustedProxies`: the literal IP address of Caddy as seen by the API container; separate multiple trusted proxy IPs with commas. Do not use a public client IP or a whole Docker subnet.
 - `Demo__Enabled`: set to `true` only when the live demo is ready for visitors; keep `Demo__CleanupEnabled=true` when demo is enabled.
 
-When the Docker Compose file is added, pass the private file to the **API service** with `env_file`:
-
-```yaml
-services:
-  api:
-    env_file:
-      - path: /etc/wms/api.env
-        format: raw
-```
-
-This `raw` format requires Docker Compose 2.30 or later and preserves characters such as `$` in passwords. Enter values in the file without surrounding quotes. Compose's project `.env` file alone supplies values for Compose interpolation; it does not automatically pass every variable into the API container. The API uses ASP.NET Core's normal environment-variable configuration, where `__` maps to `:`. Production startup checks required settings before accepting requests. `/health/ready` separately checks whether SQL Server is reachable.
+Compose's project `.env` file supplies values for interpolation; it does not automatically pass every variable into the API container. The API uses ASP.NET Core's normal environment-variable configuration, where `__` maps to `:`. Production startup checks required settings before accepting requests. `/health/ready` separately checks whether SQL Server is reachable.
 
 For local Visual Studio development, keep `ASPNETCORE_ENVIRONMENT=Development` and put `ConnectionStrings:WmsConnection` and `JwtSettings:Secret` in the **WMS.API** project's .NET User Secrets. The project already has a `UserSecretsId`; no local credentials belong in tracked settings. Production validation does not run in Development.
 
