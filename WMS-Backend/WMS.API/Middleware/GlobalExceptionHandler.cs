@@ -15,10 +15,6 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
-        // TODO(LOGGING): Restore exception error logging after focused demo performance diagnostics.
-        // Do not leave unexpected failures unlogged in production.
-        // _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
-
         ProblemDetails problemDetails;
 
         switch (exception)
@@ -170,7 +166,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
             default:
-                
+                _logger.LogError(exception, "Unhandled request failure for {Method} {Path}",
+                    httpContext.Request.Method, httpContext.Request.Path);
                 problemDetails = new ProblemDetails
                 {
                     Status = StatusCodes.Status500InternalServerError,

@@ -302,7 +302,6 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-// TODO(DEMO-PERF): Review the temporary EF Core command logging suppression after profiling.
 builder.Logging.ClearProviders();
 
 builder.Logging.AddSimpleConsole(options =>
