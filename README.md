@@ -1,231 +1,142 @@
 # Multi-Tenant Warehouse Management System
 
-A full-stack Warehouse Management System for companies that operate one or more warehouses.
+A full-stack warehouse management application built with **ASP.NET Core, Angular, and SQL Server**. It connects catalog and warehouse setup to purchasing, receiving, putaway, inventory, and customer order fulfillment. Each company works in its own tenant workspace, while a separate platform administrator provisions tenants.
 
-The system is designed around the day-to-day flow of warehouse operations: managing warehouses and locations, maintaining products and business partners, receiving stock from suppliers, tracking inventory, and fulfilling customer orders. Each tenant company works inside its own isolated workspace and should never see another tenant's operational data.
+This independently developed portfolio project demonstrates API design, relational data modeling, role-based access control, stateful warehouse workflows, and container deployment.
 
-The repository contains both the ASP.NET Core backend and the Angular frontend.
+**Live application:** [wms.ahmadedais.com](https://wms.ahmadedais.com)
 
-## What the system is for
+Visitors can select **Try Live Demo** on the landing or login page to request a temporary workspace with sample warehouses, products, inventory, and orders. Demo creation is controlled by server configuration and may be unavailable.
 
-The project models the main activities that happen inside a warehouse:
+## Screenshots
 
-- receiving goods from suppliers against Purchase Orders
-- storing stock in warehouse locations
-- viewing stock levels and stock movement history
-- managing products, categories, suppliers, and customers
-- reserving and shipping stock for customer orders
-- notifying users when stock falls below a reorder point
-- keeping tenant data separated from other companies using the system
+| Dashboard | Create a purchase order |
+| :---: | :---: |
+| <img src="Screenshots/dashboard.png" alt="Tenant dashboard with quick actions and recent orders"> | <img src="Screenshots/create-purchase-order.png" alt="Purchase order form with supplier, warehouse, and product lines"> |
+| **Putaway queue** | **Sales orders** |
+| <img src="Screenshots/putaway.png" alt="Putaway queue showing dock stock ready to move into bins"> | <img src="Screenshots/sales-orders.png" alt="Sales order list with allocation and fulfillment status"> |
 
-The business requirements define five user roles:
+## What it does
 
-- **System Administrator** — manages tenant companies at the platform level
-- **Tenant Administrator** — manages users, warehouses, master data, and operations inside a tenant
-- **Warehouse Manager** — manages warehouse operations such as purchasing, stock, suppliers, customers, and orders
-- **Warehouse Operator** — performs operational work such as receiving, picking, packing, and shipping
-- **Analyst** — read-only access to inventory, movements, orders, audit information, and alerts
+WMS gives tenant staff a shared view of warehouse stock and the orders that change it. A manager can create a purchase order; an operator can receive its goods at a receiving dock and put them away in bins. Available bin stock can then be reserved for a sales order, and confirmed pickups update inventory and order status. The Angular application provides management pages, operational dialogs, inventory views, and a dashboard with recent orders and links appropriate to the signed-in role.
 
-## Main workflows
+## Key features
 
-### Inbound receiving
+| Area | Implemented capabilities |
+| --- | --- |
+| Tenant and user administration | Platform tenant provisioning, suspension and reactivation; tenant user creation, role assignment, account status, and self-service password changes. |
+| Warehouse and catalog setup | Warehouses; hierarchical locations and categories; products with multiple categories; supplier and customer records with active/inactive lifecycle controls. |
+| Inventory | Stock per product and location, with on-hand, allocated, and available quantities; tenant stock summaries, product/location drilldowns, and low-stock indicators based on reorder points. |
+| Inbound | Draft purchase orders, approval and cancellation, partial receiving into a warehouse's receiving dock, and putaway from that dock to one or more bins. Receipts and transfers record stock movements. |
+| Outbound | Draft sales orders, availability checks, approval with full bin-stock allocation, cancellation with reservation release, and partial or complete pickup confirmation. Pickup reduces on-hand and allocated stock, records shipment movements, and completes the order when all quantities are fulfilled. |
+| Access and demo | JWT sign-in, refresh and logout; server-enforced role policies; optional guest demo provisioning with seeded data and expiry cleanup. |
 
-A warehouse manager creates and approves a Purchase Order for a supplier. When the goods arrive, a warehouse operator receives the accepted quantity into a warehouse location.
+## Roles and permissions
 
-Receiving updates the related Purchase Order line, increases stock, and records a Stock Movement so the inventory history can be traced later. Partial receipts are supported by the business requirements.
+The API enforces permissions; frontend route guards and controls reflect those permissions for navigation.
 
-### Inventory
+| Role | Current scope |
+| --- | --- |
+| `SystemAdmin` | Provisions and manages tenants. Tenant warehouse operations are outside this role's API policies. |
+| `TenantAdmin` | Manages tenant users, warehouses, locations, catalog and partners, and can perform inbound and outbound workflows. |
+| `WarehouseManager` | Across the tenant, manages catalog and partners, purchase and sales orders, receiving, putaway, and pickup. Does not manage tenant users or warehouse/location settings. |
+| `WarehouseOperator` | Across the tenant, views relevant catalog and orders; receives purchases, puts stock away, and confirms sales order pickups. |
+| `Analyst` | Read-only access to inventory summaries and relevant catalog and order data. |
 
-Inventory is stored per product and location. The system separates:
+## Technology stack
 
-- **On Hand** — the physical quantity currently stored
-- **Allocated** — quantity reserved for customer orders
-- **Available** — calculated as `On Hand - Allocated`
+| Layer | Technologies in this repository |
+| --- | --- |
+| Frontend | Angular 22, TypeScript 6, Tailwind CSS 4, Angular Signals, Reactive Forms, Router, and RxJS. |
+| Backend | .NET 8 / ASP.NET Core Web API, C#, EF Core 8, MediatR 14, FluentValidation 12, JWT bearer authentication, BCrypt, and Swagger/OpenAPI in Development. |
+| Database | Microsoft SQL Server, a SQL Server Database Project (`.sqlproj`) published as a DACPAC, EF Core mappings, and a stored procedure for expired demo-tenant cleanup. |
+| Deployment | Docker images for the API and Angular/Caddy frontend, Docker Compose with SQL Server 2022 for local deployment, and Caddy configurations for local and public HTTPS hosting. |
 
-Stock movements provide the history behind inventory changes such as receipts, shipments, transfers, and adjustments.
+## Architecture
 
-### Outbound fulfillment
-
-The planned outbound workflow starts with a Sales Order. After approval, the system reserves available stock from warehouse locations. Allocation is intended to be all-or-nothing for the whole Sales Order so an order is not left partially reserved.
-
-After allocation, warehouse operators can pick, pack, and finally ship the order. Shipment reduces both On Hand and Allocated quantities and records the corresponding Stock Movements.
-
-### Low-stock monitoring
-
-The requirements include low-stock notifications for users who need to act on them. The planned design combines event-driven updates with a periodic background check so low-stock conditions can be surfaced to the frontend.
-
-## Full-stack architecture
-
-The repository is split into two main applications:
+The backend is a layered ASP.NET Core application organized around Domain, Application, Infrastructure, and API projects.
 
 ```text
-Multi-Tenant-Warehouse-Management-System/
-├── WMS-Backend/
-│   ├── WMS.API/
-│   ├── WMS.Application/
-│   ├── WMS.Domain/
-│   ├── WMS.Infrastructure/
-│   ├── WMS.DatabaseProject/
-│   └── WMS.sln
-│
-├── WMS-Frontend/
-│   ├── src/
-│   ├── angular.json
-│   ├── package.json
-│   └── ...
-│
-├── .gitignore
-└── README.md
+Angular UI ──HTTP──> WMS.API ──MediatR──> WMS.Application ──> WMS.Domain
+                         │                      │
+                         └──> WMS.Infrastructure ┘
+                                      │
+                                  SQL Server
 ```
 
-### Backend
+| Project | Responsibility |
+| --- | --- |
+| [`WMS.Domain`](WMS-Backend/WMS.Domain/) | Entities, status values, and business state changes. |
+| [`WMS.Application`](WMS-Backend/WMS.Application/) | Feature commands and queries, handlers, interfaces, and FluentValidation rules. A MediatR pipeline runs validators before handlers. |
+| [`WMS.Infrastructure`](WMS-Backend/WMS.Infrastructure/) | EF Core/SQL Server mappings, tenant context, authentication services, and demo data support. |
+| [`WMS.API`](WMS-Backend/WMS.API/) | HTTP controllers, authorization policies, middleware, configuration, and health endpoints. |
 
-The backend uses **ASP.NET Core 8** and is divided into four projects:
+The [SQL Database Project](WMS-Backend/WMS.DatabaseProject/) defines the schema. EF Core maps to that schema; EF migrations are not used. The [Angular application](WMS-Frontend/) is organized by feature, with HTTP services, route guards, Signals for page state, RxJS for asynchronous requests, and Reactive Forms for data entry.
 
-- **WMS.Domain** — domain entities and domain rules
-- **WMS.Application** — application features, commands, queries, validation, and interfaces
-- **WMS.Infrastructure** — EF Core, SQL Server access, authentication implementation, and external infrastructure concerns
-- **WMS.API** — HTTP endpoints, authorization policies, exception handling, Swagger, and application startup
+## Technical highlights
 
-The Application layer is organized by feature. Current feature areas include Authorization, Tenants, Users, Warehouses, Locations, Products, Categories, Suppliers, Customers, Inventory, and Inbound operations.
+- **Tenant isolation:** Tenant-owned entities carry `TenantId`. EF Core applies a tenant query filter using the authenticated tenant context, and a save interceptor stamps tenant ownership on new records. Platform-only operations use an explicit system context and separate role policies.
+- **Session-aware authentication:** The API issues short-lived JWT access tokens and rotating refresh tokens tied to database sessions. The browser keeps the access token in memory; the refresh token is sent in a Secure, HttpOnly, SameSite=Strict cookie. Protected requests validate session, user, and tenant status, and logout revokes the session.
+- **Server-side authorization:** Controller policies distinguish platform administration, tenant management, read access, receiving, putaway, and pickup. UI visibility does not grant API access.
+- **Inventory consistency:** Receiving, putaway, allocation, cancellation, and pickup validate order state, location, tenant ownership, and quantities before saving related stock and order changes. SQL constraints and EF row-version checks provide further protection against invalid or conflicting writes.
+- **Schema-first data model:** The database project defines foreign keys, checks, and tenant-scoped unique values for records such as product SKUs, partner codes, stock locations, and order numbers. The DACPAC post-deployment script seeds the five supported roles.
+- **CQRS and validation:** MediatR dispatches feature-specific read queries and mutation commands. FluentValidation runs in a shared pipeline, while domain methods enforce state transitions such as draft-only editing and full sales-order allocation.
+- **Deployment and demo boundaries:** Docker packages the API and frontend; Caddy serves the Angular build and proxies API requests. Production startup validates required settings, while the optional demo provisions an expiring tenant with sample data and cleans up expired demo tenants through a SQL stored procedure.
 
-Commands and queries are dispatched with MediatR, while FluentValidation is used for request validation.
+## Getting started
 
-### Frontend
+### Local development: ASP.NET Core and Angular
 
-The frontend is an **Angular 22** application styled with **Tailwind CSS 4**.
+You need the .NET 8 SDK, Node.js and npm compatible with the checked-in Angular 22 project, and a reachable SQL Server database. The frontend Dockerfile uses Node 24, and [`package.json`](WMS-Frontend/package.json) specifies npm 11. Build and publish the [`WMS.DatabaseProject.sqlproj`](WMS-Backend/WMS.DatabaseProject/WMS.DatabaseProject.sqlproj) DACPAC with Visual Studio/SSDT on Windows before starting the API. Its post-deployment script creates the five roles. Create a SQL login with the database access needed by the API; see the [local Docker guide](DOCKER_LOCAL_DEPLOYMENT.md) for a concrete example. Do not use EF migrations.
 
-The current frontend foundation includes:
+From the repository root, set the API's local connection string and JWT signing secret in the `WMS.API` project's .NET User Secrets. The frontend development setup below uses HTTPS, so allow its origin as well:
 
-- public landing page
-- reusable public, authentication, and application layouts
-- login and signup routes
-- Reactive Forms for authentication UI
-- JWT login integration with the ASP.NET Core API
-- token persistence using local or session storage
-- HTTP interceptor for attaching the bearer token
-- authentication and guest route guards
-- authenticated dashboard route
-- not-found page
+```powershell
+dotnet user-secrets set "ConnectionStrings:WmsConnection" "<local SQL Server connection string>" --project WMS-Backend/WMS.API
+dotnet user-secrets set "JwtSettings:Secret" "<random secret of at least 32 UTF-8 bytes>" --project WMS-Backend/WMS.API
+dotnet user-secrets set "Frontend:AllowedOrigins:0" "https://localhost:4200" --project WMS-Backend/WMS.API
+dotnet dev-certs https --trust
+dotnet run --project WMS-Backend/WMS.API --launch-profile https
+```
 
-Business feature screens are being added incrementally as the frontend is connected to the existing backend modules.
+The API's HTTPS launch profile listens at `https://localhost:7105`; Swagger UI is available at `/swagger` in Development. In another terminal:
 
-## Database approach
+```powershell
+cd WMS-Frontend
+npm ci
+npm start -- --ssl
+```
 
-The database schema is maintained through a SQL Server Database Project (`WMS.DatabaseProject`). EF Core migrations are not used as the source of the schema.
+Open `https://localhost:4200` and accept the local frontend development certificate if prompted. Both browser origins use HTTPS so the session refresh cookie can be sent. The Angular development environment points to `https://localhost:7105/api/v1`.
 
-The `.sqlproj` contains the table definitions and database constraints, while EF Core entities are mapped to that schema with Fluent API configuration in the Infrastructure project.
+For an empty database, provision the first `SystemAdmin` once with [`WMS.BootstrapAdmin`](WMS-Backend/WMS.BootstrapAdmin/). It reads `ConnectionStrings__WmsConnection` from its process environment and prompts interactively for the account details; it does not accept a password on the command line. After setting that environment variable privately, run `dotnet run --project WMS-Backend/WMS.BootstrapAdmin`. A SystemAdmin can then provision a tenant and its initial TenantAdmin.
 
-The current database project includes tables for:
+### Local Docker deployment
 
-- tenants and users
-- roles and user-role assignments
-- warehouses and locations
-- products and categories
-- suppliers and customers
-- stock levels and stock movements
-- purchase orders and purchase order lines
+The root [`compose.yaml`](compose.yaml) starts SQL Server 2022 Express, the API, and Caddy. Copy [`.env.example`](.env.example) to a private `.env` if one does not exist, then fill the SQL, JWT, host, and frontend-origin settings described in the [local Docker deployment guide](DOCKER_LOCAL_DEPLOYMENT.md). The Compose build does **not** deploy the database schema or create the application SQL login.
 
-Outbound tables such as Sales Orders and allocations are part of the planned workflow and will be added as that part of the system is implemented.
+```powershell
+docker compose config --quiet
+docker compose build api caddy
+docker compose up -d sqlserver
+```
 
-## Multi-tenancy
+Publish the DACPAC to the Compose SQL Server, create the `wms_app` login and database user, then start the remaining services:
 
-Each customer company is represented as a tenant. Operational records belong to a tenant, and the backend applies tenant-aware filtering so requests operate only on data belonging to the current tenant.
+```powershell
+docker compose up -d api caddy
+docker compose exec api dotnet /maintenance/WMS.BootstrapAdmin.dll
+```
 
-This applies to warehouse data such as products, warehouses, locations, suppliers, customers, and inventory.
+Run the bootstrap command only for a new database, in an interactive terminal. Follow the [local Docker deployment guide](DOCKER_LOCAL_DEPLOYMENT.md) for the exact DACPAC, SQL login, `wms.local.test` hosts entry, and local HTTPS certificate steps. The local Compose file binds Caddy to loopback; [`Caddyfile.production`](WMS-Frontend/Caddyfile.production) is a separate public-host configuration for HTTPS deployment.
 
-## Authentication and authorization
+## Current limits
 
-The API uses JWT Bearer authentication.
+- There is no warehouse-assignment model for limiting managers or operators to particular warehouses.
+- Confirming a sales order pickup also records the stock leaving the warehouse. Separate packing, carrier handoff, and shipping screens are not implemented.
+- Low-stock conditions appear in inventory views; push alerts and a general stock-adjustment workflow are not implemented.
+- The repository has frontend unit-test tooling, but no broad automated API or cross-layer integration test suite. Builds and manual workflow checks remain important.
 
-The Angular frontend logs in against the API, stores the returned JWT according to the user's "Remember me" choice, and attaches it to protected API requests through an HTTP interceptor.
+## Author
 
-Backend authorization policies restrict actions by role. UI route guards protect authenticated frontend routes, but access control is still enforced by the API.
-
-## Tech stack
-
-### Frontend
-
-- Angular 22
-- TypeScript 6
-- Tailwind CSS 4
-- RxJS
-- Angular Router
-- Angular Reactive Forms
-
-### Backend
-
-- .NET 8
-- ASP.NET Core Web API
-- Entity Framework Core 8
-- MediatR 14
-- FluentValidation 12
-- JWT Bearer Authentication
-- BCrypt password hashing
-- Swagger / OpenAPI
-
-### Database
-
-- SQL Server
-- SQL Server Database Project (`.sqlproj`)
-- EF Core Fluent API mappings
-
-## Current development status
-
-The project is being developed feature by feature.
-
-The backend already contains the core tenant, user, warehouse, catalog, partner, inventory, and inbound feature areas. The Angular frontend has been added to the same repository and currently has the application shell and authentication flow in place.
-
-The next stages are to connect the remaining backend modules to Angular screens and complete the unfinished warehouse workflows, including outbound fulfillment and the operational dashboard.
-
-## Production API configuration
-
-Use [`.env.example`](.env.example) as a list of API environment variables. For Windows Docker Desktop, follow [the local Docker deployment guide](DOCKER_LOCAL_DEPLOYMENT.md). The root `.env` supplies Compose interpolation, and `compose.yaml` explicitly passes the required values into the API container. For a later VPS deployment, keep populated secrets in a private location outside the repository and Docker build context. Do not commit the populated file or put credentials in `appsettings.json`, a Dockerfile, or a Compose file.
-
-- `ConnectionStrings__WmsConnection`: SQL Server connection string with the actual server, database, application user, and password. For example, use the shape `Server=<SQL_HOST>,1433;Database=<DB_NAME>;User Id=<DB_USER>;Password=<DB_PASSWORD>;Encrypt=True`, adjusting TLS settings for the SQL Server certificate.
-- `JwtSettings__Secret`: a randomly generated signing key of at least 32 UTF-8 bytes. Keep the complete generated value, including any trailing `=` characters.
-- `JwtSettings__Issuer` and `JwtSettings__Audience`: values used when issuing and validating WMS tokens.
-- `Frontend__AllowedOrigins__0`: the frontend's full HTTPS origin, without a path or trailing slash. Add `__1`, `__2`, and so on only for additional approved origins.
-- `AllowedHosts`: the hostname accepted by the API, without a scheme. Separate multiple hostnames with semicolons. Production startup rejects `*`.
-- `ReverseProxy__TrustedProxies`: the literal IP address of Caddy as seen by the API container; separate multiple trusted proxy IPs with commas. Do not use a public client IP or a whole Docker subnet.
-- `Demo__Enabled`: set to `true` only when the live demo is ready for visitors; keep `Demo__CleanupEnabled=true` when demo is enabled.
-
-Compose's project `.env` file supplies values for interpolation; it does not automatically pass every variable into the API container. The API uses ASP.NET Core's normal environment-variable configuration, where `__` maps to `:`. Production startup checks required settings before accepting requests. `/health/ready` separately checks whether SQL Server is reachable.
-
-For local Visual Studio development, keep `ASPNETCORE_ENVIRONMENT=Development` and put `ConnectionStrings:WmsConnection` and `JwtSettings:Secret` in the **WMS.API** project's .NET User Secrets. The project already has a `UserSecretsId`; no local credentials belong in tracked settings. Production validation does not run in Development.
-
-## Initial SystemAdmin bootstrap
-
-Run the standalone `WMS.BootstrapAdmin` utility **once**, after publishing the WMS DACPAC to the production database. The DACPAC post-deployment script must have seeded the `SystemAdmin` role. The utility is not an API endpoint and is never called during API startup.
-
-1. Publish the utility, then copy the complete published directory to `/opt/wms/bootstrap-admin` on the VPS:
-
-   ```sh
-   dotnet publish WMS-Backend/WMS.BootstrapAdmin/WMS.BootstrapAdmin.csproj -c Release -o artifacts/bootstrap-admin
-   ```
-
-2. On the VPS, create a private `/etc/wms/bootstrap.env` containing one line, with the real value filled in there:
-
-   ```text
-   ConnectionStrings__WmsConnection=Server=<SQL_HOST>,1433;Database=<DB_NAME>;User Id=<DB_USER>;Password=<DB_PASSWORD>;Encrypt=True
-   ```
-
-   Keep the file outside the repository, restrict it to the deployment account (`chmod 600 /etc/wms/bootstrap.env`), and set its SQL encryption options to match the server certificate. Do not put the connection string or admin password in a shell command.
-
-3. Run this command from an interactive VPS terminal. Replace `<WMS_PRIVATE_NETWORK>` with the Docker network shared with SQL Server:
-
-   ```sh
-   docker run --rm -it --network <WMS_PRIVATE_NETWORK> \
-     --env-file /etc/wms/bootstrap.env \
-     --mount type=bind,source=/opt/wms/bootstrap-admin,target=/app,readonly \
-     mcr.microsoft.com/dotnet/aspnet:8.0 \
-     dotnet /app/WMS.BootstrapAdmin.dll
-   ```
-
-   Enter the email, full name, password, and password confirmation at the prompts. The password is not echoed or accepted as a command-line argument. Use 16 or more characters and no more than 72 UTF-8 bytes. Exit code `0` means the account and role assignment committed; `1` means it was refused or the database operation failed; `2` means the invocation or input was invalid.
-
-The utility normalizes the email, checks for duplicates, looks up `SystemAdmin` by name, and refuses to create another account with that role, including when the existing account is inactive. It saves the user and role assignment in a serializable SQL transaction. If an error occurs during commit, inspect the database before retrying. Remove the published maintenance files and private bootstrap environment file from the VPS after successful use.
-
----
-
-**Ahmad Edais**
+**Ahmad Khadar Edais** · [Portfolio](https://ahmadedais.com) · [GitHub](https://github.com/AhmadEdais) · [LinkedIn](https://www.linkedin.com/in/ahmad-edais/)
