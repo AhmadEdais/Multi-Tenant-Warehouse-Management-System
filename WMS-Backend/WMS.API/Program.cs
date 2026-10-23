@@ -1,12 +1,46 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Globalization;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using WMS.API.Services;
+using WMS.API.HealthChecks;
+using WMS.API.Configuration;
 using WMS.Infrastructure.Demo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsProduction())
+    ProductionConfigurationValidator.Validate(builder.Configuration);
+
+// ReverseProxy__TrustedProxies is a comma-separated list of the proxy's IP addresses.
+var trustedProxySetting = builder.Configuration["ReverseProxy:TrustedProxies"];
+ForwardedHeadersOptions? forwardedHeadersOptions = null;
+if (!string.IsNullOrWhiteSpace(trustedProxySetting))
+{
+    forwardedHeadersOptions = new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        ForwardLimit = 1
+    };
+    forwardedHeadersOptions.KnownNetworks.Clear();
+    forwardedHeadersOptions.KnownProxies.Clear();
+
+    var proxyAddresses = trustedProxySetting.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    if (proxyAddresses.Length == 0)
+        throw new InvalidOperationException("ReverseProxy:TrustedProxies must contain at least one IP address.");
+
+    foreach (var address in proxyAddresses)
+    {
+        if (!IPAddress.TryParse(address, out var proxyAddress))
+            throw new InvalidOperationException($"Invalid trusted proxy IP address: {address}");
+
+        forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
+    }
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -18,6 +52,8 @@ builder.Services.AddScoped<DemoCleanupRunner>();
 builder.Services.AddHostedService<DemoCleanupWorker>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<WMS.API.Middleware.GlobalExceptionHandler>();
+builder.Services.AddHealthChecks()
+    .AddCheck<SqlServerReadinessHealthCheck>("sql-server", tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
@@ -302,7 +338,6 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-// TODO(DEMO-PERF): Review the temporary EF Core command logging suppression after profiling.
 builder.Logging.ClearProviders();
 
 builder.Logging.AddSimpleConsole(options =>
@@ -320,7 +355,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
+if (forwardedHeadersOptions is not null)
+    app.UseForwardedHeaders(forwardedHeadersOptions);
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/health"), branch => branch.UseHttpsRedirection());
 app.UseRouting();
 app.UseCors("Frontend");
 app.UseRateLimiter();
@@ -328,5 +365,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+}).AllowAnonymous();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).AllowAnonymous();
 
 app.Run();

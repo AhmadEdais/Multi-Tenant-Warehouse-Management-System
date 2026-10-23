@@ -1,12 +1,10 @@
-using System.Diagnostics;
 using System.Globalization;
-using Microsoft.Extensions.Logging;
 using WMS.Application.Features.Demo.Interfaces;
 using WMS.Domain.Constants;
 
 namespace WMS.Infrastructure.Demo;
 
-internal sealed partial class DemoDataSeeder(WmsDbContext context, ILogger<DemoDataSeeder> logger)
+internal sealed partial class DemoDataSeeder(WmsDbContext context)
     : IDemoDataSeeder
 {
     private readonly Dictionary<string, Warehouse> warehouses = [];
@@ -22,62 +20,29 @@ internal sealed partial class DemoDataSeeder(WmsDbContext context, ILogger<DemoD
     private SalesOrderSequence soSequence = null!;
     private int tenantId;
     private string actor = "";
-    private int checkpoints;
-    private double saveMilliseconds;
-
     public async Task SeedAsync(int tenantId, int adminUserId, CancellationToken cancellationToken)
     {
         if (context.Database.CurrentTransaction is null || this.tenantId != 0)
             throw new InvalidOperationException("Demo seeding requires a fresh scoped seeder and an outer transaction.");
         this.tenantId = tenantId;
         actor = adminUserId.ToString(CultureInfo.InvariantCulture);
-        try
-        {
-            await StageAsync("Warehouses and docks", SeedWarehousesAsync, cancellationToken);
-            await StageAsync("Locations", SeedLocationsAsync, cancellationToken);
-            await StageAsync("Categories", SeedCategoriesAsync, cancellationToken);
-            await StageAsync("Products and mappings", SeedProductsAsync, cancellationToken);
-            await StageAsync("Suppliers and customers", SeedPartnersAsync, cancellationToken);
-            await StageAsync("Purchase orders", SeedPurchasesAsync, cancellationToken);
-            await StageAsync("Receiving", ReceiveAsync, cancellationToken);
-            await StageAsync("Putaway", PutawayAsync, cancellationToken);
-            await StageAsync("Sales orders", SeedSalesAsync, cancellationToken);
-            await StageAsync("Allocations", AllocateAsync, cancellationToken);
-            await StageAsync("Pickups", PickupAsync, cancellationToken);
-            await StageAsync("Consistency verification", VerifyConsistencyAsync, cancellationToken);
-        }
-        finally
-        {
-            logger.LogInformation("[Demo Performance] Seeder SaveChanges: {ElapsedMilliseconds:F2} ms; checkpoints: {Checkpoints}",
-                saveMilliseconds, checkpoints);
-        }
-    }
-
-    // TODO(DEMO-PERF): Remove Stopwatch instrumentation after measuring and optimizing demo provisioning.
-    private async Task StageAsync(string stage, Func<CancellationToken, Task> action, CancellationToken ct)
-    {
-        var timer = Stopwatch.StartNew();
-        var savesBefore = saveMilliseconds;
-        try { await action(ct); }
-        catch
-        {
-            logger.LogWarning("[Demo Performance] Stage failed: {Stage}", stage);
-            throw;
-        }
-        finally
-        {
-            logger.LogInformation("[Demo Performance] {Stage}: {ElapsedMilliseconds:F2} ms; SaveChanges: {SaveMilliseconds:F2} ms; other work: {OtherMilliseconds:F2} ms",
-                stage, timer.Elapsed.TotalMilliseconds, saveMilliseconds - savesBefore,
-                Math.Max(0, timer.Elapsed.TotalMilliseconds - (saveMilliseconds - savesBefore)));
-        }
+        await SeedWarehousesAsync(cancellationToken);
+        await SeedLocationsAsync(cancellationToken);
+        await SeedCategoriesAsync(cancellationToken);
+        await SeedProductsAsync(cancellationToken);
+        await SeedPartnersAsync(cancellationToken);
+        await SeedPurchasesAsync(cancellationToken);
+        await ReceiveAsync(cancellationToken);
+        await PutawayAsync(cancellationToken);
+        await SeedSalesAsync(cancellationToken);
+        await AllocateAsync(cancellationToken);
+        await PickupAsync(cancellationToken);
+        await VerifyConsistencyAsync(cancellationToken);
     }
 
     private async Task SaveAsync(CancellationToken ct)
     {
-        var timer = Stopwatch.StartNew();
-        checkpoints++;
-        try { await context.SaveChangesAsync(ct); }
-        finally { saveMilliseconds += timer.Elapsed.TotalMilliseconds; }
+        await context.SaveChangesAsync(ct);
     }
 
     private async Task SeedWarehousesAsync(CancellationToken ct)

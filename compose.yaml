@@ -1,0 +1,84 @@
+name: wms
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Express
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env}
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+    ports:
+      - "127.0.0.1:14333:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD-SHELL", "SQLCMDPASSWORD=\"$$MSSQL_SA_PASSWORD\" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
+    mem_limit: 3g
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./WMS-Backend
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__WmsConnection: "Server=sqlserver,1433;Database=${WMS_DB_NAME:?Set WMS_DB_NAME in .env};User Id=wms_app;Password=${WMS_DB_PASSWORD:?Set WMS_DB_PASSWORD in .env};Encrypt=True;TrustServerCertificate=True"
+      JwtSettings__Secret: ${JwtSettings__Secret:?Set JwtSettings__Secret in .env}
+      JwtSettings__Issuer: ${JwtSettings__Issuer:?Set JwtSettings__Issuer in .env}
+      JwtSettings__Audience: ${JwtSettings__Audience:?Set JwtSettings__Audience in .env}
+      Frontend__AllowedOrigins__0: ${Frontend__AllowedOrigins__0:?Set Frontend__AllowedOrigins__0 in .env}
+      AllowedHosts: ${AllowedHosts:?Set AllowedHosts in .env}
+      ReverseProxy__TrustedProxies: 172.30.44.10
+      Demo__Enabled: ${Demo__Enabled:-false}
+      Demo__CleanupEnabled: ${Demo__CleanupEnabled:-true}
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "-H", "Host: wms.local.test", "http://127.0.0.1:8080/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    mem_limit: 768m
+    restart: unless-stopped
+
+  caddy:
+    build:
+      context: ./WMS-Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      private:
+        ipv4_address: 172.30.44.10
+    mem_limit: 256m
+    restart: unless-stopped
+
+networks:
+  private:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.44.0/24
+
+volumes:
+  sql_data:
+  caddy_data:
+  caddy_config:

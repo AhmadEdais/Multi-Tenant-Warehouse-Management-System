@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{CE
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WMS.DatabaseProject", "WMS.DatabaseProject\WMS.DatabaseProject.sqlproj", "{F7B3EDC2-FA85-45FE-A5CA-2E429500B11E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMS.BootstrapAdmin", "WMS.BootstrapAdmin\WMS.BootstrapAdmin.csproj", "{271E52C1-DE37-4613-9BCB-30879B2D9766}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{F7B3EDC2-FA85-45FE-A5CA-2E429500B11E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7B3EDC2-FA85-45FE-A5CA-2E429500B11E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F7B3EDC2-FA85-45FE-A5CA-2E429500B11E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{271E52C1-DE37-4613-9BCB-30879B2D9766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{271E52C1-DE37-4613-9BCB-30879B2D9766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{271E52C1-DE37-4613-9BCB-30879B2D9766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{271E52C1-DE37-4613-9BCB-30879B2D9766}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

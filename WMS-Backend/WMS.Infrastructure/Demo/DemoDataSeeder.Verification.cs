@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 using WMS.Domain.Constants;
 using WMS.Domain.Enums;
 
@@ -46,7 +44,6 @@ internal sealed partial class DemoDataSeeder
 
         // Anonymous requests cannot see this tenant through the global filters. Every
         // verification query explicitly scopes to the newly provisioned tenant only.
-        var queryTimer = Stopwatch.StartNew();
         var persistedStock = await context.StockLevels.IgnoreQueryFilters().AsNoTracking()
             .Where(s => s.TenantId == tenantId).ToListAsync(ct);
         var movements = await context.StockMovements.IgnoreQueryFilters().AsNoTracking()
@@ -59,9 +56,6 @@ internal sealed partial class DemoDataSeeder
             .Where(s => s.TenantId == tenantId).Select(s => s.LastNumber).SingleAsync(ct);
         var persistedSoNumber = await context.SalesOrderSequences.IgnoreQueryFilters().AsNoTracking()
             .Where(s => s.TenantId == tenantId).Select(s => s.LastNumber).SingleAsync(ct);
-        logger.LogInformation("[Demo Performance] Validation queries: {ElapsedMilliseconds:F2} ms",
-            queryTimer.Elapsed.TotalMilliseconds);
-
         Require(purchases.Count == 10 && sales.Count == 10 && persistedPoNumber == 1010
             && persistedSoNumber == 2010 && poSequence.LastNumber == 1010 && soSequence.LastNumber == 2010,
             "Order sequence counters");
